@@ -1,0 +1,30 @@
+services:
+    app:
+        image: "${DOCKER_IMAGE}"
+        depends_on:
+            - postgres
+        environment:
+            DATABASE_URL: jdbc:postgresql://postgres:5432/postgres?user=admin&password=1234
+        ports:
+            - "8080:8080"
+        networks:
+            - crawler
+
+    postgres:
+        image: postgres:11.13-alpine
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: 1234
+        volumes:
+            - postgres-local-data:/var/lib/postgresql/data:delegated
+        ports:
+            - '5432:5432'
+        networks:
+            - crawler
+            
+networks:
+    content-service:
+        name: crawler-local
+
+volumes:
+    postgres-local-data:

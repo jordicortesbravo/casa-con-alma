@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    background-color: #f4f4f4; /* Color de fondo neutro */
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff; /* Fondo blanco para el contenido */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.header {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 2px solid #d5bda8; /* Línea beige clara */
+    background-color: #ffffff;
+}
+
+.header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #7d5a4a; /* Marrón claro */
+}
+
+.header h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    color: #7d5a4a; /* Marrón claro */
+}
+
+.header h1 {
+    font-size: 1.8em;
+    margin: 0;
+}
+
+.header h2 {
+    font-size: 1.1em;
+    margin-top: 10px;
+}
+
+.nav {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    background-color: #f4f4f4; /* Fondo neutro */
+    border-bottom: 1px solid #ddd; /* Línea separadora neutra */
+}
+
+.nav-menu {
+    display: flex;
+    gap: 15px;
+    max-width: 100%;
+    margin: 0 auto;
+    align-items: center;
+    width: 100%;
+}
+
+.nav a {
+    color: #7d5a4a; /* Marrón claro */
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: 300;
+    padding: 10px 15px;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+.hamburger-menu {
+    display: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #7d5a4a; /* Marrón claro */
+}
+
+.article {
+    margin-top: 20px;
+}
+
+.article img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px; /* Bordes redondeados sutiles */
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.article p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 15px 0;
+    color: #444; /* Color neutro */
+    font-weight: 300;
+}
+
+.article h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.6em;
+    margin-top: 30px;
+    color: #7d5a4a; /* Marrón claro */
+    font-weight: 300;
+}
+
+.article img.large {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #ddd; /* Línea separadora neutra */
+    background-color: #ffffff;
+    margin-top: 20px;
+}
+
+.footer p {
+    margin: 0;
+    color: #777; /* Color neutro */
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.8em;
+    }
+
+    .header h2 {
+        font-size: 1em;
+    }
+
+    .nav a {
+        font-size: 1em;
+    }
+
+    .article p {
+        font-size: 1em;
+    }
+
+    .article h3 {
+        font-size: 1.4em;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+
+    .nav-menu.show {
+        display: flex;
+    }
+
+    .nav-menu a {
+        margin: 10px 0;
+        text-align: center;
+    }
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    top: 100%;
+    left: 0;
+    width: 200px;
+    border-radius: 4px;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    color: #333; /* Color neutro */
+    text-decoration: none;
+}
+
+.dropdown-content a:hover {
+    background-color: #f4f4f4; /* Fondo neutro al pasar el ratón */
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Estilo del Logo */
+.logo {
+    display: flex;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700; /* Peso de fuente más fuerte para el logo */
+    color: #7d5a4a; /* Marrón claro */
+    text-decoration: none;
+}
+
+.logo-text {
+    font-size: 2em; /* Tamaño destacado para el texto del logo */
+    letter-spacing: 1px; /* Espaciado sutil entre letras */
+}

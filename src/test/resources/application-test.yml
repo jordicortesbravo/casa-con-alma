@@ -1,0 +1,14 @@
+spring.autoconfigure.exclude: net.bull.javamelody.JavaMelodyAutoConfiguration
+spring:
+  flyway:
+    baseline-version: 1
+    enabled: true
+    locations: classpath:db
+    schemas: deco
+    validate-on-migrate: true
+    baseline-on-migrate: true
+
+  datasource:
+    url: jdbc:tc:postgresql:14.1:///deco?TC_DAEMON=true
+    username: admin
+    password: 1234

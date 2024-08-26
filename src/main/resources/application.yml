@@ -1,0 +1,9 @@
+# --------------------------------------
+# APP
+# --------------------------------------
+app:
+  name: crawler
+  base-path: /crawler
+
+  db:
+    url: jdbc:postgresql://localhost:5432/postgres?user=admin&password=1234

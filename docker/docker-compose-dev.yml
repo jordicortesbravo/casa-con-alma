@@ -1,0 +1,19 @@
+services:
+    postgres:
+        image: postgres:11.13-alpine
+        environment:
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: 1234
+        volumes:
+            - postgres-dev-data:/var/lib/postgresql/data:delegated
+        ports:
+            - '5432:5432'
+        networks:
+            - crawler
+
+networks:
+    crawler:
+        name: crawler-dev
+
+volumes:
+    postgres-dev-data:
