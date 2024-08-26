@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.jdbc.datasource.init.ScriptUtils
+import java.net.URI
 import javax.sql.DataSource
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -55,12 +56,21 @@ class JdbcScrapedDocumentRepositoryTest @Autowired constructor(
     }
 
     @Test
+    fun `it should get all scraped documents by ids`() {
+        val documents = repository.getAll(listOf(1, 2))
+        assertEquals(documents.size, 2)
+        assertEquals(documents[0].id, 1)
+        assertEquals(documents[1].id, 2)
+    }
+
+    @Test
     fun `it should save a scraped document`() {
 
         assertNull(repository.get(10))
 
         val scrapedDocument = ScrapedDocument().apply {
             id = 10
+            url = URI("https://fake-url.com")
             sourceId = "12345"
             title = "Title"
             subtitle = "Subtitle"
@@ -80,5 +90,20 @@ class JdbcScrapedDocumentRepositoryTest @Autowired constructor(
         assertContentEquals(savedDocument.keywords, scrapedDocument.keywords)
         assertContentEquals(savedDocument.siteCategories, scrapedDocument.siteCategories)
         assertContentEquals(savedDocument.productCategories, scrapedDocument.productCategories)
+    }
+
+    @Test
+    fun `it should iterate scraped documents by category`() {
+        val iterator = repository.iterate(1, SiteCategory.OUTDOORS_AND_GARDENS)
+        val document = iterator.next()
+        assertEquals(document.id, 3)
+        assertEquals(document.sourceId, "41727")
+        assertThat(document.title).isNotBlank()
+        assertThat(document.subtitle).isNotBlank()
+        assertThat(document.content).isNotBlank()
+        assertContentEquals(document.keywords, listOf("cocina", "pequeño"))
+        assertContentEquals(document.siteCategories, listOf(SiteCategory.OUTDOORS_AND_GARDENS))
+        assertContentEquals(document.productCategories, listOf("jardin"))
+        assertThat(iterator.hasNext()).isFalse()
     }
 }
