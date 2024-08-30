@@ -1,4 +1,4 @@
-package com.jcortes.deco.crawler.decosefera
+package com.jcortes.deco.crawler.decoesfera
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

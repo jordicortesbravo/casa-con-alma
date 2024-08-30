@@ -1,4 +1,4 @@
-package com.jcortes.deco.crawler.decosefera
+package com.jcortes.deco.crawler.decoesfera
 
 import com.jcortes.deco.crawler.GenericScraper
 import org.jsoup.nodes.Document

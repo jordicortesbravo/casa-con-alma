@@ -20,10 +20,10 @@ class OpenAIClient {
     private val organizationId = "org-q5iucBMCyddaDBDKwDRvXjqQ"
     private val projectId = "proj_n7O8yUSGpEQpD3gjYa0TAUEr"
 
-    fun chatCompletion(text: String, engine: Engine = Engine.GPT_4_O_MINI): String {
+    fun chatCompletion(text: String, llmEngine: LlmEngine = LlmEngine.GPT_4_O_MINI): String {
         val body = """
             {
-                "model": "${engine.engineId()}",
+                "model": "${llmEngine.engineId()}",
                 "messages": [
                     {
                         "role": "system",
@@ -67,7 +67,7 @@ class OpenAIClient {
     }
 }
 
-enum class Engine {
+enum class LlmEngine {
     DA_VINCI_003,
     GPT_3_5_TURBO,
     GPT_4_O,

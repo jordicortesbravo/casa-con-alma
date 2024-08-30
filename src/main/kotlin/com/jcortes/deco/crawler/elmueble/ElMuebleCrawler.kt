@@ -33,7 +33,7 @@ class ElMuebleCrawlerRunner(
 
     override fun run(vararg args: String?) {
 
-        val format = "json"
+        val format = "html"
 
         val baseFolder = File("/Users/jcortes/workspace/tmp/deco-crawler/el-mueble/")
         baseFolder.deleteRecursively()
