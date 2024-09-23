@@ -5,33 +5,22 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jcortes.deco.crawler.CrawlerConfig
 import com.jcortes.deco.crawler.GenericCrawler
 import com.jcortes.deco.web.templates.DetailTemplate
-import org.springframework.boot.CommandLineRunner
-import org.springframework.boot.WebApplicationType
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 import org.springframework.stereotype.Component
 import java.io.File
 import java.util.regex.Pattern
 
-fun main() {
-    runApplication<DecoraBlogCrawlerRunner> {
-        webApplicationType = WebApplicationType.NONE
-        setAdditionalProfiles("config")
-    }
-}
-
 @Component
 class DecoraBlogCrawler : GenericCrawler()
 
-@SpringBootApplication
+@Component
 class DecoraBlogCrawlerRunner(
     private val crawler: DecoraBlogCrawler
-) : CommandLineRunner {
+) : Runnable {
 
     private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
     private val detailTemplate = DetailTemplate()
 
-    override fun run(vararg args: String?) {
+    override fun run() {
 
         val format = "json"
 

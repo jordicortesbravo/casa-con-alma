@@ -1,5 +1,6 @@
 package com.jcortes.deco.content
 
+import com.jcortes.deco.content.infrastructure.JdbcScrapedDocumentRepository
 import com.jcortes.deco.content.model.ScrapedDocument
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.infrastructure.JdbcRepositoryTest

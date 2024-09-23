@@ -2,6 +2,11 @@ package com.jcortes.deco.util
 
 import java.io.Closeable
 
+data class DefaultChunkIteratorState(
+    val lastProcessedId: Long?,
+    val prevElements: Int
+)
+
 class ChunkIterator<S, T>(
     private val next: (state: S?) -> Chunk<S, T>,
     private val finalizer: (state: S?) -> Unit

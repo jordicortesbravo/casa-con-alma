@@ -1,6 +1,6 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.content.JdbcScrapedDocumentRepository
+import com.jcortes.deco.content.infrastructure.JdbcScrapedDocumentRepository
 import com.jcortes.deco.util.IdGenerator
 import com.jcortes.deco.util.SnowflakeIdGenerator
 import org.springframework.context.annotation.Bean

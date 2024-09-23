@@ -1,6 +1,6 @@
 package com.jcortes.deco.util.infrastructure
 
-import com.jcortes.deco.content.JdbcScrapedDocumentRepository
+import com.jcortes.deco.content.infrastructure.JdbcScrapedDocumentRepository
 import com.jcortes.deco.util.IdGenerator
 import com.jcortes.deco.util.SnowflakeIdGenerator
 import org.flywaydb.test.annotation.FlywayTest
@@ -16,12 +16,12 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
 import javax.sql.DataSource
 
+@FlywayTest
 @DataJdbcTest
 @Testcontainers
 @ActiveProfiles("test")
 @EnableJdbcRepositories(basePackageClasses = [JdbcScrapedDocumentRepository::class])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@FlywayTest
 @Import(JdbcTemplateConfig::class)
 @ComponentScan(basePackageClasses = [JdbcScrapedDocumentRepository::class])
 annotation class JdbcRepositoryTest
@@ -29,6 +29,7 @@ annotation class JdbcRepositoryTest
 
 @Configuration
 class JdbcTemplateConfig {
+
     @Bean
     fun jdbcTemplate(dataSource: DataSource): JdbcTemplate {
         return JdbcTemplate(dataSource)

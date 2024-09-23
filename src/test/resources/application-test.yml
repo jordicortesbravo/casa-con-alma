@@ -9,6 +9,6 @@ spring:
     baseline-on-migrate: true
 
   datasource:
-    url: jdbc:tc:postgresql:14.1:///deco?TC_DAEMON=true
+    url: jdbc:tc:pgvector:pg16://deco?TC_DAEMON=true
     username: admin
     password: 1234

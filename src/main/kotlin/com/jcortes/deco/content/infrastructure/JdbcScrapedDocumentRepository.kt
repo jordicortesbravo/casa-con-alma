@@ -1,9 +1,11 @@
-package com.jcortes.deco.content
+package com.jcortes.deco.content.infrastructure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jcortes.deco.content.ScrapedDocumentRepository
 import com.jcortes.deco.content.model.ScrapedDocument
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.ChunkIterator
+import com.jcortes.deco.util.DefaultChunkIteratorState
 import com.jcortes.deco.util.IdGenerator
 import com.jcortes.deco.util.JdbcUtils
 import org.postgresql.util.PGobject
@@ -13,11 +15,6 @@ import org.springframework.stereotype.Repository
 import java.sql.Timestamp
 import java.sql.Types
 import javax.sql.DataSource
-
-data class ChunkIteratorState(
-    val lastProcessedId: Long?,
-    val prevElements: Int
-)
 
 @Repository
 class JdbcScrapedDocumentRepository(
@@ -61,14 +58,14 @@ class JdbcScrapedDocumentRepository(
     }
 
     override fun iterate(maxElements: Int, category: SiteCategory): Iterator<ScrapedDocument> {
-        return ChunkIterator<ChunkIteratorState, ScrapedDocument>(
+        return ChunkIterator<DefaultChunkIteratorState, ScrapedDocument>(
             next = { previousState ->
                 if (previousState?.lastProcessedId != null && previousState.prevElements < maxElements) {
                     ChunkIterator.Chunk(null, null)
                 } else {
                     val content = listBySiteCategory(previousState?.lastProcessedId ?: 0, maxElements, category)
                     ChunkIterator.Chunk(
-                        ChunkIteratorState(content.lastOrNull()?.id, content.size),
+                        DefaultChunkIteratorState(content.lastOrNull()?.id, content.size),
                         content.takeUnless { it.isEmpty() }
                     )
                 }
