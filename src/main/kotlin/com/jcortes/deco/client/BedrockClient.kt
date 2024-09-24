@@ -13,18 +13,33 @@ class BedrockClient(
 ) {
 
     fun describe(base64Image: String): String? {
-        val json = invokeClaudeModel(DESCRIPTION_PROMPT, base64Image)
-        return json.get("content")?.firstOrNull()?.get("text")?.asText()
+        try {
+            val json = invokeClaudeModel(DESCRIPTION_PROMPT, base64Image)
+            return json.get("content")?.firstOrNull()?.get("text")?.asText()
+        } catch(e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
-    fun keywordsOf(base64Image: String): List<String> {
-        val json = invokeClaudeModel(KEYWORDS_PROMPT, base64Image)
-        return json.get("content")?.firstOrNull()?.get("text")?.asText()?.split(",")?.map { it.trim() } ?: emptyList()
+    fun keywordsOf(base64Image: String): List<String>? {
+        try {
+            val json = invokeClaudeModel(KEYWORDS_PROMPT, base64Image)
+            return json.get("content")?.firstOrNull()?.get("text")?.asText()?.split(",")?.map { it.trim() } ?: emptyList()
+        } catch(e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     fun captionOf(base64Image: String): String? {
-        val json = invokeClaudeModel(CAPTION_PROMPT, base64Image)
-        return json.get("content")?.firstOrNull()?.get("text")?.asText()
+        try {
+            val json = invokeClaudeModel(CAPTION_PROMPT, base64Image)
+            return json.get("content")?.firstOrNull()?.get("text")?.asText()
+        } catch(e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     fun embeddingsOf(imageDescription: String): List<Float>? {

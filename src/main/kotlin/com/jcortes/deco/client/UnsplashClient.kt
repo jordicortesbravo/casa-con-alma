@@ -4,6 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.util.Page
 import com.jcortes.deco.util.Pageable
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.URI
 import java.net.URLEncoder
@@ -24,12 +26,14 @@ class UnsplashClient(
     private val objectMapper = jacksonObjectMapper()
     private val downloadedIds = ConcurrentSkipListSet<String>()
 
-    fun downloadByTags(tags: List<String>, imagesProcessor: ((images: Page<Image>) -> Unit)? = null) {
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+    fun downloadByTags(tags: List<String>, startPageable: Pageable? = null, imagesProcessor: ((images: Page<Image>) -> Unit)? = null) {
         tags.forEach { tag ->
-            val dir = File(downloadBaseDir, tag )
+            val dir = File(downloadBaseDir, tag)
             dir.mkdirs()
-            println("Downloading images for tag: $tag")
-            var pageable = Pageable(1, 30)
+            log.info("Downloading images for tag: $tag")
+            var pageable = startPageable ?: Pageable(1, 30)
             try {
                 do {
                     val photos = searchPhotos(tag, pageable)
@@ -37,9 +41,7 @@ class UnsplashClient(
                     downloadedIds.addAll(photos.items.map { it.sourceId })
                     imagesProcessor?.invoke(photos)
                     pageable = pageable.next()
-                    if (downloadedIds.size % 100 == 0) {
-                        println("Downloaded ${downloadedIds.size} images")
-                    }
+                    log.info("Downloaded page ${pageable.pageNumber} for tag $tag")
                 } while (photos.hasNextPage())
             } catch (e: Exception) {
                 e.printStackTrace()
