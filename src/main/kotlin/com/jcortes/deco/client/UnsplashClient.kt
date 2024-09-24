@@ -12,6 +12,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Files
 import java.util.concurrent.ConcurrentSkipListSet
+import kotlin.math.abs
 
 class UnsplashClient(
     private val downloadBaseDir: File,
@@ -56,7 +57,8 @@ class UnsplashClient(
                 .build()
             client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body().use { inputStream ->
                 val fileName = "${photo.sourceId.substringAfter("::")}.jpeg"
-                val dir = File(baseDir, (photo.sourceId.hashCode() % 50).toString().padStart(2, '0'))
+                val dir = File(baseDir, (abs(photo.sourceId.hashCode() % 50)).toString().padStart(2, '0'))
+                dir.mkdirs()
                 val file = File(dir, fileName)
                 photo.internalUri = file.toURI()
                 Files.copy(inputStream, file.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)

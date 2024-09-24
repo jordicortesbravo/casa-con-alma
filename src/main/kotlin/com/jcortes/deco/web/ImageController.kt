@@ -28,13 +28,13 @@ class ImageController(
         unsplashClient.downloadByTags(tags) { images ->
 
             val filteredImages = images.items.filter { it.sourceId !in processedSourceIds }
-            imageService.describeAndSave(filteredImages)
+            imageService.enrich(filteredImages)
             processedSourceIds.addAll(filteredImages.map { it.sourceId })
 
             downloadedImages.addAndGet(filteredImages.size)
             parcialDownloadedImages.addAndGet(filteredImages.size)
             if(parcialDownloadedImages.get() > 100) {
-                println("Downloaded ${downloadedImages.get()} images")
+                println("Downloaded ${downloadedImages.get()} images...")
                 parcialDownloadedImages.set(0)
             }
         }

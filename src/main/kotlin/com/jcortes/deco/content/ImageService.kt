@@ -14,7 +14,7 @@ class ImageService(
 ) {
 
     @Transactional
-    fun describeAndSave(images: List<Image>) {
+    fun enrich(images: List<Image>) {
         try {
             images.parallelStream().forEach { image ->
                 val base64Image = image.toBase64()

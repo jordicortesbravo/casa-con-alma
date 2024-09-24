@@ -19,7 +19,7 @@ class BedrockClient(
 
     fun keywordsOf(base64Image: String): List<String> {
         val json = invokeClaudeModel(KEYWORDS_PROMPT, base64Image)
-        return json.get("content")?.firstOrNull()?.get("text")?.asText()?.split(",") ?: emptyList()
+        return json.get("content")?.firstOrNull()?.get("text")?.asText()?.split(",")?.map { it.trim() } ?: emptyList()
     }
 
     fun captionOf(base64Image: String): String? {
@@ -27,23 +27,30 @@ class BedrockClient(
         return json.get("content")?.firstOrNull()?.get("text")?.asText()
     }
 
-    fun embeddingsOf(imageDescription: String): List<Float> {
-        val nativeRequestTemplate = """
+    fun embeddingsOf(imageDescription: String): List<Float>? {
+        try {
+            val nativeRequestTemplate = """
                   {
                     "texts": ["{{prompt}}"],
                     "input_type": "search_document",
                     "embedding_types": ["float"]
                   }
                 
-                """.replace("{{prompt}}", imageDescription)
+                """
+                .trimIndent()
+                .replace("{{prompt}}", imageDescription.replace("\n", " ").replace("\"", "\\\""))
 
-        val response = client.invokeModel { request ->
-            request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))
-                .modelId(EMBEDDINGS_MODEL)
+            val response = client.invokeModel { request ->
+                request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))
+                    .modelId(EMBEDDINGS_MODEL)
+            }
+
+            val json = objectMapper.readTree(response.body().asUtf8String())
+            return json["embeddings"]["float"].first().map { it.asDouble().toFloat() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
         }
-
-        val json = objectMapper.readTree(response.body().asUtf8String())
-        return json["embeddings"]["float"].first().map { it.asDouble().toFloat() }
     }
 
     private fun invokeClaudeModel(promptString: String, base64Image: String): JsonNode {
@@ -70,7 +77,7 @@ class BedrockClient(
         private const val KEYWORDS_PROMPT =
             "Describe keywords de la imagen. Da prioridad a la zona de la casa (si aplica) y el resto que describan la imagen. Solo retorna un listado separado por comas y todo en minúsculas."
 
-        private const val CAPTION_PROMPT = "Genera un caption para la imagen de no más de 10 palabras como si fueras un fotógrafo. Debe ser SEO."
+        private const val CAPTION_PROMPT = "Genera un caption en español para la imagen de no más de 10 palabras como si fueras un fotógrafo. Debe ser SEO."
 
         private const val CLAUDE_TEMPLATE = """
                 {
