@@ -1,0 +1,3 @@
+# src/main/resources/application-private.yml
+app:
+  allowed-origins: "http://localhost:${server.port}"  # when testing cors requests, remember to change this to the correct origin

@@ -4,6 +4,7 @@
 app:
   name: crawler
   base-path: /crawler
+  allowed-origins: ${ALLOWED_ORIGINS}
 
   db:
     url: jdbc:postgresql://localhost:5432/postgres?user=admin&password=1234
