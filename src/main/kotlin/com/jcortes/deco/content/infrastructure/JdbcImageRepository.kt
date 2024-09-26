@@ -3,10 +3,7 @@ package com.jcortes.deco.content.infrastructure
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jcortes.deco.content.ImageRepository
 import com.jcortes.deco.content.model.Image
-import com.jcortes.deco.util.ChunkIterator
-import com.jcortes.deco.util.DefaultChunkIteratorState
-import com.jcortes.deco.util.IdGenerator
-import com.jcortes.deco.util.JdbcUtils
+import com.jcortes.deco.util.*
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -53,6 +50,23 @@ class JdbcImageRepository(
         """
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("ids" to ids)) { rs, _ -> rs.getBinaryStream("content") }
             .map { objectMapper.readValue(it, Image::class.java) }
+    }
+
+    override fun search(searchText: String?, keywords: List<String>, pageable: Pageable): List<Image> {
+        val query = """
+            SELECT id
+            FROM $TABLE_INDEX
+            WHERE keywords @> :keywords
+            ORDER BY source_id
+            LIMIT :limit OFFSET :offset
+        """
+        val params = MapSqlParameterSource()
+        params.addValue("keywords", stringArrayOf(keywords), Types.ARRAY)
+        params.addValue("limit", pageable.pageSize)
+        params.addValue("offset", pageable.pageNumber * pageable.pageSize)
+
+        val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
+        return list(ids)
     }
 
     override fun listSourceIds(): List<String> {

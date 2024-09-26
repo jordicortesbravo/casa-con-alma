@@ -14,4 +14,10 @@ class HomeController {
         model.addAttribute("message", "Welcome to the home page!")
         return "deco-blog/index-two"
     }
+
+    @GetMapping("/images/preview")
+    fun preview(model: Model): String {
+        model.addAttribute("message", "Welcome to the preview page!")
+        return "search-images"
+    }
 }

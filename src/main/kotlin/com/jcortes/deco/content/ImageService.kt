@@ -2,6 +2,7 @@ package com.jcortes.deco.content
 
 import com.jcortes.deco.client.BedrockClient
 import com.jcortes.deco.content.model.Image
+import com.jcortes.deco.util.Pageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -41,6 +42,10 @@ class ImageService(
             e.printStackTrace()
 //            throw e
         }
+    }
+
+    fun search(query: String?, keywords: List<String>, pageable: Pageable): List<Image> {
+        return imageRepository.search(query, keywords, pageable)
     }
 
     fun processedSourceIds(): List<String> {

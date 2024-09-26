@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"], select, .custom-select {
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, select:focus, .custom-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .search-btn, .load-more-btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-btn:hover, .load-more-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .image-card {
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: scale(1.05);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .image-card p {
+            padding: 15px;
+            font-size: 14px;
+            text-align: center;
+            color: #555;
+            background-color: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        .load-more-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Custom multiselect */
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+        }
+
+        .custom-select-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .custom-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: none;
+            z-index: 999;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .custom-options label {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .custom-options input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .custom-options label:hover {
+            background-color: #f5f5f5;
+        }
+
+        .custom-select.open .custom-options {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+
+            input[type="text"], select, .custom-select {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Image Search</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchText" placeholder="Search images...">
+        <select id="sortOrder">
+            <option value="RELEVANCE">Relevance</option>
+            <option value="NEWEST">Newest</option>
+        </select>
+
+        <!-- Custom multiselect dropdown -->
+        <div class="custom-select" id="customSelect">
+            <div class="custom-select-trigger">Select keywords</div>
+            <div class="custom-options">
+                <label>
+                    <input type="checkbox" value="decoration"> Decoration
+                </label>
+                <label>
+                    <input type="checkbox" value="decor"> Decor
+                </label>
+                <label>
+                    <input type="checkbox" value="living room"> Living Room
+                </label>
+                <label>
+                    <input type="checkbox" value="kitchen"> Kitchen
+                </label>
+            </div>
+        </div>
+
+        <button class="search-btn" id="searchBtn">Search</button>
+    </div>
+
+    <div class="image-grid" id="imageGrid">
+        <!-- Image cards will be dynamically inserted here -->
+    </div>
+
+    <div class="load-more-container">
+        <button class="load-more-btn" id="loadMoreBtn">Load More</button>
+    </div>
+</div>
+
+<script>
+    let page = 1;
+    const selectedKeywords = [];
+
+    async function fetchImages() {
+        const searchText = document.getElementById('searchText').value;
+        const sortOrder = document.getElementById('sortOrder').value;
+        const keywords = selectedKeywords;
+
+        const response = await fetch(`http://localhost:8083/crawler/images/search?query=${searchText}&sort=${sortOrder}&keywords=${keywords.join(',')}&page=${page}`);
+        const data = await response.json();
+        return data.results;
+    }
+
+    function createImageCard(image) {
+        const card = document.createElement('div');
+        card.className = 'image-card';
+        card.innerHTML = `
+            <img src="${image.thumbnailUrl}" alt="Image" title="${image.description}">
+        `;
+        return card;
+    }
+
+    async function loadImages(reset = false) {
+        const images = await fetchImages();
+        const imageGrid = document.getElementById('imageGrid');
+
+        if (reset) {
+            imageGrid.innerHTML = ''; // Clear existing images
+        }
+
+        images.forEach(image => {
+            const card = createImageCard(image);
+            imageGrid.appendChild(card);
+        });
+    }
+
+    // Toggle custom select
+    const customSelect = document.getElementById('customSelect');
+    customSelect.addEventListener('click', () => {
+        customSelect.classList.toggle('open');
+    });
+
+    // Capture checkbox changes
+    const checkboxes = customSelect.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const value = e.target.value;
+            if (e.target.checked) {
+                selectedKeywords.push(value);
+            } else {
+                const index = selectedKeywords.indexOf(value);
+                if (index > -1) {
+                    selectedKeywords.splice(index, 1);
+                }
+            }
+        });
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        page = 1;  // Reset page to 1
+        loadImages(true);  // Trigger search with reset
+    });
+
+    document.getElementById('loadMoreBtn').addEventListener('click', async () => {
+        page += 1;
+        await loadImages();
+    });
+
+    // Close the custom select dropdown if clicked outside
+    document.addEventListener('click', function(event) {
+        if (!customSelect.contains(event.target)) {
+            customSelect.classList.remove('open');
+        }
+    });
+
+</script>
+</body>
+</html>
