@@ -8,7 +8,7 @@ import java.net.URI
 
 class DecoraBlogScraper : GenericScraper() {
 
-    override fun scrap(url: String, html: String): ScrapedDocument? {
+    override fun scrap(source: String, url: String, html: String): ScrapedDocument? {
         return Jsoup.parse(html).selectFirst(".site-content")?.let { document ->
             val title = document.select("h1.entry-title").firstOrNull()?.text()
             val subtitle = document.select(".panel-principal p").firstOrNull()?.text()

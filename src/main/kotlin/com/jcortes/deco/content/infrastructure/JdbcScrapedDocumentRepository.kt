@@ -57,6 +57,15 @@ class JdbcScrapedDocumentRepository(
             .map { objectMapper.readValue(it, ScrapedDocument::class.java) }
     }
 
+    override fun listSourceIds(): List<String> {
+        val query = """
+            SELECT source_id
+            FROM $TABLE_INDEX
+        """
+        return jdbcTemplate.query(query) { rs, _ -> rs.getString("source_id") }
+    }
+
+
     override fun iterate(maxElements: Int, category: SiteCategory): Iterator<ScrapedDocument> {
         return ChunkIterator<DefaultChunkIteratorState, ScrapedDocument>(
             next = { previousState ->

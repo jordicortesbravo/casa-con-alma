@@ -1,6 +1,8 @@
 package com.jcortes.deco.crawler
 
 import com.jcortes.deco.content.model.ScrapedDocument
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -19,6 +21,7 @@ class CrawlerConfig {
     var maxDepth: Int = 2
     var acceptedUrlPattern: Pattern = Pattern.compile(".*")
     lateinit var scraper: Scraper
+    lateinit var source: String
 }
 
 open class GenericCrawler : Crawler {
@@ -40,6 +43,7 @@ class ThreadPoolCrawler(private val config: CrawlerConfig) : Crawler {
     private val taskCountLatch = TaskCountLatch()
     private val scraper = config.scraper
 
+    private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     override fun run(startUrl: String, dataProcessor: ((scrapedDocument: ScrapedDocument) -> Unit)?): Set<String> {
         val urls = ConcurrentHashMap.newKeySet<String>()
@@ -58,7 +62,7 @@ class ThreadPoolCrawler(private val config: CrawlerConfig) : Crawler {
                             try {
                                 taskCountLatch.increment()
                                 crawl(linkedUrl, depth + 1, visitedUrls.plus(linkedUrl), dataProcessor)
-                                println("Depth: $depth, Link: $linkedUrl")
+                                log.info("Depth: $depth, Link: $linkedUrl")
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             } finally {
@@ -78,7 +82,7 @@ class ThreadPoolCrawler(private val config: CrawlerConfig) : Crawler {
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() == 200) {
-            return scraper.scrap(url, response.body())
+            return scraper.scrap(config.source, url, response.body())
         }
         return null
     }

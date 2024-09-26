@@ -8,6 +8,7 @@ interface ScrapedDocumentRepository {
     fun get(id: Long): ScrapedDocument?
     fun get(sourceId: String): ScrapedDocument?
     fun getAll(ids: List<Long>): List<ScrapedDocument>
+    fun listSourceIds(): List<String>
     fun iterate(maxElements: Int = 1000, category: SiteCategory): Iterator<ScrapedDocument>
     fun save(scrapedDocument: ScrapedDocument)
 }

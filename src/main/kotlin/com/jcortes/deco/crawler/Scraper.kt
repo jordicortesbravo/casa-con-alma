@@ -12,12 +12,12 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 interface Scraper {
-    fun scrap(url: String, html: String): ScrapedDocument?
+    fun scrap(source: String, url: String, html: String): ScrapedDocument?
 }
 
 open class GenericScraper : Scraper {
 
-    override fun scrap(url: String, html: String): ScrapedDocument? {
+    override fun scrap(source:String, url: String, html: String): ScrapedDocument? {
         val document = Jsoup.parse(html)
         val sourceId = scrapSourceId(document, url)
         val title = document.select("h1").firstOrNull()?.text()
@@ -28,7 +28,7 @@ open class GenericScraper : Scraper {
         val productCategories = ProductCategorizer.categorize("$title $subtitle")
         val siteCategories = productCategories?.let { SiteCategorizer.categorize("$title $subtitle") }
         return ScrapedDocument().apply {
-            this.sourceId = sourceId
+            this.sourceId = sourceId?.let{ "$source::$sourceId" }
             this.url = URI(url)
             this.title = title
             this.updateInstant = updateInstant
