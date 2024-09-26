@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.jdbc.datasource.init.ScriptUtils
+import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import javax.sql.DataSource
 import kotlin.test.assertContentEquals
@@ -35,7 +36,7 @@ class JdbcImageRepositoryTest @Autowired constructor(
         assertEquals(image.id, 1)
         assertEquals(image.sourceId, "t1")
         assertThat(image.description).isNotBlank()
-        assertThat(image.sourceUrl).isEqualTo("https://example.com/image1.jpg")
+        assertThat(image.sourceUrl.toString()).isEqualTo("https://example.com/image1.jpg")
         assertContentEquals(image.keywords, listOf("decor", "living room"))
         assertContentEquals(image.keywords, listOf("decor", "living room"))
     }
@@ -46,7 +47,7 @@ class JdbcImageRepositoryTest @Autowired constructor(
         assertEquals(image.id, 2)
         assertEquals(image.sourceId, "t2")
         assertThat(image.description).isNotBlank()
-        assertThat(image.sourceUrl).isEqualTo("https://example.com/image2.jpg")
+        assertThat(image.sourceUrl.toString()).isEqualTo("https://example.com/image2.jpg")
         assertContentEquals(image.keywords, listOf("bathroom", "decor"))
     }
 
@@ -59,6 +60,7 @@ class JdbcImageRepositoryTest @Autowired constructor(
     }
 
     @Test
+    @Transactional
     fun `it should save an image`() {
 
         assertNull(repository.get(10))
@@ -79,7 +81,7 @@ class JdbcImageRepositoryTest @Autowired constructor(
         }
         repository.save(image)
 
-        val savedImage = repository.get("12345")!!
+        val savedImage = repository.get(10)!!
         assertEquals(savedImage.id, savedImage.id)
         assertEquals(savedImage.sourceId, savedImage.sourceId)
         assertContentEquals(savedImage.keywords, savedImage.keywords)
