@@ -52,15 +52,22 @@ class JdbcImageRepository(
             .map { objectMapper.readValue(it, Image::class.java) }
     }
 
-    override fun search(searchText: String?, keywords: List<String>, pageable: Pageable): List<Image> {
+    override fun search(searchEmbedding: List<Float>?, keywords: List<String>, pageable: Pageable): List<Image> {
+        val embeddingClause = searchEmbedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
+        val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), source_id" } ?: "source_id"
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE keywords @> :keywords
-            ORDER BY source_id
+            WHERE keywords @> :keywords $embeddingClause
+            ORDER BY $orderClause
             LIMIT :limit OFFSET :offset
         """
+
         val params = MapSqlParameterSource()
+        searchEmbedding?.let {
+            params.addValue("embedding", floatArrayOf(searchEmbedding), Types.ARRAY)
+            params.addValue("threshold", 0.8)
+        }
         params.addValue("keywords", stringArrayOf(keywords), Types.ARRAY)
         params.addValue("limit", pageable.pageSize)
         params.addValue("offset", pageable.pageNumber * pageable.pageSize)

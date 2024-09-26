@@ -1,1 +1,0 @@
-ALTER TABLE scraped_document_index ALTER COLUMN site_categories DROP NOT NULL;

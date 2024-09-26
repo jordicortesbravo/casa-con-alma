@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS scraped_document_index
     id                              bigint PRIMARY KEY,
     source_id                       varchar(50) NOT NULL,
     keywords                        TEXT[],
-    site_categories                 TEXT[] NOT NULL,
+    site_categories                 TEXT[],
     product_categories              TEXT[],
     create_instant                  timestamptz NOT NULL,
     update_instant                  timestamptz NOT NULL
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS scraped_document_content
 CREATE INDEX scraped_document_content_source_id ON scraped_document_content (source_id);
 
 
-CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
 
 CREATE TABLE IF NOT EXISTS image_index
 (
