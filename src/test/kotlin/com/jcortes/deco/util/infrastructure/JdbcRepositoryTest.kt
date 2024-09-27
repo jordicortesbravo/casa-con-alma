@@ -1,8 +1,6 @@
 package com.jcortes.deco.util.infrastructure
 
 import com.jcortes.deco.content.infrastructure.JdbcScrapedDocumentRepository
-import com.jcortes.deco.util.IdGenerator
-import com.jcortes.deco.util.SnowflakeIdGenerator
 import org.flywaydb.test.annotation.FlywayTest
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -33,10 +31,5 @@ class JdbcTemplateConfig {
     @Bean
     fun jdbcTemplate(dataSource: DataSource): JdbcTemplate {
         return JdbcTemplate(dataSource)
-    }
-
-    @Bean
-    fun idGenerator(): IdGenerator {
-        return SnowflakeIdGenerator()
     }
 }

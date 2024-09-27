@@ -1,8 +1,6 @@
 package com.jcortes.deco.app
 
 import com.jcortes.deco.content.infrastructure.JdbcScrapedDocumentRepository
-import com.jcortes.deco.util.IdGenerator
-import com.jcortes.deco.util.SnowflakeIdGenerator
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories
@@ -29,11 +27,5 @@ class RepositoryConfig {
     @Bean
     fun jdbcTemplate(dataSource: DataSource): JdbcTemplate {
         return JdbcTemplate(dataSource)
-    }
-
-    @Bean
-    fun idGenerator(): IdGenerator {
-        //FIXME: Usar un id de nodo distinto en función de la instancia si hay varias
-        return SnowflakeIdGenerator(1)
     }
 }
