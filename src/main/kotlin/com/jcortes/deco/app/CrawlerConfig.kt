@@ -20,7 +20,7 @@ class CrawlerConfig {
         crawler.setup(
             CrawlerConfig().apply {
                 nThreads = 8
-                maxDepth = 3
+                maxDepth = 5
                 acceptedUrlPattern = Pattern.compile("https://www.elmueble.com/.*")
                 scraper = ElMuebleScraper()
                 source = "el-mueble"

@@ -16,7 +16,7 @@ class JdbcImageRepository(
     private val dataSource: DataSource,
     private val jdbcTemplate: NamedParameterJdbcTemplate,
     private val objectMapper: ObjectMapper,
-    private val idGenerator: IdGenerator
+    private val idRepository: IdRepository
 ) : ImageRepository {
 
     override fun get(id: Long): Image? {
@@ -103,7 +103,7 @@ class JdbcImageRepository(
 
     override fun save(image: Image) {
         val previousImage = get(requireNotNull(image.sourceId) { "sourceId is required" })
-        image.id = previousImage?.id ?: idGenerator.nextId()
+        image.id = previousImage?.id ?: idRepository.nextId()
         jdbcTemplate.update(SAVE_INDEX_QUERY, indexParamsOf(image))
         jdbcTemplate.update(SAVE_CONTENT_QUERY, contentParamsOf(image))
     }

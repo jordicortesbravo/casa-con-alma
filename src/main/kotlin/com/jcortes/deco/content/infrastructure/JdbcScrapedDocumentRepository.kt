@@ -6,7 +6,6 @@ import com.jcortes.deco.content.model.ScrapedDocument
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.ChunkIterator
 import com.jcortes.deco.util.DefaultChunkIteratorState
-import com.jcortes.deco.util.IdGenerator
 import com.jcortes.deco.util.JdbcUtils
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -21,7 +20,7 @@ class JdbcScrapedDocumentRepository(
     private val dataSource: DataSource,
     private val jdbcTemplate: NamedParameterJdbcTemplate,
     private val objectMapper: ObjectMapper,
-    private val idGenerator: IdGenerator
+    private val idRepository: IdRepository
 ) : ScrapedDocumentRepository {
 
     override fun get(id: Long): ScrapedDocument? {
@@ -85,7 +84,7 @@ class JdbcScrapedDocumentRepository(
 
     override fun save(scrapedDocument: ScrapedDocument) {
         val previousScrapedDocument = get(requireNotNull(scrapedDocument.sourceId) { "sourceId is required" })
-        scrapedDocument.id = previousScrapedDocument?.id ?: idGenerator.nextId()
+        scrapedDocument.id = previousScrapedDocument?.id ?: idRepository.nextId()
         jdbcTemplate.update(SAVE_INDEX_QUERY, indexParamsOf(scrapedDocument))
         jdbcTemplate.update(SAVE_CONTENT_QUERY, contentParamsOf(scrapedDocument))
     }

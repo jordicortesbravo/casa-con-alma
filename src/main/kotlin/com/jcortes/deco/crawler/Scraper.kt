@@ -46,7 +46,7 @@ open class GenericScraper : Scraper {
 
     protected open fun scrapUpdateInstant(document: Document, url: String): Instant? {
         return try {
-            LocalDate.parse(document.select("meta[name='DC.date.issued']").attr("content").toString()).atStartOfDay().toInstant(ZoneOffset.UTC)
+            LocalDate.parse(document.select("meta[name='DC.date.issued']").attr("content")).atStartOfDay().toInstant(ZoneOffset.UTC)
         } catch (e: Exception) {
             null
         }

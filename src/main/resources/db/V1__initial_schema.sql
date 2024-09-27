@@ -48,3 +48,11 @@ CREATE TABLE IF NOT EXISTS image_content
     content                         jsonb
 );
 CREATE INDEX image_content_source_id ON image_content (source_id);
+
+
+CREATE SEQUENCE id_sequence
+START WITH 1
+INCREMENT BY 1
+MINVALUE 1
+NO MAXVALUE
+CACHE 1;
