@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
 @RequestMapping("\${app.base-path}")
-class HomeController {
+class ViewController {
 
     @GetMapping("/", "")
     fun home(model: Model): String {
@@ -16,8 +16,13 @@ class HomeController {
     }
 
     @GetMapping("/images/preview")
-    fun preview(model: Model): String {
-        model.addAttribute("message", "Welcome to the preview page!")
+    fun previewImages(model: Model): String {
         return "search-images"
     }
+
+    @GetMapping("/scraped-documents/preview")
+    fun previewDocuments(model: Model): String {
+        return "search-scraped-documents"
+    }
+
 }

@@ -7,6 +7,7 @@ import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.ChunkIterator
 import com.jcortes.deco.util.DefaultChunkIteratorState
 import com.jcortes.deco.util.JdbcUtils
+import com.jcortes.deco.util.Pageable
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -56,6 +57,17 @@ class JdbcScrapedDocumentRepository(
             .map { objectMapper.readValue(it, ScrapedDocument::class.java) }
     }
 
+    override fun list(ids: List<Long>): List<ScrapedDocument> {
+        if (ids.isEmpty()) return emptyList()
+        val query = """
+            SELECT content
+            FROM $TABLE_CONTENT
+            WHERE id IN (:ids)
+        """
+        return jdbcTemplate.query(query, JdbcUtils.paramsOf("ids" to ids)) { rs, _ -> rs.getBinaryStream("content") }
+            .map { objectMapper.readValue(it, ScrapedDocument::class.java) }
+    }
+
     override fun listSourceIds(): List<String> {
         val query = """
             SELECT source_id
@@ -64,6 +76,29 @@ class JdbcScrapedDocumentRepository(
         return jdbcTemplate.query(query) { rs, _ -> rs.getString("source_id") }
     }
 
+    override fun search(searchEmbedding: List<Float>?, siteCategories: List<String>, pageable: Pageable): List<ScrapedDocument> {
+        val embeddingClause = searchEmbedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
+        val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), id DESC" } ?: "id DESC"
+        val query = """
+            SELECT id
+            FROM $TABLE_INDEX
+            WHERE site_categories @> :siteCategories $embeddingClause
+            ORDER BY $orderClause
+            LIMIT :limit OFFSET :offset
+        """
+
+        val params = MapSqlParameterSource()
+        searchEmbedding?.let {
+            params.addValue("embedding", floatArrayOf(searchEmbedding), Types.ARRAY)
+            params.addValue("threshold", 0.8)
+        }
+        params.addValue("siteCategories", stringArrayOf(siteCategories), Types.ARRAY)
+        params.addValue("limit", pageable.pageSize)
+        params.addValue("offset", pageable.pageNumber * pageable.pageSize)
+
+        val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
+        return list(ids)
+    }
 
     override fun iterate(maxElements: Int, category: SiteCategory): Iterator<ScrapedDocument> {
         return ChunkIterator<DefaultChunkIteratorState, ScrapedDocument>(
@@ -101,7 +136,7 @@ class JdbcScrapedDocumentRepository(
         val params = MapSqlParameterSource()
         params.addValue("minId", minId)
         params.addValue("maxElements", maxElements)
-        params.addValue("category", sqlArrayOf(listOf(category.name)), Types.ARRAY)
+        params.addValue("category", stringArrayOf(listOf(category.name)), Types.ARRAY)
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
 
         return getAll(ids)
@@ -111,17 +146,21 @@ class JdbcScrapedDocumentRepository(
         val params = MapSqlParameterSource()
         params.addValue("id", scrapedDocument.id)
         params.addValue("sourceId", scrapedDocument.sourceId)
-        params.addValue("keywords", sqlArrayOf(scrapedDocument.keywords), Types.ARRAY)
-        params.addValue("siteCategories", sqlArrayOf(scrapedDocument.siteCategories?.map { it.name }), Types.ARRAY)
-        params.addValue("productCategories", sqlArrayOf(scrapedDocument.productCategories), Types.ARRAY)
+        params.addValue("keywords", stringArrayOf(scrapedDocument.keywords), Types.ARRAY)
+        params.addValue("siteCategories", stringArrayOf(scrapedDocument.siteCategories?.map { it.name }), Types.ARRAY)
+        params.addValue("productCategories", stringArrayOf(scrapedDocument.productCategories), Types.ARRAY)
         params.addValue("createInstant", Timestamp.from(scrapedDocument.createInstant))
         params.addValue("updateInstant", Timestamp.from(scrapedDocument.updateInstant))
         return params
 
     }
 
-    private fun sqlArrayOf(data: List<String>?): java.sql.Array? {
-        return data?.let { dataSource.connection.use { it.createArrayOf("TEXT", data.toTypedArray())} }
+    private fun stringArrayOf(data: List<String>?): java.sql.Array? {
+        return data?.let { dataSource.connection.use { it.createArrayOf("TEXT", data.toTypedArray()) } }
+    }
+
+    private fun floatArrayOf(data: List<Float>?): java.sql.Array? {
+        return data?.let { dataSource.connection.use { it.createArrayOf("FLOAT", data.toTypedArray()) } }
     }
 
     private fun contentParamsOf(scrapedDocument: ScrapedDocument): MapSqlParameterSource {
