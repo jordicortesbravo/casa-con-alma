@@ -76,6 +76,17 @@ class JdbcScrapedDocumentRepository(
         return jdbcTemplate.query(query) { rs, _ -> rs.getString("source_id") }
     }
 
+    override fun listWithoutEmbedding(): List<ScrapedDocument> {
+        val query = """
+            SELECT id
+            FROM $TABLE_INDEX
+            WHERE embedding IS NULL
+            ORDER BY id DESC
+            """
+        val ids = jdbcTemplate.query(query) { rs, _ -> rs.getLong("id") }
+        return list(ids)
+    }
+
     override fun search(searchEmbedding: List<Float>?, siteCategories: List<String>, pageable: Pageable): List<ScrapedDocument> {
         val embeddingClause = searchEmbedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
         val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), id DESC" } ?: "id DESC"
@@ -100,13 +111,13 @@ class JdbcScrapedDocumentRepository(
         return list(ids)
     }
 
-    override fun iterate(maxElements: Int, category: SiteCategory): Iterator<ScrapedDocument> {
+    override fun iterate(maxElements: Int, category: SiteCategory?): Iterator<ScrapedDocument> {
         return ChunkIterator<DefaultChunkIteratorState, ScrapedDocument>(
             next = { previousState ->
                 if (previousState?.lastProcessedId != null && previousState.prevElements < maxElements) {
                     ChunkIterator.Chunk(null, null)
                 } else {
-                    val content = listBySiteCategory(previousState?.lastProcessedId ?: 0, maxElements, category)
+                    val content = list(previousState?.lastProcessedId ?: 0, maxElements, category)
                     ChunkIterator.Chunk(
                         DefaultChunkIteratorState(content.lastOrNull()?.id, content.size),
                         content.takeUnless { it.isEmpty() }
@@ -124,19 +135,19 @@ class JdbcScrapedDocumentRepository(
         jdbcTemplate.update(SAVE_CONTENT_QUERY, contentParamsOf(scrapedDocument))
     }
 
-    private fun listBySiteCategory(minId: Long, maxElements: Int, category: SiteCategory): List<ScrapedDocument> {
+    private fun list(minId: Long, maxElements: Int, category: SiteCategory?): List<ScrapedDocument> {
+        val categoryClause = category?.let { " AND site_categories @> :category" } ?: ""
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE id > :minId
-              AND site_categories @> :category
+            WHERE id > :minId $categoryClause
             ORDER BY id
             LIMIT :maxElements
         """
         val params = MapSqlParameterSource()
         params.addValue("minId", minId)
         params.addValue("maxElements", maxElements)
-        params.addValue("category", stringArrayOf(listOf(category.name)), Types.ARRAY)
+        category?.let { params.addValue("category", stringArrayOf(listOf(category.name)), Types.ARRAY) }
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
 
         return getAll(ids)
@@ -151,6 +162,7 @@ class JdbcScrapedDocumentRepository(
         params.addValue("productCategories", stringArrayOf(scrapedDocument.productCategories), Types.ARRAY)
         params.addValue("createInstant", Timestamp.from(scrapedDocument.createInstant))
         params.addValue("updateInstant", Timestamp.from(scrapedDocument.updateInstant))
+        params.addValue("embedding", floatArrayOf(scrapedDocument.embedding), Types.ARRAY)
         return params
 
     }
@@ -173,11 +185,15 @@ class JdbcScrapedDocumentRepository(
 
     private companion object {
         private const val TABLE_INDEX = "deco.scraped_document_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, site_categories, product_categories, create_instant, update_instant)
-            VALUES (:id, :sourceId, :keywords, :siteCategories, :productCategories, :createInstant, :updateInstant)"""
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, site_categories, product_categories, create_instant, update_instant, embedding)
+            VALUES (:id, :sourceId, :keywords, :siteCategories, :productCategories, :createInstant, :updateInstant, :embedding)
+            ON CONFLICT (id) DO UPDATE
+            SET source_id = :sourceId, keywords = :keywords, site_categories = :siteCategories, product_categories = :productCategories, create_instant = :createInstant, update_instant = :updateInstant, embedding = :embedding"""
 
         private const val TABLE_CONTENT = "deco.scraped_document_content"
         private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, source_id, content)
-            VALUES (:id, :sourceId, :content)"""
+            VALUES (:id, :sourceId, :content)
+            ON CONFLICT (id) DO UPDATE
+            SET source_id = :sourceId, content = :content"""
     }
 }

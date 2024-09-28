@@ -1,6 +1,6 @@
 package com.jcortes.deco.content
 
-import com.jcortes.deco.client.BedrockClient
+import com.jcortes.deco.client.BedrockImageClient
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.util.Pageable
 import org.slf4j.Logger
@@ -13,7 +13,7 @@ import java.util.*
 @Service
 class ImageService(
     private val imageRepository: ImageRepository,
-    private val bedrockClient: BedrockClient,
+    private val bedrockImageClient: BedrockImageClient,
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -25,10 +25,10 @@ class ImageService(
 
                 val base64Image = image.toBase64()
 
-                val keywords = bedrockClient.keywordsOf(base64Image)
-                val description = bedrockClient.describe(base64Image)
-                val embeddings = description?.let { bedrockClient.embeddingsOf(it) }
-                val caption = bedrockClient.captionOf(base64Image)
+                val keywords = bedrockImageClient.keywordsOf(base64Image)
+                val description = bedrockImageClient.describe(base64Image)
+                val embeddings = description?.let { bedrockImageClient.embeddingsOf(it) }
+                val caption = bedrockImageClient.captionOf(base64Image)
 
                 image.keywords = image.keywords?.plus(keywords ?: emptyList()) ?: keywords
                 image.description = description
@@ -45,7 +45,7 @@ class ImageService(
     }
 
     fun search(query: String?, keywords: List<String>, pageable: Pageable): List<Image> {
-        val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockClient.embeddingsOf(it) }
+        val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockImageClient.embeddingsOf(it) }
         return imageRepository.search(embedding, keywords, pageable)
     }
 

@@ -167,9 +167,12 @@
         <input type="text" id="searchText" placeholder="Search documents...">
         <select id="siteCategories">
             <option value="">Select Category</option>
-            <option value="news">News</option>
-            <option value="blog">Blog</option>
-            <option value="tutorial">Tutorial</option>
+            <option value="LIVING_AND_DINING_ROOMS">Salones y Comedores</option>
+            <option value="KITCHENS">Cocinas</option>
+            <option value="BEDROOMS">Dormitorios</option>
+            <option value="BATHROOMS">Baños</option>
+            <option value="OUTDOORS_AND_GARDENS">Exteriores y Jardines</option>
+            <option value="SEASONAL_DECORATION">Decoración Estacional</option>
         </select>
         <button class="search-btn" id="searchBtn">Search</button>
     </div>
@@ -225,7 +228,7 @@
                 <button class="preview-btn" data-content="${encodeURIComponent(JSON.stringify(scrapedDocument.content))}">Preview</button>
             </td>
             <td>
-                <button class="open-url-btn" onclick="window.open('${scrapedDocument.url}', '_blank')">Open URL</button>
+                <button class="open-url-btn" onclick="window.open('${scrapedDocument.url}', '_blank')">Open</button>
             </td>
         `;
         return row;

@@ -14,18 +14,20 @@ class ScrapedDocumentController(
     private val documentService: ScrapedDocumentService
 ) {
 
+    @GetMapping("/enrich")
+    fun enrich() {
+        documentService.enrich()
+    }
+
     @GetMapping("/search")
     fun search(
         @RequestParam query: String? = null,
-        @RequestParam("site_categories") siteCategories: List<String> = emptyList(),
+        @RequestParam("category") category: String,
         @RequestParam sort: String? = null,
         @RequestParam page: Int = 1,
        @RequestParam pageSize: Int = 50
     ): SearchDocumentsResponse {
-
-        return SearchDocumentsResponse(documentService.search(query, siteCategories, Pageable(page, pageSize)))
+        return SearchDocumentsResponse(documentService.search(query, listOf(category), Pageable(page, pageSize)))
     }
-
     data class SearchDocumentsResponse(val results: List<ScrapedDocument>)
-
 }

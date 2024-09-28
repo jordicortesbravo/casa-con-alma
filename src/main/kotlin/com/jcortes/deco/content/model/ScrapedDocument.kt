@@ -10,6 +10,7 @@ class ScrapedDocument {
     var title: String? = null
     var subtitle: String? = null
     var content: String? = null
+    var resume: String? = null
     var createInstant: Instant = Instant.now()
     var updateInstant: Instant? = Instant.now()
     var keywords: List<String>? = null
@@ -17,4 +18,5 @@ class ScrapedDocument {
     var productCategories: List<String>? = null
     var relatedLinks: List<URI>? = null
 //    var images: List<URI>? = null
+    var embedding: List<Float>? = null
 }

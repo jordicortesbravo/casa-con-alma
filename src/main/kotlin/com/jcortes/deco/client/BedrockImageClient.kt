@@ -7,7 +7,7 @@ import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient
 
 @Component
-class BedrockClient(
+class BedrockImageClient(
     private val client: BedrockRuntimeClient,
     private val objectMapper: ObjectMapper
 ) {
