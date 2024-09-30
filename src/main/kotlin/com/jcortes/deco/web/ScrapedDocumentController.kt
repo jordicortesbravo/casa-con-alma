@@ -27,7 +27,8 @@ class ScrapedDocumentController(
         @RequestParam page: Int = 1,
        @RequestParam pageSize: Int = 50
     ): SearchDocumentsResponse {
-        return SearchDocumentsResponse(documentService.search(query, listOf(category), Pageable(page, pageSize)))
+        val categories = if(category.isBlank()) emptyList() else listOf(category)
+        return SearchDocumentsResponse(documentService.search(query, categories, Pageable(page, pageSize)))
     }
     data class SearchDocumentsResponse(val results: List<ScrapedDocument>)
 }

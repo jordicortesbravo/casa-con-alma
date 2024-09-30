@@ -21,7 +21,7 @@ class ImageController(
 
     @GetMapping("/unsplash/download")
     fun downloadImages() {
-        val pageable = Pageable(10, 30)
+        val pageable = Pageable(1, 30)
         val processedSourceIds = imageService.processedSourceIds().map { it.substringAfter("::") }.toMutableList()
 //        val tags = listOf(
 //            "interior design", "decoration", "decor", "living room", "living room interior design", "shower", "scandinavian", "bedroom", "bedroom design", "children's room", "dining room", "kitchen", "kitchen design",
@@ -29,7 +29,7 @@ class ImageController(
 //            "architecture", "room", "indoors", "desk", "apartment", "apartment interior", "exterior", "real estate",
 //            "garden", "pool", "terrace", "christmas tree", "christmas decor", "autumn decor"
 //        )
-        val tags = listOf("christmas tree")
+        val tags = listOf("home")
         unsplashClient.downloadByTags(tags, pageable) { images ->
             val filteredImages = images.items.filter { it.sourceId !in processedSourceIds }
             imageService.enrich(filteredImages)

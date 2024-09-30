@@ -2,6 +2,7 @@ package com.jcortes.deco.client
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jcortes.deco.client.BedrockImageClient.Companion
 import com.jcortes.deco.content.model.ScrapedDocument
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.core.SdkBytes
@@ -45,6 +46,10 @@ class BedrockDocumentClient(
         if(document.resume == null) {
             return null
         }
+        return embeddingsOf(document.resume!!)
+    }
+
+    fun embeddingsOf(prompt: String): List<Float>? {
         try {
             val nativeRequestTemplate = """
                   {
@@ -52,10 +57,10 @@ class BedrockDocumentClient(
                     "input_type": "search_document",
                     "embedding_types": ["float"]
                   }
-
+                
                 """
                 .trimIndent()
-                .replace("{{prompt}}", document.resume!!.replace("\n", " ").replace("\"", "\\\""))
+                .replace("{{prompt}}", prompt.replace("\n", " ").replace("\"", "\\\""))
 
             val response = client.invokeModel { request ->
                 request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))

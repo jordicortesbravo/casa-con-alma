@@ -101,7 +101,7 @@ class JdbcScrapedDocumentRepository(
         val params = MapSqlParameterSource()
         searchEmbedding?.let {
             params.addValue("embedding", floatArrayOf(searchEmbedding), Types.ARRAY)
-            params.addValue("threshold", 0.8)
+            params.addValue("threshold", 0.5)
         }
         params.addValue("siteCategories", stringArrayOf(siteCategories), Types.ARRAY)
         params.addValue("limit", pageable.pageSize)

@@ -41,7 +41,8 @@ class ScrapedDocumentService(
     }
 
     fun search(query: String?, siteCategories: List<String>, pageable: Pageable): List<ScrapedDocument> {
-        return scrapedDocumentRepository.search(null, siteCategories, pageable)
+        val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockDocumentClient.embeddingsOf(it) }
+        return scrapedDocumentRepository.search(embedding, siteCategories, pageable)
     }
 
     fun processedSourceIds(): List<String> {
