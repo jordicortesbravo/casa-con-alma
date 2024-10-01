@@ -141,6 +141,7 @@ class JdbcImageRepository(
         val params = MapSqlParameterSource()
         params.addValue("id", image.id)
         params.addValue("sourceId", image.sourceId)
+//        params.addValue("hasRights", image.hasRights)
         params.addValue("keywords", stringArrayOf(image.keywords), Types.ARRAY)
         params.addValue("embedding", floatArrayOf(image.embedding), Types.ARRAY)
         return params

@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 @JdbcRepositoryTest
-class JdbcScrapedDocumentRepositoryTest @Autowired constructor(
+class JdbcScrapedArticleRepositoryTest @Autowired constructor(
     private val repository: JdbcScrapedDocumentRepository,
     private val dataSource: DataSource,
 ) {

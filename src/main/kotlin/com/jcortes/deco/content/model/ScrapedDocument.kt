@@ -1,5 +1,6 @@
 package com.jcortes.deco.content.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.net.URI
 import java.time.Instant
 
@@ -18,5 +19,7 @@ class ScrapedDocument {
     var productCategories: List<String>? = null
     var relatedLinks: List<URI>? = null
 //    var images: List<URI>? = null
+
+    @JsonIgnore
     var embedding: List<Float>? = null
 }
