@@ -44,9 +44,9 @@ class ImageService(
         }
     }
 
-    fun search(query: String?, keywords: List<String>, pageable: Pageable): List<Image> {
+    fun search(query: String?, keywords: List<String>, hasRights: Boolean? = false, pageable: Pageable): List<Image> {
         val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockImageClient.embeddingsOf(it) }
-        return imageRepository.search(embedding, keywords, pageable)
+        return imageRepository.search(embedding, keywords, hasRights, pageable)
     }
 
     fun processedSourceIds(): List<String> {

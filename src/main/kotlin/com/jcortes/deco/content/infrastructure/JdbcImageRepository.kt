@@ -52,13 +52,14 @@ class JdbcImageRepository(
             .map { objectMapper.readValue(it, Image::class.java) }
     }
 
-    override fun search(searchEmbedding: List<Float>?, keywords: List<String>, pageable: Pageable): List<Image> {
+    override fun search(searchEmbedding: List<Float>?, keywords: List<String>, hasRights: Boolean?, pageable: Pageable): List<Image> {
         val embeddingClause = searchEmbedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
+        val hasRightsClause = hasRights?.let { " AND has_rights = :hasRights" } ?: ""
         val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), source_id" } ?: "source_id"
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE keywords @> :keywords $embeddingClause
+            WHERE keywords @> :keywords $embeddingClause $hasRightsClause
             ORDER BY $orderClause
             LIMIT :limit OFFSET :offset
         """
@@ -71,6 +72,7 @@ class JdbcImageRepository(
         params.addValue("keywords", stringArrayOf(keywords), Types.ARRAY)
         params.addValue("limit", pageable.pageSize)
         params.addValue("offset", pageable.pageNumber * pageable.pageSize)
+        hasRights?.let { params.addValue("hasRights", it) }
 
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
         return list(ids)
@@ -84,13 +86,13 @@ class JdbcImageRepository(
         return jdbcTemplate.query(query) { rs, _ -> rs.getString("source_id") }
     }
 
-    override fun iterate(maxElements: Int, keyword: String, embedding: List<Float>?): Iterator<Image> {
+    override fun iterate(maxElements: Int, keyword: String, hasRights: Boolean?, embedding: List<Float>?): Iterator<Image> {
         return ChunkIterator<DefaultChunkIteratorState, Image>(
             next = { previousState ->
                 if (previousState?.lastProcessedId != null && previousState.prevElements < maxElements) {
                     ChunkIterator.Chunk(null, null)
                 } else {
-                    val content = listByKeyword(previousState?.lastProcessedId ?: 0, maxElements, keyword, embedding)
+                    val content = listByKeyword(previousState?.lastProcessedId ?: 0, maxElements, keyword, hasRights, embedding)
                     ChunkIterator.Chunk(
                         DefaultChunkIteratorState(content.lastOrNull()?.id, content.size),
                         content.takeUnless { it.isEmpty() }
@@ -116,13 +118,14 @@ class JdbcImageRepository(
         jdbcTemplate.batchUpdate(SAVE_CONTENT_QUERY, contentParameters.toTypedArray())
     }
 
-    private fun listByKeyword(minId: Long, maxElements: Int, keyword: String, embedding: List<Float>?): List<Image> {
+    private fun listByKeyword(minId: Long, maxElements: Int, keyword: String, hasRights: Boolean?, embedding: List<Float>?): List<Image> {
         val orderClause = embedding?.let { "embedding <=> :embedding, id" } ?: "id"
+        val hasRightsClause = hasRights?.let { " AND has_rights = :hasRights" } ?: ""
         val query = """
             SELECT id
             FROM $TABLE_INDEX
             WHERE id > :minId
-              AND keywords @> :keyword
+              AND keywords @> :keyword $hasRightsClause
             ORDER BY $orderClause
             LIMIT :maxElements
         """
@@ -130,6 +133,7 @@ class JdbcImageRepository(
         params.addValue("minId", minId)
         params.addValue("maxElements", maxElements)
         params.addValue("keyword", stringArrayOf(listOf(keyword)), Types.ARRAY)
+        params.addValue("hasRights", stringArrayOf(listOf(keyword)), Types.ARRAY)
         embedding?.let { params.addValue("embedding", floatArrayOf(embedding), Types.ARRAY) }
 
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
@@ -141,9 +145,10 @@ class JdbcImageRepository(
         val params = MapSqlParameterSource()
         params.addValue("id", image.id)
         params.addValue("sourceId", image.sourceId)
-//        params.addValue("hasRights", image.hasRights)
         params.addValue("keywords", stringArrayOf(image.keywords), Types.ARRAY)
+        params.addValue("hasRights", image.hasRights)
         params.addValue("embedding", floatArrayOf(image.embedding), Types.ARRAY)
+        params.addValue("multimodalEmbedding", floatArrayOf(image.multimodalEmbedding), Types.ARRAY)
         return params
 
     }
@@ -166,10 +171,10 @@ class JdbcImageRepository(
 
     private companion object {
         private const val TABLE_INDEX = "deco.image_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, embedding)
-            VALUES (:id, :sourceId, :keywords, :embedding)
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, has_rights, embedding, multimodal_embedding)
+            VALUES (:id, :sourceId, :keywords, :hasRights, :embedding, :multimodalEmbedding)
             ON CONFLICT (id) DO UPDATE
-            SET source_id = :sourceId, keywords = :keywords, embedding = :embedding"""
+            SET source_id = :sourceId, keywords = :keywords, has_rights= :hasRights, embedding = :embedding, multimodal_embedding = :multimodalEmbedding"""
 
         private const val TABLE_CONTENT = "deco.image_content"
         private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, source_id, content)

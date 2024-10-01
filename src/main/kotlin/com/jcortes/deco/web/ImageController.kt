@@ -42,7 +42,7 @@ class ImageController(
         if (query == null && keywords.isEmpty()) {
             return SearchImageResponse(emptyList())
         }
-        val images = imageService.search(query, keywords, Pageable(page, 30))
+        val images = imageService.search(query, keywords, false, Pageable(page, 30))
 
         return SearchImageResponse(
             results = images.map {
