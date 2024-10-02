@@ -1,6 +1,7 @@
 package com.jcortes.deco.content.infrastructure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jcortes.deco.content.EmbeddingType
 import com.jcortes.deco.content.ImageRepository
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.util.*
@@ -41,6 +42,21 @@ class JdbcImageRepository(
             ?.let { objectMapper.readValue(it, Image::class.java) }
     }
 
+    override fun getEmbedding(id: Long, embeddingType: EmbeddingType): List<Float>? {
+        val embeddingClause = if (embeddingType == EmbeddingType.MULTI_MODAL) "multimodal_embedding" else "embedding"
+        val query = """
+            SELECT $embeddingClause
+            FROM $TABLE_INDEX
+            WHERE id = :id
+        """
+        return jdbcTemplate.query(query, JdbcUtils.paramsOf("id" to id)) { rs, _ -> rs.getString(embeddingClause) }
+            .firstOrNull()
+            ?.let { it.removeSurrounding("[", "]")
+                .split(",")
+                .map { f -> f.toFloat() }
+            }
+    }
+
     override fun list(ids: List<Long>): List<Image> {
         if (ids.isEmpty()) return emptyList()
         val query = """
@@ -52,10 +68,11 @@ class JdbcImageRepository(
             .map { objectMapper.readValue(it, Image::class.java) }
     }
 
-    override fun search(searchEmbedding: List<Float>?, keywords: List<String>, hasRights: Boolean?, pageable: Pageable): List<Image> {
-        val embeddingClause = searchEmbedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
+    override fun search(searchEmbedding: List<Float>?, embeddingType: EmbeddingType, keywords: List<String>, hasRights: Boolean?, pageable: Pageable): List<Image> {
+        val embeddingColumn = if (embeddingType == EmbeddingType.MULTI_MODAL) "multimodal_embedding" else "embedding"
+        val embeddingClause = searchEmbedding?.let { " AND $embeddingColumn <-> CAST(:embedding AS vector) > :threshold" } ?: ""
         val hasRightsClause = hasRights?.let { " AND has_rights = :hasRights" } ?: ""
-        val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), source_id" } ?: "source_id"
+        val orderClause = searchEmbedding?.let { "$embeddingColumn <-> CAST(:embedding AS vector), source_id" } ?: "source_id"
         val query = """
             SELECT id
             FROM $TABLE_INDEX
@@ -67,7 +84,7 @@ class JdbcImageRepository(
         val params = MapSqlParameterSource()
         searchEmbedding?.let {
             params.addValue("embedding", floatArrayOf(searchEmbedding), Types.ARRAY)
-            params.addValue("threshold", 0.8)
+            params.addValue("threshold", 0.9)
         }
         params.addValue("keywords", stringArrayOf(keywords), Types.ARRAY)
         params.addValue("limit", pageable.pageSize)

@@ -26,16 +26,22 @@ class ImageService(
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
+    fun enrich() {
+        val images = imageRepository.iterate().asSequence().toList().filter { !it.hasRights }.filter { it.embedding == null }
+        enrich(images)
+    }
+
+    @Transactional
     fun enrich(images: List<Image>) {
         try {
             images.parallelStream().forEach { image ->
 
                 val base64Image = image.toBase64()
-                val keywords = bedrockImageClient.keywordsOf(base64Image)
-                val description = bedrockImageClient.describe(base64Image)
-                val embeddings = description?.let { bedrockImageClient.embeddingsOf(it) }
-                val multiModalEmbeddings = description?.let { bedrockImageClient.multimodalEmbeddingsOf(it, base64Image) }
-                val caption = bedrockImageClient.captionOf(base64Image)
+                val keywords = image.keywords ?: bedrockImageClient.keywordsOf(base64Image)
+                val description = image.description ?: bedrockImageClient.describe(base64Image)
+                val embeddings = imageRepository.getEmbedding(image.id!!, EmbeddingType.TEXT) ?: description?.let { bedrockImageClient.embeddingsOf(it) }
+                val multiModalEmbeddings = imageRepository.getEmbedding(image.id!!, EmbeddingType.MULTI_MODAL) ?: description?.let { bedrockImageClient.multimodalEmbeddingsOf(it, base64Image) }
+                val caption = image.caption ?: bedrockImageClient.captionOf(base64Image)
 
                 image.keywords = image.keywords?.plus(keywords ?: emptyList()) ?: keywords
                 image.description = description
@@ -73,7 +79,12 @@ class ImageService(
 
     fun search(query: String?, keywords: List<String>, hasRights: Boolean? = false, pageable: Pageable): List<Image> {
         val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockImageClient.embeddingsOf(it) }
-        return imageRepository.search(embedding, keywords, hasRights, pageable)
+        return imageRepository.search(embedding, EmbeddingType.TEXT, keywords, hasRights, pageable)
+    }
+
+    fun related(imageId: Long, pageable: Pageable): List<Image> {
+        val embedding = imageRepository.getEmbedding(imageId, EmbeddingType.TEXT) ?: throw IllegalArgumentException("Image not found")
+        return imageRepository.search(embedding, EmbeddingType.TEXT, emptyList(), false, pageable)
     }
 
     fun processedSourceIds(): List<String> {

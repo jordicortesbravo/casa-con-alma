@@ -22,7 +22,7 @@ class ContentGenerationService(
             println("Article title is: ${scrapedDocument.title}")
             println()
             println("Images by embedding are:")
-            val imagesByEmbedding = imageRepository.search(scrapedDocument.embedding, emptyList(), false, Pageable(1, 10))
+            val imagesByEmbedding = imageRepository.search(scrapedDocument.embedding, EmbeddingType.TEXT, emptyList(), false, Pageable(1, 10))
             imagesByEmbedding.forEach { image ->
                 println(image.internalUri.toString().replace("file:/", "file:///"))
             }

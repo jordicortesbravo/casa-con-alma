@@ -1,0 +1,65 @@
+/* Establecer un tamaño consistente para las imágenes */
+.card-img-top {
+    width: 100%;
+    height: 200px; /* Puedes ajustar esta altura según tus preferencias */
+    object-fit: cover; /* Asegura que la imagen mantenga el aspecto correcto */
+}
+
+/* Context menu personalizado */
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.context-menu button {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 5px;
+    text-align: left;
+    border: none;
+    background: none;
+}
+
+.context-menu button:hover {
+    background-color: #f0f0f0;
+}
+
+/* Tooltip para las imágenes */
+.card-img-top[title] {
+    position: relative;
+    cursor: pointer;
+}
+
+.card-img-top[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-size: 14px;
+    z-index: 10;
+    transform: translateY(100%);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Hacer que el tooltip desaparezca cuando no esté sobre la imagen */
+.card-img-top[title]:hover::after {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.card {
+    margin-bottom: 20px;
+}

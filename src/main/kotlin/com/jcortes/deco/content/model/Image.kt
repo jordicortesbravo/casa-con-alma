@@ -1,9 +1,8 @@
 package com.jcortes.deco.content.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import java.net.URI
 
-class Image{
+class Image {
     var id: Long? = null
     lateinit var sourceId: String
 
@@ -12,9 +11,7 @@ class Image{
     var caption: String? = null
     var author: String? = null
 
-    @JsonIgnore
     var embedding: List<Float>? = null
-    @JsonIgnore
     var multimodalEmbedding: List<Float>? = null
 
     lateinit var sourceUrl: URI

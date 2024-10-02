@@ -19,6 +19,11 @@ class ImageController(
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
+    @GetMapping("/enrich")
+    fun enrichImages() {
+        imageService.enrich()
+    }
+
     @GetMapping("/unsplash/download")
     fun downloadImages() {
         val pageable = Pageable(1, 30)
@@ -38,22 +43,21 @@ class ImageController(
     }
 
     @GetMapping("/search")
-    fun search(@RequestParam query: String? = null, @RequestParam keywords: List<String> = emptyList(), @RequestParam sort: String? = null, @RequestParam page: Int = 1): SearchImageResponse {
+    fun search(@RequestParam query: String? = null, @RequestParam keywords: List<String> = emptyList(), @RequestParam hasRights: Boolean = false, @RequestParam sort: String? = null, @RequestParam page: Int = 1): List<ImageCard> {
         if (query == null && keywords.isEmpty()) {
-            return SearchImageResponse(emptyList())
+            return emptyList()
         }
-        val images = imageService.search(query, keywords, false, Pageable(page, 30))
-
-        return SearchImageResponse(
-            results = images.map {
-                ImageCard(it.id!!, it.sourceUrl.toString(), it.description)
-            }
-        )
+        return  imageService.search(query, keywords, hasRights, Pageable(page, 30)).map {
+            ImageCard(it.id!!, it.sourceUrl.toString(), it.description)
+        }
     }
 
-    data class SearchImageResponse(
-        val results: List<ImageCard>
-    )
+    @GetMapping("/related")
+    fun related(@RequestParam imageId: Long, @RequestParam page: Int = 1): List<ImageCard> {
+        return imageService.related(imageId, Pageable(page, 30)).map {
+            ImageCard(it.id!!, it.sourceUrl.toString(), it.description)
+        }
+    }
 
     data class ImageCard(
         val id: Long,

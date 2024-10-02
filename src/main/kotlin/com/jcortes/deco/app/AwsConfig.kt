@@ -1,12 +1,11 @@
 package com.jcortes.deco.app
 
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
 import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.regions.providers.AwsProfileRegionProvider
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 
 @Configuration
 class AwsConfig {
@@ -14,25 +13,21 @@ class AwsConfig {
     @Bean
     fun bedrockRuntimeClient(): BedrockRuntimeClient {
         return BedrockRuntimeClient.builder()
-            .credentialsProvider(Credentials.innovationWeekCredentialsProvider())
-            .region(Credentials.innovationWeekRegion())
+            .credentialsProvider(Credentials.ssoProfileCredentialsProvider())
+            .region(Credentials.ssoProfileRegion())
             .build()
     }
 
     private object Credentials {
 
-        private const val PROFILE_NAME = "Idealista-InnovationWeek"
+        private const val PROFILE_NAME = "YE-Playground"
 
-        fun innovationWeekCredentialsProvider(): AwsCredentialsProvider {
+        fun ssoProfileCredentialsProvider(): AwsCredentialsProvider {
             return ProfileCredentialsProvider.create(PROFILE_NAME)
         }
 
-        fun innovationWeekRegionProvider(): AwsProfileRegionProvider {
-            return AwsProfileRegionProvider(null, PROFILE_NAME)
-        }
-
-        fun innovationWeekRegion(): Region {
-            return innovationWeekRegionProvider().region
+        fun ssoProfileRegion(): Region {
+            return Region.of("us-east-1")
         }
     }
 }
