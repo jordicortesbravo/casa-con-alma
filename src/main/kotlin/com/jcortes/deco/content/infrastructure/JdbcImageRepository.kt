@@ -86,13 +86,13 @@ class JdbcImageRepository(
         return jdbcTemplate.query(query) { rs, _ -> rs.getString("source_id") }
     }
 
-    override fun iterate(maxElements: Int, keyword: String, hasRights: Boolean?, embedding: List<Float>?): Iterator<Image> {
+    override fun iterate(): Iterator<Image> {
         return ChunkIterator<DefaultChunkIteratorState, Image>(
             next = { previousState ->
-                if (previousState?.lastProcessedId != null && previousState.prevElements < maxElements) {
+                if (previousState?.lastProcessedId != null && previousState.prevElements < 1_000) {
                     ChunkIterator.Chunk(null, null)
                 } else {
-                    val content = listByKeyword(previousState?.lastProcessedId ?: 0, maxElements, keyword, hasRights, embedding)
+                    val content = list(previousState?.lastProcessedId ?: 0, 1_000)
                     ChunkIterator.Chunk(
                         DefaultChunkIteratorState(content.lastOrNull()?.id, content.size),
                         content.takeUnless { it.isEmpty() }
@@ -118,23 +118,17 @@ class JdbcImageRepository(
         jdbcTemplate.batchUpdate(SAVE_CONTENT_QUERY, contentParameters.toTypedArray())
     }
 
-    private fun listByKeyword(minId: Long, maxElements: Int, keyword: String, hasRights: Boolean?, embedding: List<Float>?): List<Image> {
-        val orderClause = embedding?.let { "embedding <=> :embedding, id" } ?: "id"
-        val hasRightsClause = hasRights?.let { " AND has_rights = :hasRights" } ?: ""
+    private fun list(minId: Long, maxElements: Int): List<Image> {
         val query = """
             SELECT id
             FROM $TABLE_INDEX
             WHERE id > :minId
-              AND keywords @> :keyword $hasRightsClause
-            ORDER BY $orderClause
+            ORDER BY id
             LIMIT :maxElements
         """
         val params = MapSqlParameterSource()
         params.addValue("minId", minId)
         params.addValue("maxElements", maxElements)
-        params.addValue("keyword", stringArrayOf(listOf(keyword)), Types.ARRAY)
-        params.addValue("hasRights", stringArrayOf(listOf(keyword)), Types.ARRAY)
-        embedding?.let { params.addValue("embedding", floatArrayOf(embedding), Types.ARRAY) }
 
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
 

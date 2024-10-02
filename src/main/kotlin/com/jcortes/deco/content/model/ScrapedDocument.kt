@@ -18,7 +18,7 @@ class ScrapedDocument {
     var siteCategories: List<SiteCategory>? = null
     var productCategories: List<String>? = null
     var relatedLinks: List<URI>? = null
-//    var images: List<URI>? = null
+    var images: List<Image>? = null
 
     @JsonIgnore
     var embedding: List<Float>? = null

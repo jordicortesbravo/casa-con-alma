@@ -12,7 +12,8 @@ import software.amazon.awssdk.services.bedrockruntime.model.ThrottlingException
 @Service
 class ScrapedDocumentService(
     private val bedrockDocumentClient: BedrockDocumentClient,
-    private val scrapedDocumentRepository: ScrapedDocumentRepository
+    private val scrapedDocumentRepository: ScrapedDocumentRepository,
+    private val imageService: ImageService
 ) {
 
     @Lazy
@@ -26,6 +27,26 @@ class ScrapedDocumentService(
                 doc.resume = bedrockDocumentClient.describe(doc)
                 doc.keywords = bedrockDocumentClient.keywordsOf(doc)
                 doc.embedding = bedrockDocumentClient.embeddingsOf(doc)
+                self.save(doc)
+            } catch (te: ThrottlingException) {
+              Thread.sleep(20_000)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun saveImageDocuments() {
+        val documents = scrapedDocumentRepository.iterate().asSequence().toList()
+        documents.forEach { doc ->
+            try{
+                val regex = Regex("""https://content\.elmueble\.com\S+\.(?:jpg|jpeg|png|gif)""")
+                val imageUrls = doc.content?.let { content -> regex.findAll(content).map { it.value }.toList() }
+                val images = imageUrls?.parallelStream()?.map { imageService.download(it)}?.toList()
+
+                images?.let { imageService.enrich(it) }
+
+                doc.images = images
                 self.save(doc)
             } catch (te: ThrottlingException) {
               Thread.sleep(20_000)

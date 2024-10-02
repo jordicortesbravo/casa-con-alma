@@ -1,9 +1,10 @@
 package com.jcortes.deco.content.infrastructure
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jcortes.deco.content.ImageRepository
 import com.jcortes.deco.content.ScrapedDocumentRepository
+import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.content.model.ScrapedDocument
-import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.ChunkIterator
 import com.jcortes.deco.util.DefaultChunkIteratorState
 import com.jcortes.deco.util.JdbcUtils
@@ -21,7 +22,8 @@ class JdbcScrapedDocumentRepository(
     private val dataSource: DataSource,
     private val jdbcTemplate: NamedParameterJdbcTemplate,
     private val objectMapper: ObjectMapper,
-    private val idRepository: IdRepository
+    private val idRepository: IdRepository,
+    private val imageRepository: ImageRepository
 ) : ScrapedDocumentRepository {
 
     override fun get(id: Long): ScrapedDocument? {
@@ -32,7 +34,11 @@ class JdbcScrapedDocumentRepository(
         """
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("id" to id)) { rs, _ -> rs.getBinaryStream("content") }
             .firstOrNull()
-            ?.let { objectMapper.readValue(it, ScrapedDocument::class.java) }
+            ?.let {
+                val doc = objectMapper.readValue(it, ScrapedDocument::class.java)
+                doc.images = listImages(doc)
+                doc
+            }
     }
 
     override fun get(sourceId: String): ScrapedDocument? {
@@ -43,18 +49,11 @@ class JdbcScrapedDocumentRepository(
         """
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("sourceId" to sourceId)) { rs, _ -> rs.getBinaryStream("content") }
             .firstOrNull()
-            ?.let { objectMapper.readValue(it, ScrapedDocument::class.java) }
-    }
-
-    override fun getAll(ids: List<Long>): List<ScrapedDocument> {
-        if (ids.isEmpty()) return emptyList()
-        val query = """
-            SELECT content
-            FROM $TABLE_CONTENT
-            WHERE id IN (:ids)
-        """
-        return jdbcTemplate.query(query, JdbcUtils.paramsOf("ids" to ids)) { rs, _ -> rs.getBinaryStream("content") }
-            .map { objectMapper.readValue(it, ScrapedDocument::class.java) }
+            ?.let {
+                val doc = objectMapper.readValue(it, ScrapedDocument::class.java)
+                doc.images = listImages(doc)
+                doc
+            }
     }
 
     override fun list(ids: List<Long>): List<ScrapedDocument> {
@@ -65,7 +64,11 @@ class JdbcScrapedDocumentRepository(
             WHERE id IN (:ids)
         """
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("ids" to ids)) { rs, _ -> rs.getBinaryStream("content") }
-            .map { objectMapper.readValue(it, ScrapedDocument::class.java) }
+            .map {
+                val doc = objectMapper.readValue(it, ScrapedDocument::class.java)
+                doc.images = listImages(doc)
+                doc
+            }
     }
 
     override fun listSourceIds(): List<String> {
@@ -111,13 +114,13 @@ class JdbcScrapedDocumentRepository(
         return list(ids)
     }
 
-    override fun iterate(maxElements: Int, category: SiteCategory?): Iterator<ScrapedDocument> {
+    override fun iterate(): Iterator<ScrapedDocument> {
         return ChunkIterator<DefaultChunkIteratorState, ScrapedDocument>(
             next = { previousState ->
-                if (previousState?.lastProcessedId != null && previousState.prevElements < maxElements) {
+                if (previousState?.lastProcessedId != null && previousState.prevElements < 1_000) {
                     ChunkIterator.Chunk(null, null)
                 } else {
-                    val content = list(previousState?.lastProcessedId ?: 0, maxElements, category)
+                    val content = list(previousState?.lastProcessedId ?: 0, 1_000)
                     ChunkIterator.Chunk(
                         DefaultChunkIteratorState(content.lastOrNull()?.id, content.size),
                         content.takeUnless { it.isEmpty() }
@@ -133,24 +136,37 @@ class JdbcScrapedDocumentRepository(
         scrapedDocument.id = previousScrapedDocument?.id ?: idRepository.nextId()
         jdbcTemplate.update(SAVE_INDEX_QUERY, indexParamsOf(scrapedDocument))
         jdbcTemplate.update(SAVE_CONTENT_QUERY, contentParamsOf(scrapedDocument))
+
+        scrapedDocument.images?.forEach { image ->
+            jdbcTemplate.update(SAVE_DOC_IMAGE_QUERY, JdbcUtils.paramsOf("docId" to scrapedDocument.id, "imageId" to image.id))
+        }
     }
 
-    private fun list(minId: Long, maxElements: Int, category: SiteCategory?): List<ScrapedDocument> {
-        val categoryClause = category?.let { " AND site_categories @> :category" } ?: ""
+    private fun list(minId: Long, maxElements: Int): List<ScrapedDocument> {
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE id > :minId $categoryClause
+            WHERE id > :minId
             ORDER BY id
             LIMIT :maxElements
         """
         val params = MapSqlParameterSource()
         params.addValue("minId", minId)
         params.addValue("maxElements", maxElements)
-        category?.let { params.addValue("category", stringArrayOf(listOf(category.name)), Types.ARRAY) }
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
 
-        return getAll(ids)
+        return list(ids)
+    }
+
+    private fun listImages(scrapedDocument: ScrapedDocument): List<Image> {
+        val query = """
+            SELECT image_id
+            FROM $TABLE_DOC_IMAGE
+            WHERE scraped_document_id = :docId
+        """
+        return jdbcTemplate.query(query, JdbcUtils.paramsOf("docId" to scrapedDocument.id!!)) { rs, _ ->
+            rs.getLong("image_id")
+        }.mapNotNull { imageId -> imageRepository.get(imageId) }
     }
 
     private fun indexParamsOf(scrapedDocument: ScrapedDocument): MapSqlParameterSource {
@@ -195,5 +211,9 @@ class JdbcScrapedDocumentRepository(
             VALUES (:id, :sourceId, :content)
             ON CONFLICT (id) DO UPDATE
             SET source_id = :sourceId, content = :content"""
+
+        private const val TABLE_DOC_IMAGE = "deco.scraped_document_image"
+        private const val SAVE_DOC_IMAGE_QUERY = """INSERT INTO $TABLE_DOC_IMAGE (scraped_document_id, image_id)
+            VALUES (:docId, :imageId)"""
     }
 }

@@ -93,13 +93,4 @@ class JdbcImageRepositoryTest @Autowired constructor(
         assertEquals(savedImage.seoUrl, savedImage.seoUrl)
         assertEquals(savedImage.internalUri, savedImage.internalUri)
     }
-
-    @Test
-    fun `it should iterate images by keyword`() {
-        val iterator = repository.iterate(1, "living room")
-        val document = iterator.next()
-        assertEquals(document.id, 1)
-        assertEquals(document.sourceId, "t1")
-        assertThat(iterator.hasNext()).isFalse()
-    }
 }

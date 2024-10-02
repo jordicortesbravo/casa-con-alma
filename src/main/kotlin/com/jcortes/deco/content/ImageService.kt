@@ -8,13 +8,20 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.util.*
+import kotlin.random.Random
 
 @Service
 class ImageService(
     private val imageRepository: ImageRepository,
-    private val bedrockImageClient: BedrockImageClient,
+    private val bedrockImageClient: BedrockImageClient
 ) {
+
+    private val client = HttpClient.newBuilder().build()
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -24,15 +31,16 @@ class ImageService(
             images.parallelStream().forEach { image ->
 
                 val base64Image = image.toBase64()
-
                 val keywords = bedrockImageClient.keywordsOf(base64Image)
                 val description = bedrockImageClient.describe(base64Image)
                 val embeddings = description?.let { bedrockImageClient.embeddingsOf(it) }
+                val multiModalEmbeddings = description?.let { bedrockImageClient.multimodalEmbeddingsOf(it, base64Image) }
                 val caption = bedrockImageClient.captionOf(base64Image)
 
                 image.keywords = image.keywords?.plus(keywords ?: emptyList()) ?: keywords
                 image.description = description
                 image.embedding = embeddings
+                image.multimodalEmbedding = multiModalEmbeddings
                 image.caption = caption
 
                 imageRepository.save(image)
@@ -41,6 +49,25 @@ class ImageService(
         } catch (e: Exception) {
             e.printStackTrace()
 //            throw e
+        }
+    }
+
+    fun download(imageUrl: String): Image {
+        val request = HttpRequest.newBuilder()
+            .uri(URI(imageUrl))
+            .GET()
+            .build()
+        client.send(request, HttpResponse.BodyHandlers.ofByteArray()).body().let { imageBytes ->
+            val image = Image().apply {
+                sourceId = "el-mueble::${RANDOM.nextLong()}"
+                sourceUrl = URI(imageUrl)
+                hasRights = true
+            }
+            val tempFile = File.createTempFile("image", ".jpg")
+            tempFile.writeBytes(imageBytes)
+            image.internalUri = tempFile.toURI()
+
+            return image
         }
     }
 
@@ -56,5 +83,9 @@ class ImageService(
     private fun Image.toBase64(): String {
         val imageBytes = this.internalUri?.let { File(it).readBytes() } ?: throw IllegalStateException("Image has no internal URI")
         return Base64.getEncoder().encodeToString(imageBytes)
+    }
+
+    companion object {
+        private val RANDOM = Random(System.currentTimeMillis())
     }
 }

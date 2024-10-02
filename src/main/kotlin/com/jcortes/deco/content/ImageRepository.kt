@@ -10,7 +10,7 @@ interface ImageRepository {
     fun list(ids: List<Long>): List<Image>
     fun search(searchEmbedding: List<Float>? = null, keywords: List<String>, hasRights: Boolean? = false, pageable: Pageable): List<Image>
     fun listSourceIds(): List<String>
-    fun iterate(maxElements: Int = 1000, keyword: String, hasRights: Boolean? = false, embedding: List<Float>? = null): Iterator<Image>
+    fun iterate(): Iterator<Image>
     fun save(image: Image)
     fun save(images: List<Image>)
 }

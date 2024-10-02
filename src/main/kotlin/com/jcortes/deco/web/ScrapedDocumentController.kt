@@ -30,5 +30,11 @@ class ScrapedDocumentController(
         val categories = if(category.isBlank()) emptyList() else listOf(category)
         return SearchDocumentsResponse(documentService.search(query, categories, Pageable(page, pageSize)))
     }
+
+    @GetMapping("/save-images")
+    fun saveImages() {
+        documentService.saveImageDocuments()
+    }
+
     data class SearchDocumentsResponse(val results: List<ScrapedDocument>)
 }

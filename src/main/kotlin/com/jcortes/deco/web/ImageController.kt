@@ -46,7 +46,7 @@ class ImageController(
 
         return SearchImageResponse(
             results = images.map {
-                ImageCard(it.sourceUrl.toString(), it.description)
+                ImageCard(it.id!!, it.sourceUrl.toString(), it.description)
             }
         )
     }
@@ -56,6 +56,7 @@ class ImageController(
     )
 
     data class ImageCard(
+        val id: Long,
         val thumbnailUrl: String,
         val description: String?
     )

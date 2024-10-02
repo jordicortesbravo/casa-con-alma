@@ -68,6 +68,31 @@ class BedrockImageClient(
         }
     }
 
+    fun multimodalEmbeddingsOf(imageDescription: String, base64Image: String): List<Float>? {
+        try {
+            val nativeRequestTemplate = """
+                  {
+                    "inputText": "{{imageDescription}}",
+                    "inputImage": "{{base64Image}}"
+                  }
+                """
+                .trimIndent()
+                .replace("{{imageDescription}}", imageDescription.replace("\n", " ").replace("\"", "\\\""))
+                .replace("{{base64Image}}", base64Image)
+
+            val response = client.invokeModel { request ->
+                request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))
+                    .modelId(MULTIMODAL_EMBEDDINGS_MODEL)
+            }
+
+            val json = objectMapper.readTree(response.body().asUtf8String())
+            return json["embedding"].map { it.asDouble().toFloat() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
     private fun invokeClaudeModel(promptString: String, base64Image: String): JsonNode {
         val nativeRequest = CLAUDE_TEMPLATE
             .trimIndent()
@@ -86,6 +111,7 @@ class BedrockImageClient(
     companion object {
         private const val CLAUDE_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
         private const val EMBEDDINGS_MODEL = "cohere.embed-multilingual-v3"
+        private const val MULTIMODAL_EMBEDDINGS_MODEL = "amazon.titan-embed-image-v1"
 
         private const val DESCRIPTION_PROMPT =
             "Debes describir las imágenes pueden ser de decoración, interiorismo, jardinería, muebles, cocinas y baños o cualquier oitro tipo de fotografía relacionado con la decoración. Debes ser muy descriptivo y conciso sobre el tipo de decoración, gama de colores, objetos, muebles, texturas y materiales. El objetivo es describir claramente lo que hay en las fotografías para después poder realizar búsquedas semánticas sobre esas fotografías.Las descripciones en español y no más de 2000 carácteres."
