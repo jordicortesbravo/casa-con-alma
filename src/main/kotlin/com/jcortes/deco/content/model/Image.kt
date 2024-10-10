@@ -1,5 +1,6 @@
 package com.jcortes.deco.content.model
 
+import com.fasterxml.jackson.databind.JsonNode
 import java.net.URI
 
 class Image {
@@ -19,4 +20,5 @@ class Image {
     var seoUrl: URI? = null
     var internalUri: URI? = null
     var hasRights: Boolean = false
+    var characteristics: JsonNode? = null
 }

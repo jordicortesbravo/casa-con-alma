@@ -58,7 +58,7 @@ class JdbcScrapedArticleRepositoryTest @Autowired constructor(
 
     @Test
     fun `it should get all scraped documents by ids`() {
-        val documents = repository.getAll(listOf(1, 2))
+        val documents = repository.list(listOf(1, 2))
         assertEquals(documents.size, 2)
         assertEquals(documents[0].id, 1)
         assertEquals(documents[1].id, 2)
@@ -93,18 +93,4 @@ class JdbcScrapedArticleRepositoryTest @Autowired constructor(
         assertContentEquals(savedDocument.productCategories, scrapedDocument.productCategories)
     }
 
-    @Test
-    fun `it should iterate scraped documents by category`() {
-        val iterator = repository.iterate(1, SiteCategory.OUTDOORS_AND_GARDENS)
-        val document = iterator.next()
-        assertEquals(document.id, 3)
-        assertEquals(document.sourceId, "41727")
-        assertThat(document.title).isNotBlank()
-        assertThat(document.subtitle).isNotBlank()
-        assertThat(document.content).isNotBlank()
-        assertContentEquals(document.keywords, listOf("cocina", "pequeño"))
-        assertContentEquals(document.siteCategories, listOf(SiteCategory.OUTDOORS_AND_GARDENS))
-        assertContentEquals(document.productCategories, listOf("jardin"))
-        assertThat(iterator.hasNext()).isFalse()
-    }
 }

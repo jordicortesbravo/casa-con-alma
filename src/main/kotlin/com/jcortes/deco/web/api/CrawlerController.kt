@@ -1,4 +1,4 @@
-package com.jcortes.deco.web
+package com.jcortes.deco.web.api
 
 import com.jcortes.deco.content.ScrapedDocumentService
 import com.jcortes.deco.crawler.Crawler

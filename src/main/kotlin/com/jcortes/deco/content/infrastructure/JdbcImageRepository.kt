@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.jcortes.deco.content.EmbeddingType
 import com.jcortes.deco.content.ImageRepository
 import com.jcortes.deco.content.model.Image
+import com.jcortes.deco.content.model.ImageSearchRequest
 import com.jcortes.deco.util.*
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
@@ -68,28 +69,31 @@ class JdbcImageRepository(
             .map { objectMapper.readValue(it, Image::class.java) }
     }
 
-    override fun search(searchEmbedding: List<Float>?, embeddingType: EmbeddingType, keywords: List<String>, hasRights: Boolean?, pageable: Pageable): List<Image> {
-        val embeddingColumn = if (embeddingType == EmbeddingType.MULTI_MODAL) "multimodal_embedding" else "embedding"
-        val embeddingClause = searchEmbedding?.let { " AND $embeddingColumn <-> CAST(:embedding AS vector) > :threshold" } ?: ""
-        val hasRightsClause = hasRights?.let { " AND has_rights = :hasRights" } ?: ""
-        val orderClause = searchEmbedding?.let { "$embeddingColumn <-> CAST(:embedding AS vector), source_id" } ?: "source_id"
+    override fun search(request: ImageSearchRequest): List<Image> {
+        val embeddingColumn = if (request.embeddingType == EmbeddingType.MULTI_MODAL) "multimodal_embedding" else "embedding"
+        val hasRightsClause = request.hasRights?.let { " AND has_rights = :hasRights" } ?: ""
+        val lightIntensityClause = " AND light_intensity >= :lightIntensity"
+        val eleganceClause = " AND elegance >= :elegance"
+
+        val keywordMatchClause = """(SELECT COUNT(*) FROM unnest(keywords) AS k WHERE k = ANY(:keywords)) >= :minMatches"""
+
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE keywords @> :keywords $embeddingClause $hasRightsClause
-            ORDER BY $orderClause
+            WHERE $keywordMatchClause $hasRightsClause $lightIntensityClause $eleganceClause
+            ORDER BY $embeddingColumn <=> CAST(:embedding AS vector), elegance DESC, light_intensity DESC
             LIMIT :limit OFFSET :offset
         """
 
         val params = MapSqlParameterSource()
-        searchEmbedding?.let {
-            params.addValue("embedding", floatArrayOf(searchEmbedding), Types.ARRAY)
-            params.addValue("threshold", 0.9)
-        }
-        params.addValue("keywords", stringArrayOf(keywords), Types.ARRAY)
-        params.addValue("limit", pageable.pageSize)
-        params.addValue("offset", pageable.pageNumber * pageable.pageSize)
-        hasRights?.let { params.addValue("hasRights", it) }
+        request.searchEmbedding?.let { params.addValue("embedding", floatArrayOf(it), Types.ARRAY) }
+        params.addValue("keywords", stringArrayOf(request.keywords), Types.ARRAY)
+        params.addValue("minMatches", request.minKeywordsMatch)
+        params.addValue("lightIntensity", request.lightIntensity)
+        params.addValue("elegance", request.elegance)
+        params.addValue("limit", request.pageSize)
+        params.addValue("offset", request.pageNumber * request.pageSize)
+        request.hasRights?.let { params.addValue("hasRights", it) }
 
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
         return list(ids)
@@ -157,6 +161,8 @@ class JdbcImageRepository(
         params.addValue("id", image.id)
         params.addValue("sourceId", image.sourceId)
         params.addValue("keywords", stringArrayOf(image.keywords), Types.ARRAY)
+        params.addValue("lightIntensity", image.characteristics?.get("lightIntensity")?.asDouble())
+        params.addValue("elegance", image.characteristics?.get("elegance")?.asDouble())
         params.addValue("hasRights", image.hasRights)
         params.addValue("embedding", floatArrayOf(image.embedding), Types.ARRAY)
         params.addValue("multimodalEmbedding", floatArrayOf(image.multimodalEmbedding), Types.ARRAY)
@@ -182,10 +188,10 @@ class JdbcImageRepository(
 
     private companion object {
         private const val TABLE_INDEX = "deco.image_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, has_rights, embedding, multimodal_embedding)
-            VALUES (:id, :sourceId, :keywords, :hasRights, :embedding, :multimodalEmbedding)
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, has_rights, embedding, multimodal_embedding, light_intensity, elegance)
+            VALUES (:id, :sourceId, :keywords, :hasRights, :embedding, :multimodalEmbedding, :lightIntensity, :elegance)
             ON CONFLICT (id) DO UPDATE
-            SET source_id = :sourceId, keywords = :keywords, has_rights= :hasRights, embedding = :embedding, multimodal_embedding = :multimodalEmbedding"""
+            SET source_id = :sourceId, keywords = :keywords, has_rights= :hasRights, embedding = :embedding, multimodal_embedding = :multimodalEmbedding, light_intensity = :lightIntensity, elegance = :elegance"""
 
         private const val TABLE_CONTENT = "deco.image_content"
         private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, source_id, content)

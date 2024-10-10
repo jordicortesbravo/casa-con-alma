@@ -1,4 +1,4 @@
-package com.jcortes.deco.web
+package com.jcortes.deco.web.api
 
 import com.jcortes.deco.content.ContentGenerationService
 import org.springframework.web.bind.annotation.GetMapping
