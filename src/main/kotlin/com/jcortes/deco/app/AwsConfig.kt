@@ -27,7 +27,7 @@ class AwsConfig {
         }
 
         fun ssoProfileRegion(): Region {
-            return Region.of("us-east-1")
+            return Region.of("us-west-2")
         }
     }
 }

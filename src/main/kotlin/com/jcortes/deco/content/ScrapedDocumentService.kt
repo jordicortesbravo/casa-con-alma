@@ -1,6 +1,6 @@
 package com.jcortes.deco.content
 
-import com.jcortes.deco.client.BedrockTextClient
+import com.jcortes.deco.client.bedrock.BedrockTextClient
 import com.jcortes.deco.content.model.ScrapedDocument
 import com.jcortes.deco.util.Pageable
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,9 +24,9 @@ class ScrapedDocumentService(
         val documents = scrapedDocumentRepository.listWithoutEmbedding()
         documents.parallelStream().forEach { doc ->
             try{
-                doc.resume = bedrockTextClient.invokeTextModel(userPrompt = doc.content, systemPrompt = DESCRIPTION_PROMPT)
-                doc.keywords = bedrockTextClient.invokeTextModel(userPrompt = doc.content, systemPrompt = KEYWORDS_PROMPT) { extractKeywords(it) }
-                doc.embedding = bedrockTextClient.invokeEmbeddingModel(userPrompt = doc.resume!!)
+//                doc.resume = bedrockTextClient.invokeTextModel(userPrompt = doc.content, systemPrompt = DESCRIPTION_PROMPT)
+//                doc.keywords = bedrockTextClient.invokeTextModel(userPrompt = doc.content, systemPrompt = KEYWORDS_PROMPT) { extractKeywords(it) }
+//                doc.embedding = bedrockTextClient.invokeEmbeddingModel(userPrompt = doc.resume!!)
                 self.save(doc)
             } catch (te: ThrottlingException) {
               Thread.sleep(20_000)

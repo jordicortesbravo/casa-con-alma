@@ -1,4 +1,4 @@
-package com.jcortes.deco.client
+package com.jcortes.deco.client.bedrock
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -101,6 +101,30 @@ class BedrockImageClient(
 
             val json = objectMapper.readTree(response.body().asUtf8String())
             return json["embedding"].map { it.asDouble().toFloat() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    fun invokeStableDiffusionModel(inferenceRequest: BedrockImageInferenceRequest): JsonNode? {
+        try {
+            val nativeRequestTemplate = """
+                {
+                    "aspect_ratio": "1:1",
+                    "mode": "text-to-image",
+                    "output_format": "jpeg",
+                    "prompt": "{{prompt}}"
+                }
+                """.replace("{{prompt}}", inferenceRequest.userPrompt)
+            val response = client.invokeModel { request ->
+                request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))
+                    .contentType("application/json")
+                    .modelId(inferenceRequest.model.id)
+            }
+
+            val json = objectMapper.readTree(response.body().asUtf8String())
+            return json
         } catch (e: Exception) {
             e.printStackTrace()
             return null

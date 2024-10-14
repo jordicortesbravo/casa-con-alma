@@ -1,5 +1,6 @@
 package com.jcortes.deco.content.model
 
+import java.net.URL
 import java.time.Instant
 
 enum class ArticleStatus {
@@ -10,14 +11,17 @@ class Article {
 
     var id: Long? = null
     var title: String? = null
+    var description: String? = "Esta es la descripción del artículo"
     var subtitle: String? = null
     var content: String? = null
     var keywords: List<String>? = null
+    var tags: List<String>? = null
     var siteCategories: List<SiteCategory>? = null
     var productCategories: List<String>? = null
     var images: List<Image>? = null
     var status: ArticleStatus = ArticleStatus.DRAFT
     var embedding: List<Float>? = null
+    var seoUrl: URL? = null
     var createInstant: Instant = Instant.now()
     var updateInstant: Instant = Instant.now()
     var publishInstant: Instant? = null

@@ -44,6 +44,7 @@ class WebConfig : WebMvcConfigurer {
         suffix = ".html"
         setTemplateMode("HTML")
         characterEncoding = "UTF-8"
+        isCacheable = false
     }
 
     @Bean

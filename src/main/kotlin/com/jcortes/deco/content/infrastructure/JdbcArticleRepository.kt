@@ -144,6 +144,7 @@ class JdbcArticleRepository(
         val params = MapSqlParameterSource()
         params.addValue("id", article.id)
         params.addValue("keywords", stringArrayOf(article.keywords), Types.ARRAY)
+        params.addValue("tags", stringArrayOf(article.tags), Types.ARRAY)
         params.addValue("siteCategories", stringArrayOf(article.siteCategories?.map { it.name }), Types.ARRAY)
         params.addValue("productCategories", stringArrayOf(article.productCategories), Types.ARRAY)
         params.addValue("status", article.status.name)
@@ -173,10 +174,10 @@ class JdbcArticleRepository(
 
     private companion object {
         private const val TABLE_INDEX = "deco.article_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, keywords, site_categories, product_categories, status, create_instant, update_instant, publish_instant, embedding)
-            VALUES (:id, :keywords, :siteCategories, :productCategories, :status, :createInstant, :updateInstant, :publishInstant, :embedding)
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, keywords, tags, site_categories, product_categories, status, create_instant, update_instant, publish_instant, embedding)
+            VALUES (:id, :keywords, :tags, :siteCategories, :productCategories, :status, :createInstant, :updateInstant, :publishInstant, :embedding)
             ON CONFLICT (id) DO UPDATE
-            SET keywords = :keywords, site_categories = :siteCategories, product_categories = :productCategories, status = :status, create_instant = :createInstant, update_instant = :updateInstant, publish_instant = :publishInstant, embedding = :embedding"""
+            SET keywords = :keywords, tags = :tags, site_categories = :siteCategories, product_categories = :productCategories, status = :status, create_instant = :createInstant, update_instant = :updateInstant, publish_instant = :publishInstant, embedding = :embedding"""
 
         private const val TABLE_CONTENT = "deco.article_content"
         private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, content)

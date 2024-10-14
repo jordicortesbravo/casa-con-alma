@@ -4,6 +4,7 @@
 app:
   name: crawler
   base-path: /crawler
+  base-url: http://localhost:8080/crawler
   allowed-origins: ${ALLOWED_ORIGINS}
 
   db:

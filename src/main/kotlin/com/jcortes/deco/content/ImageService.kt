@@ -1,6 +1,6 @@
 package com.jcortes.deco.content
 
-import com.jcortes.deco.client.BedrockImageClient
+import com.jcortes.deco.client.bedrock.BedrockImageClient
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.content.model.ImageSearchRequest
 import com.jcortes.deco.util.Pageable
@@ -86,6 +86,10 @@ class ImageService(
 
             return image
         }
+    }
+
+    fun generate(prompt: String): Image {
+        TODO ("not implemented yet")
     }
 
     fun search(query: String?, keywords: List<String>, hasRights: Boolean? = false, pageable: Pageable): List<Image> {
