@@ -78,7 +78,7 @@ class ArticleService(
         articleRepository.save(article)
     }
 
-    fun search(query: String?, siteCategories: List<String>, pageable: Pageable): List<Article> {
+    fun search(query: String? = null, siteCategories: List<String>, pageable: Pageable): List<Article> {
         val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockTextClient.invokeEmbeddingModel(userPrompt = it) }
         val request = ArticleSearchRequest(embedding = embedding, siteCategories = siteCategories, pageSize = pageable.pageSize, pageNumber = pageable.pageNumber)
         return articleRepository.search(request)

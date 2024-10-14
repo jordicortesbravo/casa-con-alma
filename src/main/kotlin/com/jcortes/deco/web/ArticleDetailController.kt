@@ -52,6 +52,7 @@ class ArticleDetailController(
         breadcrumbs += ResourceItem(article.title!!, article.seoUrl?.toString() ?: "seo-url-not-found")
         return breadcrumbs
     }
+
     private fun seo(article: Article): Seo {
         val socialNetworkTags = SocialNetworkTags(
             title = article.title ?: "social-network-title-not-found",
