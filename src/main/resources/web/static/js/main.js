@@ -227,10 +227,10 @@
   $(window).on("scroll", function() {
     var ScrollBarPostion = $(window).scrollTop();
     if (ScrollBarPostion > 150) {
-      $(".eblog-header-area").addClass("header-sticky");      
+      $(".home-with-soul-header-area").addClass("header-sticky");
     } else {
-      $(".eblog-header-area").removeClass("header-sticky");
-      $(".eblog-header-area .eblog-header-top").removeClass("remove-content");     
+      $(".home-with-soul-header-area").removeClass("header-sticky");
+      $(".home-with-soul-header-area .home-with-soul-header-top").removeClass("remove-content");
     }
   });
 
@@ -250,7 +250,7 @@
 	});
 
   // Day 
-  var rts_date = $('#eblog-date');
+  var rts_date = $('#home-with-soul-date');
   if(rts_date.length){
     const weekday = ["Sun","Mon","Tues","Wed","Thur","Fri","Sat"];
     const month = ["Jan","Feb","March","April","May","June","July","August","Sept","Oct","Nov","Dec"];
@@ -259,7 +259,7 @@
     let mdate = d.getDate();
     const year = d.getFullYear().toString().substr(2, 2);
     let mname = month[d.getMonth()];
-    document.getElementById("eblog-date").innerHTML = '<strong>'+day+'</strong>'+ ', ' + mdate+ ' ' + mname + '  '+ year ;
+    document.getElementById("home-with-soul-date").innerHTML = '<strong>'+day+'</strong>'+ ', ' + mdate+ ' ' + mname + '  '+ year ;
   }
 
   // stickySidebar

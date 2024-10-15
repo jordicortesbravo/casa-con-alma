@@ -1,5 +1,5 @@
 // **************************************** =========== Start Home Page (1) Our Footer Area  ===========  ****************************************//
-.eblog-footer-area{
+.home-with-soul-footer-area{
     background-color: var(--color-heading-1);
     @media(max-width:1199px){
         padding: 90px 20px 0 20px;
@@ -7,7 +7,7 @@
     @media(max-width:575px){
         padding: 60px 0 0 0;
     }
-    .eblog-footer-inner{
+    .home-with-soul-footer-inner{
         display: flex;
         justify-content: space-between;
         padding-bottom: 100px;
@@ -150,7 +150,7 @@
             }
         }
     }
-    .eblog-footer-copyright-area{
+    .home-with-soul-footer-copyright-area{
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: 30px 0;
         text-align: center;
@@ -168,8 +168,8 @@
         }
     }
     &.footer-two{
-        .eblog-footer-inner .social-area .social-wrapper li a:hover,
-        .eblog-footer-inner .footer-newsletter-area form .form-inner .single-input-wrapper button{
+        .home-with-soul-footer-inner .social-area .social-wrapper li a:hover,
+        .home-with-soul-footer-inner .footer-newsletter-area form .form-inner .single-input-wrapper button{
             background: var(--color-primary-2);
         }
         form{
@@ -185,7 +185,7 @@
         padding-top: 0;
         background: var(--color-white);
         border-top: 1px solid #EEEEEE;
-        .eblog-footer-inner{
+        .home-with-soul-footer-inner{
             padding-bottom: 0;
         }
         .footer-one-main-wrapper {
@@ -373,7 +373,7 @@
                             }
                         }
                     }
-                    .eblog-post-list-style{
+                    .home-with-soul-post-list-style{
                         gap: 13px;
                         margin-bottom: 20px;
                         &:last-child{
@@ -404,7 +404,7 @@
                 }
             }
         }
-        .eblog-footer-copyright-area{
+        .home-with-soul-footer-copyright-area{
         border-top: 1px solid #EEEEEE;
             .copyright-content .title{
                 color: #1E1E1E;
@@ -415,7 +415,7 @@
         padding-top: 0;
         background: var(--color-white);
         border-top: 1px solid #EEEEEE;
-        .eblog-footer-inner{
+        .home-with-soul-footer-inner{
             padding-bottom: 0;
         }
         .footer-one-main-wrapper {
@@ -604,7 +604,7 @@
                             }
                         }
                     }
-                    .eblog-post-list-style{
+                    .home-with-soul-post-list-style{
                         gap: 13px;
                         margin-bottom: 20px;
                         &:last-child{
@@ -636,7 +636,7 @@
                 }
             }
         }
-        .eblog-footer-copyright-area{
+        .home-with-soul-footer-copyright-area{
         border-top: 1px solid #EEEEEE;
             .copyright-content .title{
                 color: #1E1E1E;
@@ -645,7 +645,7 @@
     }
     &.footer-inner{
         background: var(--color-white);
-        .eblog-footer-inner{
+        .home-with-soul-footer-inner{
             .social-area{
                 .tag{
                     color: var(--color-heading-1);
@@ -666,7 +666,7 @@
             } 
         }
 
-        .eblog-footer-inner .footer-newsletter-area form .form-inner .single-input-wrapper button{
+        .home-with-soul-footer-inner .footer-newsletter-area form .form-inner .single-input-wrapper button{
             background: var(--color-primary-2);
             border-radius: 0;
         }
@@ -677,11 +677,11 @@
                 }
             }
         }
-        .eblog-footer-inner .footer-newsletter-area form .form-inner .single-input-wrapper input{
+        .home-with-soul-footer-inner .footer-newsletter-area form .form-inner .single-input-wrapper input{
             border: 1px solid #d9d9d9;
             border-radius: 0;
         }
-        .eblog-footer-copyright-area{
+        .home-with-soul-footer-copyright-area{
             border-top: 1px solid #EEEEEE;
             .copyright-content .title{
                 color: var(--color-heading-1);
@@ -691,7 +691,7 @@
 }
 html[data-theme=dark] body{
     &.home-two{
-        .eblog-footer-area.footer-2 .eblog-get-in-tuch h4{
+        .home-with-soul-footer-area.footer-2 .home-with-soul-get-in-tuch h4{
             color: var(--dark-color-heading-1);
         }
     }
@@ -761,7 +761,7 @@ html[data-theme=dark] body{
         background: var(--color-primary-4);
     }
 }
-.footer-single-wized.post .eblog-post-list-style {
+.footer-single-wized.post .home-with-soul-post-list-style {
     align-items: start;
     .image-area {
         max-width: 80px;
