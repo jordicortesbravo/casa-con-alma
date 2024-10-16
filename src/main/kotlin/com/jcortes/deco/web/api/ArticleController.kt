@@ -28,7 +28,7 @@ class ArticleController(
         @RequestParam pageSize: Int = 50
     ): ArticlesResponse {
         val categories = if (category.isBlank()) emptyList() else listOf(category)
-        return ArticlesResponse(articleService.search(query, categories, Pageable(page, pageSize)))
+        return ArticlesResponse(articleService.search(query = query, siteCategories = categories, pageable = Pageable(page, pageSize)))
     }
 
     data class ArticlesResponse(val results: List<Article>)

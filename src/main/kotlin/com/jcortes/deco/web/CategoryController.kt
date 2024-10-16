@@ -43,7 +43,7 @@ class CategoryController(
     private fun seo(category: SiteCategory, articles: List<Article>): Seo {
         val socialNetworkTags = SocialNetworkTags(
             title = "Artículos de ${category.label}",
-            description = "AExplora nuestra selección de artículos de ${category.label} y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
+            description = "Explora nuestra selección de artículos de ${category.label} y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
             image = "social-network-image-not-found",
             url = category.seoUrl
         )

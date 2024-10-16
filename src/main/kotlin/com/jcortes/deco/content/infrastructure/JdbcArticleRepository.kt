@@ -60,13 +60,14 @@ class JdbcArticleRepository(
 
 
     override fun search(request: ArticleSearchRequest): List<Article> {
+        val categoryClause = request.siteCategories?.takeUnless { it.isEmpty() }?.let { "site_categories @> :siteCategories" } ?: "TRUE"
         val embeddingClause = request.embedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
+        val tagsClause = request.tags?.takeUnless { it.isEmpty() }?.let { " AND tags @> :tags" } ?: " AND TRUE"
         val orderClause = request.embedding?.let { "embedding <=> CAST(:embedding AS vector), id DESC" } ?: "id DESC"
-        val categoryClause = request.siteCategories.takeUnless { it.isEmpty() }?.let { "site_categories @> :siteCategories" } ?: "TRUE"
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE $categoryClause $embeddingClause
+            WHERE $categoryClause $embeddingClause $tagsClause
             ORDER BY $orderClause
             LIMIT :limit OFFSET :offset
         """
@@ -77,6 +78,7 @@ class JdbcArticleRepository(
             params.addValue("threshold", 0.5)
         }
         params.addValue("siteCategories", stringArrayOf(request.siteCategories), Types.ARRAY)
+        params.addValue("tags", stringArrayOf(request.tags), Types.ARRAY)
         params.addValue("limit", request.pageSize)
         params.addValue("offset", request.pageNumber * request.pageSize)
 

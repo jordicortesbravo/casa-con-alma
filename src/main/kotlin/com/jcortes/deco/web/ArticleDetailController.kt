@@ -40,7 +40,7 @@ class ArticleDetailController(
             relatedArticles = relatedArticles,
             featuredArticle = trendingArticles.first(),
             trendingArticles = trendingArticles.subList(1, trendingArticles.size),
-            tags = tags.mapNotNull { DecorTag.fromLabel(it)}.map { ResourceItem(it.label, "/${it.seoUrl}") },
+            tags = tags.mapNotNull { DecorTag.fromLabel(it)}.map { ResourceItem(it.label, it.seoUrl) },
             seo = seo(article)
         )
     }

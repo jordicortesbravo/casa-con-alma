@@ -44,7 +44,7 @@
                     <div class="row align-items-center plr_md--30 plr_sm--30 plr--10">
                         <div class="col-xl-2 col-lg-2 col-md-7 col-sm-7 col-7 p-0">
                             <div class="home-with-soul-site-logo">
-                                <a class="logo-light" href="index.html"><img src="static/images/logo/casa-con-alma-white.png" alt="home-with-soul" style="height:40px"></a>
+                                <a class="logo-light" href="/"><img src="static/images/logo/casa-con-alma-white.png" alt="home-with-soul" style="height:40px"></a>
                             </div>
                         </div>
                         <div class="col-xl-8 col-lg-8 d-none d-lg-block">
@@ -150,7 +150,8 @@
                         <div class="left-side-post-area">
                             <div class="featured-post area-2 tp-section-gapBottom">
                                 <div class="section-title-area">
-                                    <h3 class="section-title" th:utext="${detail.category.label}"></h3>
+                                    <h1 class="section-title-centered" th:utext="${detail.category.label}"></h1>
+                                    <p class="section-subtitle-centered" th:utext="${detail.category.description}"></p>
                                 </div>
                                 <div class="post-section-inner">
                                     <div class="row g-5">
@@ -161,9 +162,11 @@
                                                 </div>
                                                 <div class="blog-content">
                                                     <ul class="blog-meta">
-                                                        <li class="author"><span>BY</span>Elon Mask - 14 Jan, 2024 </li>
+<!--                                                        <li class="author"><span th:utext="${article.tags[0]}"></span></li>-->
+                                                        <li class="author"><span>Aquí va el tag</span></li>
                                                     </ul>
-                                                    <h4 class="heading-title"><a class="title-animation text-center" th:href="${article.seoUrl}" th:utext="${article.title}"></a></h4>
+                                                    <h3 class="heading-title"><a class="title-animation text-center" th:href="${article.seoUrl}" th:utext="${article.title}"></a></h3>
+                                                    <p style="text-align: center"><a class="title-animation text-center" th:href="${article.seoUrl}" th:utext="${article.subtitle}"></a></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -449,7 +452,7 @@
         <div class="container">
             <div class="section-inner">
                 <p class="sub-title">Novedades en decoración</p>
-                <h2 class="section-title">JSuscríbete a nuestra newsletter para estar <br>
+                <h2 class="section-title">Suscríbete a nuestra newsletter para estar <br>
                     a la última en decoración!</h2>
                 <p class="desc">Nisi dignissim tortor sed quam sed ipsum ut. <br>
                     Montes, morbi euismod elit.</p>
@@ -514,7 +517,7 @@
                 </div>
                 <div class="footer-logo-area">
                     <a href="/" class="logo"><img src="static/images/logo/casa-con-alma-white.png" alt="" style="max-width: 200px;"></a>
-                    <p class="desc">Nisi dignissim tortor sed quam sed ipsum ut tortor <br> sed dignissim montes, morbi euismod elit.</p>
+                    <p class="desc">Diseña espacios con alma que cuentan historias</p>
                 </div>
                 <div class="footer-newsletter-area">
                     <p class="tag">Únete a nuestra newsletter:</p>
@@ -551,11 +554,9 @@
     <div id="anywhere-home"></div>
 
     <script src="static/js/vendor/jquery.min.js" defer></script>
-    <script src="static/js/plugins/audio.js" defer></script>
     <script src="static/js/vendor/bootstrap.min.js" defer></script>
     <script src="static/js/vendor/swiper.js" defer></script>
     <script src="static/js/vendor/metisMenu.min.js" defer></script>
-    <script src="static/js/plugins/audio.js" defer></script>
     <script src="static/js/plugins/magnific-popup.js" defer></script>
     <script src="static/js/plugins/contact-form.js" defer></script>
     <script src="static/js/plugins/resize-sensor.min.js" defer></script>

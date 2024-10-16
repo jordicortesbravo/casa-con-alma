@@ -14,9 +14,7 @@
       },
       methods: function (e) {
           imJs.swiperActivation();
-          imJs.vedioActivation();
-          imJs.myAudio(); 
-          imJs.metismenu(); 
+          imJs.metismenu();
           imJs.sideMenu(); 
           imJs.stickySidebar(); 
           imJs.searchOpton(); 
@@ -144,30 +142,6 @@
           });
         });
 
-      }, 
-      vedioActivation: function (e) {
-        $(document).ready(function(){
-          $('.popup-youtube, .popup-vimeo').magnificPopup({
-            disableOn: 700,
-            type: 'iframe',
-            mainClass: 'mfp-fade',
-            removalDelay: 160,
-            preloader: false,
-            fixedContentPos: false
-          });
-        });
-      },
-      myAudio: function (e){
-        $(document).ready (function(){
-          function myFunction() {
-            var x = document.getElementById("myAudio").duration;
-           
-          };
-          $(function() {
-            $('audio').audioPlayer();
-        });
-        
-        });
       },
       // metismenu
       metismenu:function(){
