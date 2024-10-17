@@ -1,6 +1,5 @@
 package com.jcortes.deco.content.model
 
-import java.net.URL
 import java.time.Instant
 
 enum class ArticleStatus {
@@ -21,8 +20,12 @@ class Article {
     var images: List<Image>? = null
     var status: ArticleStatus = ArticleStatus.DRAFT
     var embedding: List<Float>? = null
-    var seoUrl: URL? = null
+    var seoUrl: String? = null
     var createInstant: Instant = Instant.now()
     var updateInstant: Instant = Instant.now()
     var publishInstant: Instant? = null
+
+    fun coverImage(): String? {
+        return images?.firstOrNull()?.seoUrl ?: "static/images/blog/27.jpg" //FIXME Eliminar la foto por defecto
+    }
 }

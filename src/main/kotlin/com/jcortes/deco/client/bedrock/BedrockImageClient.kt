@@ -8,6 +8,7 @@ import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient
 import software.amazon.awssdk.services.bedrockruntime.model.*
 import java.io.File
+import java.net.URI
 
 @Component
 class BedrockImageClient(
@@ -107,16 +108,10 @@ class BedrockImageClient(
         }
     }
 
-    fun invokeStableDiffusionModel(inferenceRequest: BedrockImageInferenceRequest): JsonNode? {
+    fun invokeStableDiffusionModel(inferenceRequest: BedrockImageInferenceRequest): String? {
         try {
-            val nativeRequestTemplate = """
-                {
-                    "aspect_ratio": "1:1",
-                    "mode": "text-to-image",
-                    "output_format": "jpeg",
-                    "prompt": "{{prompt}}"
-                }
-                """.replace("{{prompt}}", inferenceRequest.userPrompt)
+            val nativeRequestTemplate = """{"prompt": "{{prompt}}"}"""
+                .replace("{{prompt}}", inferenceRequest.userPrompt)
             val response = client.invokeModel { request ->
                 request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))
                     .contentType("application/json")
@@ -124,10 +119,23 @@ class BedrockImageClient(
             }
 
             val json = objectMapper.readTree(response.body().asUtf8String())
-            return json
+            return json["images"]?.firstOrNull()?.asText()
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    fun seoUrlOf(userPrompt: String?): String? {
+        return userPrompt?.let {
+            try {
+                val message = message(text = it, role = ConversationRole.USER)
+                val response = converse(CLAUDE_MODEL, listOf(message), SEO_URL_PROMPT, DEFAULT_INFERENCE_CONFIG)
+                response
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
     }
 
@@ -156,7 +164,7 @@ class BedrockImageClient(
     }
 
     private fun message(text: String? = null, image: Image? = null, role: ConversationRole): Message {
-        val imageBytes = image?.internalUri?.let { File(it).readBytes() }
+        val imageBytes = image?.internalUri?.let { File(URI(it)).readBytes() }
         return Message.builder()
             .content(
                 ContentBlock.builder()
@@ -188,6 +196,12 @@ class BedrockImageClient(
 
         private val CHARACTERISTICS_INFERENCE_CONFIG = InferenceConfiguration.builder()
             .temperature(0.3f)
+            .topP(0.9f)
+            .maxTokens(2048)
+            .build()
+
+        private val DEFAULT_INFERENCE_CONFIG = InferenceConfiguration.builder()
+            .temperature(0.5f)
             .topP(0.9f)
             .maxTokens(2048)
             .build()
@@ -242,6 +256,8 @@ class BedrockImageClient(
             }
 
         """
+
+        private const val SEO_URL_PROMPT = "Genera una URL SEO para la imagen de no más de 10 palabras a partir del texto de entrada. La respuesta se limitará a la URL generada."
 
         private const val CLAUDE_TEMPLATE = """
                 {

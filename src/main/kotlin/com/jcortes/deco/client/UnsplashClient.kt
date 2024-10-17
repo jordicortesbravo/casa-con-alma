@@ -54,7 +54,7 @@ class UnsplashClient(
         val filteredPhotos = photos.items.filter { it.sourceId !in downloadedIds }
         filteredPhotos.forEach { photo ->
             val request = HttpRequest.newBuilder()
-                .uri(photo.sourceUrl)
+                .uri(URI(photo.sourceUrl))
                 .GET()
                 .build()
             client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body().use { inputStream ->
@@ -62,7 +62,7 @@ class UnsplashClient(
                 val dir = File(baseDir, (abs(photo.sourceId.hashCode() % 50)).toString().padStart(2, '0'))
                 dir.mkdirs()
                 val file = File(dir, fileName)
-                photo.internalUri = file.toURI()
+                photo.internalUri = file.toURI().toString()
                 Files.copy(inputStream, file.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
             }
         }
@@ -79,7 +79,7 @@ class UnsplashClient(
                 sourceId = "unsplash::${photo["id"].asText()}"
                 keywords = photo["tags"]?.map { it["title"].asText() }?.plus(query) ?: listOf(query)
                 description = photo["description"]?.textValue()
-                sourceUrl = URI.create(photo["urls"]["regular"].asText())
+                sourceUrl = photo["urls"]["regular"].asText()
                 author = photo["user"]["name"].asText()
             }
         }

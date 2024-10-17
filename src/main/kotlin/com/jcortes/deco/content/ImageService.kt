@@ -1,12 +1,15 @@
 package com.jcortes.deco.content
 
 import com.jcortes.deco.client.bedrock.BedrockImageClient
+import com.jcortes.deco.client.bedrock.BedrockImageInferenceRequest
+import com.jcortes.deco.client.bedrock.BedrockImageModel
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.content.model.ImageSearchRequest
 import com.jcortes.deco.util.Pageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.net.URI
@@ -14,6 +17,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.*
+import kotlin.math.abs
 import kotlin.random.Random
 
 @Service
@@ -25,6 +29,8 @@ class ImageService(
     private val client = HttpClient.newBuilder().build()
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+    private val baseImageDir = File("/Users/jcortes/workspace/crawler/images/ia-generated")
 
     @Transactional
     fun enrich() {
@@ -49,14 +55,23 @@ class ImageService(
         }
     }
 
+    fun get(imageId: Long): Image {
+        return imageRepository.get(imageId) ?: throw NoSuchElementException("Image $imageId not found")
+    }
+
+    fun getBySeoUrl(seoUrl: String): Image {
+        return imageRepository.getBySeoUrl(seoUrl) ?: throw NoSuchElementException("Image $seoUrl not found")
+    }
+
     private fun enrich(image: Image) {
         val base64Image = image.toBase64()
         val keywords = image.keywords ?: bedrockImageClient.keywordsOf(base64Image)
         val description = image.description ?: bedrockImageClient.describe(base64Image)
-        val embeddings = imageRepository.getEmbedding(image.id!!, EmbeddingType.TEXT) ?: description?.let { bedrockImageClient.embeddingsOf(it) }
-        val multiModalEmbeddings = imageRepository.getEmbedding(image.id!!, EmbeddingType.MULTI_MODAL) ?: description?.let { bedrockImageClient.multimodalEmbeddingsOf(it, base64Image) }
+        val embeddings = image.id?.let { imageRepository.getEmbedding(it, EmbeddingType.TEXT) } ?: description?.let { bedrockImageClient.embeddingsOf(it) }
+        val multiModalEmbeddings = image.id?.let { imageRepository.getEmbedding(it, EmbeddingType.MULTI_MODAL) } ?: description?.let { bedrockImageClient.multimodalEmbeddingsOf(it, base64Image) }
         val caption = image.caption ?: bedrockImageClient.captionOf(base64Image)
         val characteristics = image.characteristics ?: bedrockImageClient.characteristicsOf(image)
+        val seoUrl = image.seoUrl ?: bedrockImageClient.seoUrlOf(caption ?: description)
 
         image.keywords = keywords ?: emptyList()
         image.description = description
@@ -64,6 +79,7 @@ class ImageService(
         image.multimodalEmbedding = multiModalEmbeddings
         image.caption = caption
         image.characteristics = characteristics
+        image.seoUrl = seoUrl
 
         imageRepository.save(image)
         log.info("Enriched and saved image: ${image.sourceUrl}")
@@ -77,19 +93,36 @@ class ImageService(
         client.send(request, HttpResponse.BodyHandlers.ofByteArray()).body().let { imageBytes ->
             val image = Image().apply {
                 sourceId = "el-mueble::${RANDOM.nextLong()}"
-                sourceUrl = URI(imageUrl)
+                sourceUrl = imageUrl
                 hasRights = true
             }
             val tempFile = File.createTempFile("image", ".jpg")
             tempFile.writeBytes(imageBytes)
-            image.internalUri = tempFile.toURI()
+            image.internalUri = tempFile.toURI().toString()
 
             return image
         }
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     fun generate(prompt: String): Image {
-        TODO ("not implemented yet")
+        val request = BedrockImageInferenceRequest().apply {
+            model = BedrockImageModel.STABLE_IMAGE_ULTRA
+            userPrompt = prompt
+        }
+
+        val base64Image = bedrockImageClient.invokeStableDiffusionModel(request)
+        val imageId = RANDOM.nextLong(1, Long.MAX_VALUE)
+        val image = Image().apply {
+            sourceId = "deco-crawler::$imageId"
+            hasRights = false
+            iaGenerated = true
+            sourceUrl = "images/$imageId"
+        }
+        base64Image?.let { saveImageToDisk(image, it) }
+        enrich(image)
+        log.info("Generated image: ${image.internalUri.toString().replace("file:", "file://")}")
+        return image
     }
 
     fun search(query: String?, keywords: List<String>, hasRights: Boolean? = false, pageable: Pageable): List<Image> {
@@ -122,8 +155,18 @@ class ImageService(
         return imageRepository.listSourceIds()
     }
 
+    private fun saveImageToDisk(image: Image, base64Image: String) {
+        baseImageDir.mkdirs()
+        val fileName = "${image.sourceId.substringAfter("::")}.jpeg"
+        val dir = File(baseImageDir, (abs(image.sourceId.hashCode() % 50)).toString().padStart(2, '0'))
+        dir.mkdirs()
+        val file = File(dir, fileName)
+        image.internalUri = file.toURI().toString()
+        file.writeBytes(Base64.getDecoder().decode(base64Image))
+    }
+
     private fun Image.toBase64(): String {
-        val imageBytes = this.internalUri?.let { File(it).readBytes() } ?: throw IllegalStateException("Image has no internal URI")
+        val imageBytes = this.internalUri?.let { File(URI(it)).readBytes() } ?: throw IllegalStateException("Image has no internal URI")
         return Base64.getEncoder().encodeToString(imageBytes)
     }
 

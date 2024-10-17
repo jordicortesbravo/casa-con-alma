@@ -1,7 +1,6 @@
 package com.jcortes.deco.content.model
 
 import com.fasterxml.jackson.databind.JsonNode
-import java.net.URI
 
 class Image {
     var id: Long? = null
@@ -15,10 +14,11 @@ class Image {
     var embedding: List<Float>? = null
     var multimodalEmbedding: List<Float>? = null
 
-    lateinit var sourceUrl: URI
-    var url: URI? = null
-    var seoUrl: URI? = null
-    var internalUri: URI? = null
+    lateinit var sourceUrl: String
+    var url: String? = null
+    var seoUrl: String? = null
+    var internalUri: String? = null
     var hasRights: Boolean = false
     var characteristics: JsonNode? = null
+    var iaGenerated: Boolean = false
 }

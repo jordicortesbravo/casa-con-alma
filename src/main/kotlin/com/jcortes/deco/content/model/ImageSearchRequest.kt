@@ -8,6 +8,7 @@ data class ImageSearchRequest (
     val keywords: List<String> = emptyList(),
     val minKeywordsMatch: Int = (keywords.size * 0.25).toInt(),
     val hasRights: Boolean? = null,
+    val generatedByIA: Boolean? = null,
     val lightIntensity: Float? = 0.7f,
     val elegance: Float? = 0.6f,
     val pageSize: Int = 20,

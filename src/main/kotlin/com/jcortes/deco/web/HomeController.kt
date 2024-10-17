@@ -14,6 +14,6 @@ class HomeController(
 
     @GetMapping("/", "")
     fun home(model: Model): String {
-        return "public/index-two"
+        return "public/home"
     }
 }

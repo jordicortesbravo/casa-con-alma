@@ -22,6 +22,8 @@ class BedrockTextClient(
                 .trimIndent()
                 .replace("{{userPrompt}}", inferenceRequest.userPrompt.normalize())
                 .replace("{{systemPrompt}}", inferenceRequest.systemPrompt?.normalize() ?: "")
+                .replace("{{maxTokens}}", inferenceRequest.maxTokens.toString())
+                .replace("{{temperature}}", inferenceRequest.temperature.toString())
 
             val response = client.invokeModel { request ->
                 request.body(SdkBytes.fromUtf8String(nativeRequest))
@@ -67,8 +69,8 @@ class BedrockTextClient(
         private const val CLAUDE_TEMPLATE = """
                 {
                     "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": 2048,
-                    "temperature": 0.5,
+                    "max_tokens": {{maxTokens}},
+                    "temperature": {{temperature}},
                     "messages": [
                         {
                              "role": "user",

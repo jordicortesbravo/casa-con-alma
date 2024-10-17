@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.jdbc.datasource.init.ScriptUtils
 import org.springframework.transaction.annotation.Transactional
-import java.net.URI
 import javax.sql.DataSource
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -74,10 +73,10 @@ class JdbcImageRepositoryTest @Autowired constructor(
             embedding = (0 until 1024).map { it.toFloat() }
             author = "Author 10"
 
-            sourceUrl = URI("https://example.com/image10.jpg")
-            url = URI("https://example.com/image10.jpg")
-            seoUrl = URI("https://example.com/image10.jpg")
-            internalUri = URI("file:///tmp/image10.jpg")
+            sourceUrl = "https://example.com/image10.jpg"
+            url = "https://example.com/image10.jpg"
+            seoUrl = "https://example.com/image10.jpg"
+            internalUri = "file:///tmp/image10.jpg"
         }
         repository.save(image)
 

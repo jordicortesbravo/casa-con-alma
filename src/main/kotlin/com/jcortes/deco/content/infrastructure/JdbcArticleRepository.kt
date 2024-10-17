@@ -6,11 +6,9 @@ import com.jcortes.deco.content.ImageRepository
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleSearchRequest
 import com.jcortes.deco.content.model.Image
-import com.jcortes.deco.content.model.ScrapedDocument
 import com.jcortes.deco.util.ChunkIterator
 import com.jcortes.deco.util.DefaultChunkIteratorState
 import com.jcortes.deco.util.JdbcUtils
-import com.jcortes.deco.util.Pageable
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -35,6 +33,21 @@ class JdbcArticleRepository(
             WHERE id = :id
         """
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("id" to id)) { rs, _ -> rs.getBinaryStream("content") }
+            .firstOrNull()
+            ?.let {
+                val doc = objectMapper.readValue(it, Article::class.java)
+                doc.images = listImages(doc)
+                doc
+            }
+    }
+
+    override fun getBySeoUrl(seoUrl: String): Article? {
+        val query = """
+            SELECT content
+            FROM $TABLE_CONTENT
+            WHERE seo_url = :seoUrl
+        """
+        return jdbcTemplate.query(query, JdbcUtils.paramsOf("seoUrl" to seoUrl)) { rs, _ -> rs.getBinaryStream("content") }
             .firstOrNull()
             ?.let {
                 val doc = objectMapper.readValue(it, Article::class.java)
@@ -145,6 +158,7 @@ class JdbcArticleRepository(
     private fun indexParamsOf(article: Article): MapSqlParameterSource {
         val params = MapSqlParameterSource()
         params.addValue("id", article.id)
+        params.addValue("seoUrl", article.seoUrl?.toString())
         params.addValue("keywords", stringArrayOf(article.keywords), Types.ARRAY)
         params.addValue("tags", stringArrayOf(article.tags), Types.ARRAY)
         params.addValue("siteCategories", stringArrayOf(article.siteCategories?.map { it.name }), Types.ARRAY)
@@ -171,21 +185,25 @@ class JdbcArticleRepository(
             type = "jsonb"
             value = objectMapper.writeValueAsString(article)
         }
-        return JdbcUtils.paramsOf("id" to article.id, "content" to content)
+        return JdbcUtils.paramsOf(
+            "id" to article.id,
+            "seoUrl" to article.seoUrl,
+            "content" to content
+        )
     }
 
     private companion object {
         private const val TABLE_INDEX = "deco.article_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, keywords, tags, site_categories, product_categories, status, create_instant, update_instant, publish_instant, embedding)
-            VALUES (:id, :keywords, :tags, :siteCategories, :productCategories, :status, :createInstant, :updateInstant, :publishInstant, :embedding)
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, seo_url, keywords, tags, site_categories, product_categories, status, create_instant, update_instant, publish_instant, embedding)
+            VALUES (:id, :seoUrl, :keywords, :tags, :siteCategories, :productCategories, :status, :createInstant, :updateInstant, :publishInstant, :embedding)
             ON CONFLICT (id) DO UPDATE
-            SET keywords = :keywords, tags = :tags, site_categories = :siteCategories, product_categories = :productCategories, status = :status, create_instant = :createInstant, update_instant = :updateInstant, publish_instant = :publishInstant, embedding = :embedding"""
+            SET seo_url = :seoUrl, keywords = :keywords, tags = :tags, site_categories = :siteCategories, product_categories = :productCategories, status = :status, create_instant = :createInstant, update_instant = :updateInstant, publish_instant = :publishInstant, embedding = :embedding"""
 
         private const val TABLE_CONTENT = "deco.article_content"
-        private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, content)
-            VALUES (:id, :content)
+        private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, seo_url, content)
+            VALUES (:id, :seoUrl, :content)
             ON CONFLICT (id) DO UPDATE
-            SET content = :content"""
+            SET seo_url = :seoUrl, content = :content"""
 
         private const val TABLE_DOC_IMAGE = "deco.article_image"
         private const val SAVE_DOC_IMAGE_QUERY = """INSERT INTO $TABLE_DOC_IMAGE (article_id, image_id)

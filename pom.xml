@@ -68,6 +68,10 @@
             <artifactId>bedrockruntime</artifactId>
         </dependency>
         <dependency>
+            <artifactId>apache-client</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+        </dependency>
+        <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sts</artifactId>
         </dependency>

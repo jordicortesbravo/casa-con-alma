@@ -4,10 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jcortes.deco.client.bedrock.BedrockTextClient
 import com.jcortes.deco.client.bedrock.BedrockTextInferenceRequest
 import com.jcortes.deco.client.bedrock.BedrockTextModel
-import com.jcortes.deco.content.model.Article
-import com.jcortes.deco.content.model.ArticleSearchRequest
-import com.jcortes.deco.content.model.ArticleStatus
-import com.jcortes.deco.content.model.Image
+import com.jcortes.deco.content.model.*
 import com.jcortes.deco.util.Pageable
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,22 +52,33 @@ class ArticleService(
     }
 
     fun enrich() {
-        val articles = articleRepository.iterate().asSequence().toList()
-        articles.parallelStream().forEach { article ->
+//        val articles = articleRepository.iterate().asSequence().toList().sortedBy { it.id }
+        val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.READY_TO_PUBLISH }.sortedBy { it.id }
+        articles.forEach { article ->
             try {
-//                article.siteCategories = bedrockTextClient.invokeTextModel(model = BedrockTextModel.CLAUDE_INSTANT, userPrompt = article.title, systemPrompt = CATEGORY_CLASSIFIER_PROMPT) {
-//                    it?.let { c -> listOf(SiteCategory.valueOf(c)) } ?: emptyList()
-//                }
-                generateContent(article)
-//                article.embedding = bedrockTextClient.invokeEmbeddingModel(userPrompt = article.content!!)
-                self.save(article)
-                log.info("Article ${article.id} enriched")
+               self.fillArticleWithGenerativeAI(article)
             } catch (te: ThrottlingException) {
                 Thread.sleep(20_000)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+    }
+
+    @Transactional
+    fun fillArticleWithGenerativeAI(article: Article) {
+        log.info("Generating article ${article.title}")
+        generateContent(article)
+        generateSEOData(article)
+        generateEmbedding(article)
+//        generateSiteCategories(article)
+        generateAndAddImages(article)
+
+        article.status = ArticleStatus.READY_TO_PUBLISH
+
+        save(article)
+
+        log.info("Generated article (${article.id}): ${article.title}")
     }
 
     @Transactional
@@ -89,11 +97,10 @@ class ArticleService(
         return articleRepository.search(request)
     }
 
-    private fun extractKeywords(text: String?): List<String> {
-        return text?.split(",")?.map { it.trim() } ?: emptyList()
-    }
+
 
     private fun generateContent(article: Article) {
+        log.info("Generating content for article ${article.title}")
         val inferenceRequest = BedrockTextInferenceRequest().apply {
             model = BedrockTextModel.CLAUDE_SONNET_3_5
             userPrompt = article.title!!
@@ -103,27 +110,63 @@ class ArticleService(
         }
         val generatedContent = bedrockTextClient.invokeTextModel(inferenceRequest) { objectMapper.readTree(it) }
         val content = generatedContent?.get("content")?.asText()
-        val keywords = generatedContent?.get("keywords")?.map { it.asText() } ?: emptyList()
-        val tags = generatedContent?.get("tags")?.map { it.asText() } ?: emptyList()
-
         article.content = content
-        article.keywords = keywords
-        article.tags = tags
-
-        generateImages(article)
-
-        article.status = ArticleStatus.READY_TO_PUBLISH
+        log.info("Generated content for article ${article.title}")
     }
 
-    private fun generateImages(article: Article) {
+    private fun generateSEOData(article: Article) {
+        log.info("Generating SEO data for article ${article.title}")
+        val inferenceRequest = BedrockTextInferenceRequest().apply {
+            model = BedrockTextModel.CLAUDE_HAIKU_3
+            userPrompt = article.content!!
+            systemPrompt = SEO_PROMPT
+            temperature = 1.0f
+        }
+        val json = bedrockTextClient.invokeTextModel(inferenceRequest) { objectMapper.readTree(it) }
+
+        article.description = json?.get("description")?.asText()
+        article.seoUrl = json?.get("seoUrl")?.asText()
+        article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
+        article.tags = json?.get("tags")?.asSequence()?.map { it.asText() }?.toList()
+        log.info("Generated SEO data for article ${article.title}")
+    }
+
+    private fun generateEmbedding(article: Article) {
+        log.info("Generating embedding for article ${article.title}")
+        article.embedding = bedrockTextClient.invokeEmbeddingModel(userPrompt = article.description!!)
+        log.info("Generated embedding for article ${article.title}")
+    }
+
+    private fun generateSiteCategories(article: Article) {
+        log.info("Generating site categories for article ${article.title}")
+        val request = BedrockTextInferenceRequest().apply {
+            model = BedrockTextModel.CLAUDE_INSTANT
+            userPrompt = article.title!!
+            systemPrompt = CATEGORY_CLASSIFIER_PROMPT
+        }
+        article.siteCategories = bedrockTextClient.invokeTextModel(request) {
+            it?.let { c -> listOf(SiteCategory.valueOf(c)) } ?: emptyList()
+        }
+        log.info("Generated site categories for article ${article.title}")
+    }
+
+    fun generateAndAddImages(article: Article) {
+        log.info("Generating images for article ${article.title}")
         val images = mutableListOf<Image>()
-        val content = article.content!!
-        val imagePrompts = content.split("<img").drop(1).map { it.substringAfter("data-ia-prompt=\"").substringBefore("\"") }
-        imagePrompts.forEach { prompt ->
+        var content = article.content!!
+        val imgMatches = IMG_TAG_REGEX.findAll(content).toList()
+
+        imgMatches.forEach { matchResult ->
+            val prompt = matchResult.groupValues[1]
             val image = imageService.generate(prompt)
             images.add(image)
+
+            val newImgTag = """<div class="content-img-container"><img class="content-img" src="images/${image.seoUrl}" caption="${image.caption}"/></div>"""
+            content = content.replaceFirst(IMG_TAG_REGEX, newImgTag)
         }
+        article.content = content.replace("</img>", "")
         article.images = images
+        log.info("Generated images for article ${article.title}")
     }
 
     companion object {
@@ -145,18 +188,32 @@ class ArticleService(
                     3.3- Añade las negritas con un tag strong que consideres interesantes.
                     3.4- Cada párrafo en un tag p y las imágenes al final del párrafo. Cada imagen debe estar en un tag img y contendrá:
                         3.4.1- Un atributo data-ia-prompt con un prompt en inglés para generar esa imagen con stable disfussion teniendo en cuenta que el estilo de decoración siempre es elegante. A veces rústico moderno, a veces minimalista y a veces escandinavo. Siempre con predominancia en colores beige, blanco, madera, etc y muy elegante. Debe ser un prompt con mucho detalle de objetos, texturas, materiales y estilo de decoración para que la imagen sea lo más detallada posible.
-                        3.4.2- Un atributo caption que será un pie de foto que aporte valor al lector y al SEO
+                        3.4.2- No debe incluir ningún atributo más
                 
                 El artículo debe estar optimizado para SEO.
                 
                 Como respuesta siempre generarás un json con esta estructura:
                
                 {  
-                   "content":"contenido generado y con el html compactado",
-                   "keywords": [], //array de keywords para SEO para ser usadas en un tag meta de html
-                   "tags": [] //lista de tags coincidentes para el texto dentro de esta lista: decoración de salones, decoración de comedores, muebles de salón, sofás y sillones, mesas de comedor, decoración de interiores, colores para interiores, iluminación en interiores, estilos de decoración, decoración moderna, decoración rústica, decoración minimalista, decoración vintage, textiles para el hogar, cortinas y estores, alfombras y tapices, cojines decorativos, decoración con plantas, decoración con madera, estanterías y librerías, organización en el hogar, espacios pequeños, decoración de cocinas, cocinas abiertas, colores para cocinas, muebles de cocina, encimeras y superficies, distribución de cocinas, iluminación en cocinas, cocinas modernas, cocinas rústicas, dormitorios infantiles, decoración de dormitorios, cabeceros de cama, ropa de cama, iluminación en dormitorios, armarios y vestidores, dormitorios modernos, dormitorios rústicos, dormitorios minimalistas, decoración de baños, colores para baños, baños pequeños, azulejos y cerámica, muebles de baño, accesorios de baño, iluminación en baños, baños modernos, baños rústicos, jardines y terrazas, decoración de exteriores, muebles de exterior, plantas y flores, iluminación exterior, terrazas pequeñas, patios y jardines, pérgolas y toldos, decoración estacional, decoración de Navidad, decoración de primavera, decoración de verano, decoración de otoño, tendencias de decoración, DIY decoración, decoración low cost, reciclaje y decoración, arte y cuadros decorativos, espejos decorativos, papeles pintados, paredes y revestimientos, reformas del hogar, distribución de espacios, diseño de interiores
+                   "content":"contenido generado y con el html compactado"
                 } 
         """
+
+        private const val SEO_PROMPT = """
+            Debes generar metainformación de un artículo de decoración e interiorismo para que quede bien optimizado para SEO:
+
+            Como respuesta siempre generarás un json con esta estructura:
+                           
+                {  
+                   "description": "Breve resumen del artículo",
+                   "seoUrl":"URL SEO friendly a partir del contenido del artículo",
+                   "keywords": [], //array de keywords para SEO para ser usadas en un tag meta de html
+                   "tags": [] //lista de tags coincidentes para el texto dentro de esta lista: decoración de salones, decoración de comedores, muebles de salón, sofás y sillones, mesas de comedor, decoración de interiores, colores para interiores, iluminación en interiores, estilos de decoración, decoración moderna, decoración rústica, decoración minimalista, decoración vintage, textiles para el hogar, cortinas y estores, alfombras y tapices, cojines decorativos, decoración con plantas, decoración con madera, estanterías y librerías, organización en el hogar, espacios pequeños, decoración de cocinas, cocinas abiertas, colores para cocinas, muebles de cocina, encimeras y superficies, distribución de cocinas, iluminación en cocinas, cocinas modernas, cocinas rústicas, dormitorios infantiles, decoración de dormitorios, cabeceros de cama, ropa de cama, iluminación en dormitorios, armarios y vestidores, dormitorios modernos, dormitorios rústicos, dormitorios minimalistas, decoración de baños, colores para baños, baños pequeños, azulejos y cerámica, muebles de baño, accesorios de baño, iluminación en baños, baños modernos, baños rústicos, jardines y terrazas, decoración de exteriores, muebles de exterior, plantas y flores, iluminación exterior, terrazas pequeñas, patios y jardines, pérgolas y toldos, decoración estacional, decoración de Navidad, decoración de primavera, decoración de verano, decoración de otoño, tendencias de decoración, DIY decoración, decoración low cost, reciclaje y decoración, arte y cuadros decorativos, espejos decorativos, papeles pintados, paredes y revestimientos, reformas del hogar, distribución de espacios, diseño de interiores
+                }
+        """
+
+        val CONTENT_IMAGES_REGEX = Regex("<img\\s+[^>]*data-ia-prompt=['\"]([^'\"]+)['\"][^>]*>")
+        val IMG_TAG_REGEX = Regex("<img\\s+[^>]*data-ia-prompt=['\"]([^'\"]+)['\"][^>]*(/?>|></img>)")
     }
 
 }

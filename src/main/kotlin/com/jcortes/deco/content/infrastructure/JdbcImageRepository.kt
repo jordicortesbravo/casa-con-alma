@@ -43,6 +43,17 @@ class JdbcImageRepository(
             ?.let { objectMapper.readValue(it, Image::class.java) }
     }
 
+    override fun getBySeoUrl(seoUrl: String): Image? {
+        val query = """
+            SELECT content
+            FROM $TABLE_CONTENT
+            WHERE seo_url = :seoUrl
+        """
+        return jdbcTemplate.query(query, JdbcUtils.paramsOf("seoUrl" to seoUrl)) { rs, _ -> rs.getBinaryStream("content") }
+            .firstOrNull()
+            ?.let { objectMapper.readValue(it, Image::class.java) }
+    }
+
     override fun getEmbedding(id: Long, embeddingType: EmbeddingType): List<Float>? {
         val embeddingClause = if (embeddingType == EmbeddingType.MULTI_MODAL) "multimodal_embedding" else "embedding"
         val query = """
@@ -72,6 +83,7 @@ class JdbcImageRepository(
     override fun search(request: ImageSearchRequest): List<Image> {
         val embeddingColumn = if (request.embeddingType == EmbeddingType.MULTI_MODAL) "multimodal_embedding" else "embedding"
         val hasRightsClause = request.hasRights?.let { " AND has_rights = :hasRights" } ?: ""
+        val generatedByIAClause = request.hasRights?.let { " AND ia_generated = :iaGenerated" } ?: ""
         val lightIntensityClause = " AND light_intensity >= :lightIntensity"
         val eleganceClause = " AND elegance >= :elegance"
 
@@ -80,7 +92,7 @@ class JdbcImageRepository(
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE $keywordMatchClause $hasRightsClause $lightIntensityClause $eleganceClause
+            WHERE $keywordMatchClause $hasRightsClause $generatedByIAClause $lightIntensityClause $eleganceClause
             ORDER BY $embeddingColumn <=> CAST(:embedding AS vector), elegance DESC, light_intensity DESC
             LIMIT :limit OFFSET :offset
         """
@@ -94,6 +106,7 @@ class JdbcImageRepository(
         params.addValue("limit", request.pageSize)
         params.addValue("offset", request.pageNumber * request.pageSize)
         request.hasRights?.let { params.addValue("hasRights", it) }
+        request.generatedByIA?.let { params.addValue("iaGenerated", it) }
 
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
         return list(ids)
@@ -160,10 +173,12 @@ class JdbcImageRepository(
         val params = MapSqlParameterSource()
         params.addValue("id", image.id)
         params.addValue("sourceId", image.sourceId)
+        params.addValue("seoUrl", image.seoUrl)
         params.addValue("keywords", stringArrayOf(image.keywords), Types.ARRAY)
         params.addValue("lightIntensity", image.characteristics?.get("lightIntensity")?.asDouble())
         params.addValue("elegance", image.characteristics?.get("elegance")?.asDouble())
         params.addValue("hasRights", image.hasRights)
+        params.addValue("iaGenerated", image.iaGenerated)
         params.addValue("embedding", floatArrayOf(image.embedding), Types.ARRAY)
         params.addValue("multimodalEmbedding", floatArrayOf(image.multimodalEmbedding), Types.ARRAY)
         return params
@@ -183,20 +198,25 @@ class JdbcImageRepository(
             type = "jsonb"
             value = objectMapper.writeValueAsString(image)
         }
-        return JdbcUtils.paramsOf("id" to image.id, "sourceId" to image.sourceId, "content" to content)
+        return JdbcUtils.paramsOf(
+            "id" to image.id,
+            "sourceId" to image.sourceId,
+            "seoUrl" to image.seoUrl,
+            "content" to content
+        )
     }
 
     private companion object {
         private const val TABLE_INDEX = "deco.image_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, keywords, has_rights, embedding, multimodal_embedding, light_intensity, elegance)
-            VALUES (:id, :sourceId, :keywords, :hasRights, :embedding, :multimodalEmbedding, :lightIntensity, :elegance)
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, seo_url, keywords, has_rights, ia_generated, embedding, multimodal_embedding, light_intensity, elegance)
+            VALUES (:id, :sourceId, :seoUrl, :keywords, :hasRights, :iaGenerated, :embedding, :multimodalEmbedding, :lightIntensity, :elegance)
             ON CONFLICT (id) DO UPDATE
-            SET source_id = :sourceId, keywords = :keywords, has_rights= :hasRights, embedding = :embedding, multimodal_embedding = :multimodalEmbedding, light_intensity = :lightIntensity, elegance = :elegance"""
+            SET source_id = :sourceId, seo_url = :seoUrl, keywords = :keywords, has_rights= :hasRights, ia_generated = :iaGenerated, embedding = :embedding, multimodal_embedding = :multimodalEmbedding, light_intensity = :lightIntensity, elegance = :elegance"""
 
         private const val TABLE_CONTENT = "deco.image_content"
-        private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, source_id, content)
-            VALUES (:id, :sourceId, :content)
+        private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, source_id, seo_url, content)
+            VALUES (:id, :sourceId, :seoUrl, :content)
             ON CONFLICT (id) DO UPDATE
-            SET source_id = :sourceId, content = :content"""
+            SET source_id = :sourceId, seo_url = :seoUrl, content = :content"""
     }
 }

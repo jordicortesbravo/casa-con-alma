@@ -11,6 +11,7 @@ interface ImageRepository {
 
     fun get(id: Long): Image?
     fun get(sourceId: String): Image?
+    fun getBySeoUrl(seoUrl: String): Image?
     fun getEmbedding(id: Long, embeddingType: EmbeddingType): List<Float>?
     fun list(ids: List<Long>): List<Image>
     fun search(request: ImageSearchRequest): List<Image>

@@ -5,10 +5,13 @@ import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.util.Pageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import java.io.File
+import java.net.URI
+import java.nio.file.Files
 
 @RestController
 @RequestMapping("\${app.base-path}/images")
@@ -18,6 +21,13 @@ class ImageController(
 ) {
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
+
+    @GetMapping("{seoUrl}", produces = [MediaType.IMAGE_JPEG_VALUE])
+    fun getImage(@PathVariable seoUrl: String): ResponseEntity<ByteArray>  {
+        val image = imageService.getBySeoUrl(seoUrl)
+        val bytes = Files.readAllBytes(File(URI(image.internalUri!!)).toPath())
+        return ResponseEntity(bytes, HttpStatus.OK)
+    }
 
     @GetMapping("/enrich")
     fun enrichImages() {
