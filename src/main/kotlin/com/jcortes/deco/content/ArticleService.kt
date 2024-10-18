@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.amazon.awssdk.services.bedrockruntime.model.ThrottlingException
+import java.time.Instant
 
 @Service
 class ArticleService(
@@ -33,8 +34,12 @@ class ArticleService(
         return articleRepository.get(id) ?: throw NoSuchElementException("Article $id not found")
     }
 
-    fun getTrending(pageable: Pageable): List<Article> {
-        val request = ArticleSearchRequest(pageNumber = 1, pageSize = pageable.pageSize)
+    fun getBySeoUrl(seoUrl: String): Article {
+        return articleRepository.getBySeoUrl(seoUrl) ?: throw NoSuchElementException("Article $seoUrl not found")
+    }
+
+    fun getTrending(excludedIds: List<Long>? = null, pageable: Pageable): List<Article> {
+        val request = ArticleSearchRequest(excludedIds = excludedIds, pageNumber = 1, pageSize = pageable.pageSize)
         return articleRepository.search(request)
     }
 
@@ -53,14 +58,29 @@ class ArticleService(
 
     fun enrich() {
 //        val articles = articleRepository.iterate().asSequence().toList().sortedBy { it.id }
-        val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.READY_TO_PUBLISH }.sortedBy { it.id }
-        articles.forEach { article ->
-            try {
-               self.fillArticleWithGenerativeAI(article)
-            } catch (te: ThrottlingException) {
-                Thread.sleep(20_000)
-            } catch (e: Exception) {
-                e.printStackTrace()
+//        val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.DRAFT }.sortedBy { it.id }
+//        articles.forEach { article ->
+//            try {
+//               self.fillArticleWithGenerativeAI(article)
+//            } catch (te: ThrottlingException) {
+//                Thread.sleep(20_000)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+        val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.DRAFT }.sortedBy { it.id }.groupBy { it.mainCategory }
+        for(i in 0..10) {
+            articles.forEach { (category, articles) ->
+                try {
+                    if(i < articles.size) {
+                        val article = articles[i]
+                        self.fillArticleWithGenerativeAI(article)
+                    }
+                } catch (te: ThrottlingException) {
+                    Thread.sleep(20_000)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -69,15 +89,13 @@ class ArticleService(
     fun fillArticleWithGenerativeAI(article: Article) {
         log.info("Generating article ${article.title}")
         generateContent(article)
+        generateSiteCategories(article)
         generateSEOData(article)
         generateEmbedding(article)
-//        generateSiteCategories(article)
         generateAndAddImages(article)
-
         article.status = ArticleStatus.READY_TO_PUBLISH
 
         save(article)
-
         log.info("Generated article (${article.id}): ${article.title}")
     }
 
@@ -125,7 +143,7 @@ class ArticleService(
         val json = bedrockTextClient.invokeTextModel(inferenceRequest) { objectMapper.readTree(it) }
 
         article.description = json?.get("description")?.asText()
-        article.seoUrl = json?.get("seoUrl")?.asText()
+        article.seoUrl = json?.get("seoUrl")?.asText()?.let { "${article.mainCategory?.seoUrl}/$it" }
         article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
         article.tags = json?.get("tags")?.asSequence()?.map { it.asText() }?.toList()
         log.info("Generated SEO data for article ${article.title}")
@@ -144,7 +162,7 @@ class ArticleService(
             userPrompt = article.title!!
             systemPrompt = CATEGORY_CLASSIFIER_PROMPT
         }
-        article.siteCategories = bedrockTextClient.invokeTextModel(request) {
+        article.siteCategories = article.siteCategories ?: bedrockTextClient.invokeTextModel(request) {
             it?.let { c -> listOf(SiteCategory.valueOf(c)) } ?: emptyList()
         }
         log.info("Generated site categories for article ${article.title}")

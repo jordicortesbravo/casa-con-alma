@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.Timestamp
 import java.sql.Types
+import java.time.Instant
 import javax.sql.DataSource
 
 @Repository
@@ -76,11 +77,12 @@ class JdbcArticleRepository(
         val categoryClause = request.siteCategories?.takeUnless { it.isEmpty() }?.let { "site_categories @> :siteCategories" } ?: "TRUE"
         val embeddingClause = request.embedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
         val tagsClause = request.tags?.takeUnless { it.isEmpty() }?.let { " AND tags @> :tags" } ?: " AND TRUE"
-        val orderClause = request.embedding?.let { "embedding <=> CAST(:embedding AS vector), id DESC" } ?: "id DESC"
+        val excludedIdsClause = request.excludedIds?.takeUnless { it.isEmpty() }?.let { " AND id NOT IN (:excludedIds)" } ?: ""
+        val orderClause = request.embedding?.let { "embedding <=> CAST(:embedding AS vector), update_instant DESC" } ?: "update_instant DESC"
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE $categoryClause $embeddingClause $tagsClause
+            WHERE $categoryClause $embeddingClause $tagsClause $excludedIdsClause
             ORDER BY $orderClause
             LIMIT :limit OFFSET :offset
         """
@@ -90,6 +92,7 @@ class JdbcArticleRepository(
             params.addValue("embedding", floatArrayOf(request.embedding), Types.ARRAY)
             params.addValue("threshold", 0.5)
         }
+        request.excludedIds?.let { params.addValue("excludedIds", request.excludedIds) }
         params.addValue("siteCategories", stringArrayOf(request.siteCategories), Types.ARRAY)
         params.addValue("tags", stringArrayOf(request.tags), Types.ARRAY)
         params.addValue("limit", request.pageSize)
@@ -120,6 +123,7 @@ class JdbcArticleRepository(
         if (article.id == null) {
             article.id = idRepository.nextId()
         }
+        article.updateInstant = Instant.now()
         jdbcTemplate.update(SAVE_INDEX_QUERY, indexParamsOf(article))
         jdbcTemplate.update(SAVE_CONTENT_QUERY, contentParamsOf(article))
 
