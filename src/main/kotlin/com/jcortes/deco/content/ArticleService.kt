@@ -9,11 +9,10 @@ import com.jcortes.deco.util.Pageable
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.amazon.awssdk.services.bedrockruntime.model.ThrottlingException
-import java.time.Instant
+import java.util.SortedMap
 
 @Service
 class ArticleService(
@@ -43,17 +42,22 @@ class ArticleService(
         return articleRepository.search(request)
     }
 
-    fun generateFromFile() {
-        ClassPathResource("article_themes.csv").file.useLines { lines ->
-            lines.forEach { line ->
-                val (title, subtitle) = line.split(";")
-                val article = Article().apply {
-                    this.title = title
-                    this.subtitle = subtitle
-                }
-                self.save(article)
-            }
-        }
+    fun getTrendingGroupedByCategory(categoriesOrder: List<SiteCategory>): SortedMap<SiteCategory, List<Article>> {
+        return categoriesOrder.associateWith {
+            val request = ArticleSearchRequest(siteCategories = listOf(it.name), pageNumber = 1, pageSize = 5)
+            articleRepository.search(request)
+        }.toSortedMap(compareBy { categoriesOrder.indexOf(it) })
+    }
+
+    fun search(
+        query: String? = null,
+        siteCategories: List<String>? = null,
+        tags: List<String>? = null,
+        pageable: Pageable
+    ): List<Article> {
+        val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockTextClient.invokeEmbeddingModel(userPrompt = it) }
+        val request = ArticleSearchRequest(embedding = embedding, siteCategories = siteCategories, tags = tags, pageSize = pageable.pageSize, pageNumber = pageable.pageNumber)
+        return articleRepository.search(request)
     }
 
     fun enrich() {
@@ -103,19 +107,6 @@ class ArticleService(
     fun save(article: Article) {
         articleRepository.save(article)
     }
-
-    fun search(
-        query: String? = null,
-        siteCategories: List<String>? = null,
-        tags: List<String>? = null,
-        pageable: Pageable
-    ): List<Article> {
-        val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockTextClient.invokeEmbeddingModel(userPrompt = it) }
-        val request = ArticleSearchRequest(embedding = embedding, siteCategories = siteCategories, tags = tags, pageSize = pageable.pageSize, pageNumber = pageable.pageNumber)
-        return articleRepository.search(request)
-    }
-
-
 
     private fun generateContent(article: Article) {
         log.info("Generating content for article ${article.title}")
@@ -230,7 +221,6 @@ class ArticleService(
                 }
         """
 
-        val CONTENT_IMAGES_REGEX = Regex("<img\\s+[^>]*data-ia-prompt=['\"]([^'\"]+)['\"][^>]*>")
         val IMG_TAG_REGEX = Regex("<img\\s+[^>]*data-ia-prompt=['\"]([^'\"]+)['\"][^>]*(/?>|></img>)")
     }
 

@@ -6,6 +6,7 @@ import com.jcortes.deco.client.bedrock.BedrockImageModel
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.content.model.ImageSearchRequest
 import com.jcortes.deco.util.Pageable
+import io.github.mojtabaJ.cwebp.WebpConverter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -163,6 +164,7 @@ class ImageService(
         val file = File(dir, fileName)
         image.internalUri = file.toURI().toString()
         file.writeBytes(Base64.getDecoder().decode(base64Image))
+        WebpConverter.imageFileToWebpFile(file.path, file.path.replace("jpeg", "webp"), 80)
     }
 
     private fun Image.toBase64(): String {

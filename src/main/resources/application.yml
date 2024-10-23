@@ -4,7 +4,8 @@
 app:
   name: crawler
   base-path: /crawler
-  base-url: http://localhost:8080/crawler
+  content-base-url: ${CONTENT_BASE_URL}
+  static-base-url: ${STATIC_BASE_URL}
   allowed-origins: ${ALLOWED_ORIGINS}
 
   db:

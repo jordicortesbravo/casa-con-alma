@@ -14,7 +14,7 @@ import java.net.URI
 import java.nio.file.Files
 
 @RestController
-@RequestMapping("\${app.base-path}/images")
+@RequestMapping("\${app.base-path}/images", "\${app.base-path}/static/images")
 class ImageController(
     private val unsplashClient: UnsplashClient,
     private val imageService: ImageService
@@ -22,10 +22,10 @@ class ImageController(
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    @GetMapping("{seoUrl}", produces = [MediaType.IMAGE_JPEG_VALUE])
+    @GetMapping("{seoUrl}", produces = ["image/webp", "image/jpeg", "image/png"])
     fun getImage(@PathVariable seoUrl: String): ResponseEntity<ByteArray>  {
         val image = imageService.getBySeoUrl(seoUrl)
-        val bytes = Files.readAllBytes(File(URI(image.internalUri!!)).toPath())
+        val bytes = Files.readAllBytes(File(URI(image.internalUri!!.replace("jpeg", "webp"))).toPath())
         return ResponseEntity(bytes, HttpStatus.OK)
     }
 
@@ -36,7 +36,7 @@ class ImageController(
 
     @GetMapping("/unsplash/download")
     fun downloadImages() {
-        val pageable = Pageable(1, 30)
+        val pageable = Pageable(0, 30)
         val processedSourceIds = imageService.processedSourceIds().map { it.substringAfter("::") }.toMutableList()
 //        val tags = listOf(
 //            "interior design", "decoration", "decor", "living room", "living room interior design", "shower", "scandinavian", "bedroom", "bedroom design", "children's room", "dining room", "kitchen", "kitchen design",

@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${detail.seo.language}">
 
 <head>
-    <base href="http://localhost:8083/crawler/${detail.category.seoUrl}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" th:content="${detail.seo.description}">
     <meta name="keywords" th:content="${detail.seo.keywords}">
@@ -22,14 +21,14 @@
     <link rel="canonical" th:href="${detail.seo.canonicalUrl}">
     <meta http-equiv="Content-Language" th:content="${detail.seo.language}">
     <title th:utext="${detail.title}"></title>
-    <link rel="shortcut icon" href="static/images/icon/casa-con-alma.svg" type="image/x-icon">
-    <link rel="stylesheet preload" href="static/css/plugins/fontawesome-5.css" as="style">
-    <link rel="stylesheet preload" href="static/css/vendor/bootstrap.min.css" as="style">
-    <link rel="stylesheet preload" href="static/css/vendor/swiper.css" as="style">
-    <link rel="stylesheet preload" href="static/css/vendor/metismenu.css" as="style">
-    <link rel="stylesheet preload" href="static/css/vendor/fonts.css" as="style">
-    <link rel="stylesheet preload" href="static/css/vendor/magnific-popup.css" as="style">
-    <link rel="stylesheet preload" href="static/css/style.css" as="style">
+    <link rel="shortcut icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma.svg')}" type="image/x-icon">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/plugins/fontawesome-5.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/bootstrap.min.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/swiper.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/metismenu.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/fonts.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/magnific-popup.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.css')}" as="style">
 </head>
 
 <body class="home-two">
@@ -44,14 +43,14 @@
                     <div class="row align-items-center plr_md--30 plr_sm--30 plr--10">
                         <div class="col-xl-2 col-lg-2 col-md-7 col-sm-7 col-7 p-0">
                             <div class="home-with-soul-site-logo">
-                                <a class="logo-light" href=""><img src="static/images/logo/casa-con-alma-white.png" alt="home-with-soul" style="height:40px"></a>
+                                <a class="logo-light" th:href="${@urlBuilder.contentUrl()}"><img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" alt="home-with-soul" style="height:40px"></a>
                             </div>
                         </div>
                         <div class="col-xl-8 col-lg-8 d-none d-lg-block">
                             <nav>
                                 <div class="home-with-soul-home-1-menu">
                                 <ul class="list-unstyled home-with-soul-desktop-menu">
-                                    <li th:each="menuItem : ${detail.categories}" class="menu-item"><a th:href="${menuItem.url}" class="home-with-soul-dropdown-main-element" th:text="${menuItem.label}"></a></li>
+                                    <li th:each="menuItem : ${detail.categories}" class="menu-item"><a th:href="${@urlBuilder.contentUrl(menuItem.url)}" class="home-with-soul-dropdown-main-element" th:text="${menuItem.label}"></a></li>
                                 </ul>
                             </div>
                             </nav>
@@ -82,7 +81,7 @@
             <!-- inner menu area desktop start -->
             <div class="inner-main-wrapper-desk d-none d-lg-block">
                 <div class="thumbnail">
-                    <img src="static/images/logo/casa-con-alma-white.png" alt="home-with-soul">
+                    <img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" alt="home-with-soul">
                 </div>
                 <div class="inner-content">
                     <div class="newsletter-form">
@@ -105,7 +104,7 @@
         <div class="mobile-menu d-block d-lg-none">
             <nav class="nav-main mainmenu-nav mt--30">
                 <ul class="mainmenu" id="mobile-menu-active">
-                    <li class="menu-item"><a class="main mobile-menu-link" th:each="menuItem : ${detail.categories}" th:href="${menuItem.url}" th:text="${menuItem.label}"></a></li>
+                    <li class="menu-item"><a class="main mobile-menu-link" th:each="menuItem : ${detail.categories}" th:href="${@urlBuilder.contentUrl(menuItem.url)}" th:text="${menuItem.label}"></a></li>
                 </ul>
             </nav>
         </div>
@@ -158,15 +157,15 @@
                                         <div class="col-lg-4 col-md-6" th:each="article : ${detail.articles}">
                                             <div class="home-with-soul-featured-news style-two small">
                                                 <div class="image-area">
-                                                    <a th:href="${article.seoUrl}"><img th:src="${article.coverImage}" th:alt="${article.coverImageCaption}"></a>
+                                                    <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.contentUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
                                                 </div>
                                                 <div class="blog-content">
                                                     <ul class="blog-meta">
 <!--                                                        <li class="author"><span th:utext="${article.tags[0]}"></span></li>-->
                                                         <li class="author"><span th:utext="${article.mainTag}"></span></li>
                                                     </ul>
-                                                    <h3 class="heading-title"><a class="title-animation text-center" th:href="${article.seoUrl}" th:utext="${article.title}"></a></h3>
-                                                    <p style="text-align: center; padding-left: 5%; padding-right: 5%;"><a class="title-animation text-center" th:href="${article.seoUrl}" th:utext="${article.subtitle}"></a></p>
+                                                    <h3 class="heading-title"><a class="title-animation text-center" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h3>
+                                                    <p style="text-align: center; padding-left: 5%; padding-right: 5%;"><a class="title-animation text-center" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.subtitle}"></a></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -249,7 +248,7 @@
                     </ul>
                 </div>
                 <div class="footer-logo-area">
-                    <a href="/" class="logo"><img src="static/images/logo/casa-con-alma-white.png" alt="" style="max-width: 200px;"></a>
+                    <a href="/" class="logo"><img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" alt="" style="max-width: 200px;"></a>
                     <p class="desc">Diseña espacios con alma que cuentan historias</p>
                 </div>
                 <div class="footer-newsletter-area">
@@ -274,7 +273,6 @@
         </div>
     </footer>
     <!-- End Footer Area -->
-    <!-- End Footer Area -->
 
     <!-- Start Scricpt Area -->
 
@@ -286,17 +284,17 @@
 
     <div id="anywhere-home"></div>
 
-    <script src="static/js/vendor/jquery.min.js" defer></script>
-    <script src="static/js/vendor/bootstrap.min.js" defer></script>
-    <script src="static/js/vendor/swiper.js" defer></script>
-    <script src="static/js/vendor/metisMenu.min.js" defer></script>
-    <script src="static/js/plugins/magnific-popup.js" defer></script>
-    <script src="static/js/plugins/contact-form.js" defer></script>
-    <script src="static/js/plugins/resize-sensor.min.js" defer></script>
-    <script src="static/js/plugins/theia-sticky-sidebar.min.js" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/vendor/jquery.min.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/vendor/bootstrap.min.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/vendor/swiper.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/vendor/metisMenu.min.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/plugins/magnific-popup.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/plugins/contact-form.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/plugins/resize-sensor.min.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/plugins/theia-sticky-sidebar.min.js')}" defer></script>
 
     <!-- main js file -->
-    <script src="static/js/main.js" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/main.js')}" defer></script>
     <!-- End Footer Area -->
 
 </body>

@@ -28,7 +28,7 @@ class Article {
     var publishInstant: Instant? = null
 
     val coverImage: String
-        get() = images?.firstOrNull()?.seoUrl?.let { "images/$it" } ?: "static/images/blog/27.jpg"
+        get() = images?.firstOrNull()?.seoUrl?.let { "images/$it" } ?: "images/blog/27.jpg"
 
     val coverImageCaption: String?
         get() = images?.firstOrNull()?.caption

@@ -1,6 +1,10 @@
 server:
   port: 8083
   forward-headers-strategy: FRAMEWORK
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: text/html, text/xml, text/plain, text/css, text/javascript, application/javascript, application/json
 
 # --------------------------------------
 # SPRING

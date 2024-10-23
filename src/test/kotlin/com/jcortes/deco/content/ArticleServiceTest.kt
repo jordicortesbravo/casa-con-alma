@@ -3,9 +3,11 @@ package com.jcortes.deco.content
 import com.jcortes.deco.client.bedrock.BedrockTextClient
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.Image
+import com.jcortes.deco.content.model.SiteCategory
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import kotlin.test.assertContentEquals
 
@@ -62,6 +64,23 @@ class ArticleServiceTest {
             """.trimIndent()
         )
         assertContentEquals(images, article.images)
+    }
+
+    @Test
+    fun getTrendingGroupedByCategory() {
+        val categories = listOf(SiteCategory.BATHROOMS, SiteCategory.BEDROOMS, SiteCategory.LIVING_AND_DINING_ROOMS, SiteCategory.KITCHENS, SiteCategory.OUTDOORS_AND_GARDENS, SiteCategory.SEASONAL_DECORATION)
+
+        val articles = listOf(Article().apply { id = 1}, Article().apply { id = 2 })
+
+        `when`(articleRepository.search(any())).thenReturn(articles)
+
+        val trendingGroupedByCategory = articleService.getTrendingGroupedByCategory(categories)
+
+        assertThat(trendingGroupedByCategory).hasSize(categories.size)
+        for(i in categories.indices) {
+            assertThat(trendingGroupedByCategory.toList()[i].first).isEqualTo(categories[i])
+            assertThat(trendingGroupedByCategory.toList()[i].second).isEqualTo(articles)
+        }
     }
 
 }

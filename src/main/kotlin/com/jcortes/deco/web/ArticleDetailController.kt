@@ -6,6 +6,10 @@ import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.web.model.ResourceItem
+import com.jcortes.deco.web.model.Seo
+import com.jcortes.deco.web.model.SocialNetworkTags
+import com.jcortes.deco.web.model.TwitterCard
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -35,8 +39,8 @@ class ArticleDetailController(
     }
 
     private fun detail(article: Article): ArticleDetail {
-        val trendingArticles = articleService.getTrending(excludedIds = listOf(article.id!!), pageable = Pageable(1, 4))
-        val relatedArticles = articleService.getTrending(excludedIds = trendingArticles.mapNotNull { it.id } + article.id!!, pageable = Pageable(1, 8))
+        val trendingArticles = articleService.getTrending(excludedIds = listOf(article.id!!), pageable = Pageable(0, 4))
+        val relatedArticles = articleService.getTrending(excludedIds = trendingArticles.mapNotNull { it.id } + article.id!!, pageable = Pageable(0, 8))
         val tags = article.tags?.take(3) ?: DecorTag.entries.toTypedArray().take(3).map { it.label }
 
         return ArticleDetail(
@@ -88,40 +92,5 @@ class ArticleDetailController(
         val trendingArticles: List<Article>,
         val tags: List<ResourceItem>,
         val seo: Seo
-    )
-
-    data class ResourceItem(
-        val label: String,
-        val url: String
-    )
-
-    data class Seo (
-        val description: String,
-        val keywords: String,
-        val charset: String = Charsets.UTF_8.toString(),
-        val viewport: String = "width=device-width, initial-scale=1",
-        val robots: String = "index, follow",
-        val author: String = "Casa con Alma",
-        val socialNetworkTags: SocialNetworkTags,
-        val twitterCard: TwitterCard,
-        val canonicalUrl: String,
-        val language: String = "es"
-    )
-
-    data class SocialNetworkTags (
-        val title: String,
-        val description: String,
-        val image: String,
-        val url: String,
-        val type: String = "website"
-    )
-
-    data class TwitterCard (
-        val card: String = "summary_large_image",
-        val site: String = "@casaconalma",
-        val creator: String = "@casaconalma",
-        val title: String,
-        val description: String,
-        val image: String
     )
 }

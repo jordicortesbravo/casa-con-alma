@@ -1,3 +1,5 @@
 # src/main/resources/application-private.yml
 app:
+  content-base-url: http://localhost:8083/crawler/
+  static-base-url: http://localhost:8083/crawler/static/
   allowed-origins: "http://localhost:${server.port}"  # when testing cors requests, remember to change this to the correct origin
