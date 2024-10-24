@@ -3,6 +3,7 @@ package com.jcortes.deco.web
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.content.model.Article
+import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.Pageable
@@ -34,7 +35,7 @@ class TagController(
     }
 
     private fun detail(decorTag: DecorTag): TagDetail {
-        val articles = articleService.search(tags = listOf(decorTag.label), pageable = Pageable(0, 8 * 4))
+        val articles = articleService.search(tags = listOf(decorTag.label), status = ArticleStatus.READY_TO_PUBLISH, pageable = Pageable(0, 8 * 4))
 
         return TagDetail(
             title = "Artículos de ${decorTag.label}",

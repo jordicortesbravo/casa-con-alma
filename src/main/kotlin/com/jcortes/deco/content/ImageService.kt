@@ -31,7 +31,7 @@ class ImageService(
 
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private val baseImageDir = File("/Users/jcortes/workspace/crawler/images/ia-generated")
+    private val baseImageDir = File("/Users/jcortes/workspace/personal/crawler/images/ia-generated")
 
     @Transactional
     fun enrich() {

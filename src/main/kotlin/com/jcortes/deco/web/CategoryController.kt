@@ -3,6 +3,7 @@ package com.jcortes.deco.web
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.content.model.Article
+import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.Pageable
 import com.jcortes.deco.web.ArticleDetailController.*
@@ -33,7 +34,7 @@ class CategoryController(
     }
 
     private fun detail(siteCategory: SiteCategory): CategoryDetail {
-        val articles = articleService.search(siteCategories = listOf(siteCategory.name), pageable = Pageable(0, 8 * 4))
+        val articles = articleService.search(siteCategories = listOf(siteCategory.name), status = ArticleStatus.READY_TO_PUBLISH, pageable = Pageable(0, 8 * 4))
 
         return CategoryDetail(
             title = "Artículos de ${siteCategory.label}",

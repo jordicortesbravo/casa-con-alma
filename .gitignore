@@ -1,39 +1,28 @@
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+hs_err_*
 
 ### IntelliJ IDEA ###
-.idea/
+.idea
 *.iws
 *.iml
 *.ipr
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
 ### VS Code ###
 .vscode/
 
-### Mac OS ###
 .DS_Store
-# Project exclude paths
-/${buildDirectory}/
+
+### Pulumi ###
+/iac/node_modules
+/iac/bin
+/iac/.pulumi/backups
+/iac/.pulumi/history
+
+**/application-private.yml
+**/docker-compose-private.yml
+
+
+### Http Client ###
+**/*.private.env.json
 
 /images/**

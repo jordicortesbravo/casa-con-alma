@@ -76,13 +76,14 @@ class JdbcArticleRepository(
     override fun search(request: ArticleSearchRequest): List<Article> {
         val categoryClause = request.siteCategories?.takeUnless { it.isEmpty() }?.let { "site_categories @> :siteCategories" } ?: "TRUE"
         val embeddingClause = request.embedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
-        val tagsClause = request.tags?.takeUnless { it.isEmpty() }?.let { " AND tags @> :tags" } ?: " AND TRUE"
+        val tagsClause = request.tags?.takeUnless { it.isEmpty() }?.let { " AND tags @> :tags" } ?: ""
         val excludedIdsClause = request.excludedIds?.takeUnless { it.isEmpty() }?.let { " AND id NOT IN (:excludedIds)" } ?: ""
+        val statusClause = request.status?.let { " AND status = :status" } ?: ""
         val orderClause = request.embedding?.let { "embedding <=> CAST(:embedding AS vector), update_instant DESC" } ?: "update_instant DESC"
         val query = """
             SELECT id
             FROM $TABLE_INDEX
-            WHERE $categoryClause $embeddingClause $tagsClause $excludedIdsClause
+            WHERE $categoryClause $embeddingClause $tagsClause $excludedIdsClause $statusClause
             ORDER BY $orderClause
             LIMIT :limit OFFSET :offset
         """
@@ -95,6 +96,7 @@ class JdbcArticleRepository(
         request.excludedIds?.let { params.addValue("excludedIds", request.excludedIds) }
         params.addValue("siteCategories", stringArrayOf(request.siteCategories), Types.ARRAY)
         params.addValue("tags", stringArrayOf(request.tags), Types.ARRAY)
+        params.addValue("status", request.status?.name)
         params.addValue("limit", request.pageSize)
         params.addValue("offset", (request.pageNumber * request.pageSize) + 1)
 

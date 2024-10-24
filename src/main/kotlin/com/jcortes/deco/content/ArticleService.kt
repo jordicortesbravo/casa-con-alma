@@ -38,13 +38,13 @@ class ArticleService(
     }
 
     fun getTrending(excludedIds: List<Long>? = null, pageable: Pageable): List<Article> {
-        val request = ArticleSearchRequest(excludedIds = excludedIds, pageNumber = 1, pageSize = pageable.pageSize)
+        val request = ArticleSearchRequest(excludedIds = excludedIds, status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 1, pageSize = pageable.pageSize)
         return articleRepository.search(request)
     }
 
     fun getTrendingGroupedByCategory(categoriesOrder: List<SiteCategory>): SortedMap<SiteCategory, List<Article>> {
         return categoriesOrder.associateWith {
-            val request = ArticleSearchRequest(siteCategories = listOf(it.name), pageNumber = 1, pageSize = 5)
+            val request = ArticleSearchRequest(siteCategories = listOf(it.name), status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 1, pageSize = 5)
             articleRepository.search(request)
         }.toSortedMap(compareBy { categoriesOrder.indexOf(it) })
     }
@@ -53,10 +53,11 @@ class ArticleService(
         query: String? = null,
         siteCategories: List<String>? = null,
         tags: List<String>? = null,
+        status: ArticleStatus? = null,
         pageable: Pageable
     ): List<Article> {
         val embedding = query?.takeUnless { it.isBlank() }?.let { bedrockTextClient.invokeEmbeddingModel(userPrompt = it) }
-        val request = ArticleSearchRequest(embedding = embedding, siteCategories = siteCategories, tags = tags, pageSize = pageable.pageSize, pageNumber = pageable.pageNumber)
+        val request = ArticleSearchRequest(embedding = embedding, siteCategories = siteCategories, tags = tags, status = status, pageSize = pageable.pageSize, pageNumber = pageable.pageNumber)
         return articleRepository.search(request)
     }
 
