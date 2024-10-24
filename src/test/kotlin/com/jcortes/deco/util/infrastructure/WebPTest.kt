@@ -24,8 +24,8 @@ class WebPTest {
     @Test
     fun jpegToWebp() {
         val webpFile = WebpConverter.imageFileToWebpFile(
-            "/Users/jcortes/workspace/personal/crawler/src/main/resources/web/static/images/logo/casa-con-alma-white.png",
-            "/Users/jcortes/workspace/personal/crawler/src/main/resources/web/static/images/logo/casa-con-alma-white.webp",
+            "/Users/jcortes/workspace/personal/crawler/src/main/resources/web/static/images/logo/casa-con-alma.png",
+            "/Users/jcortes/workspace/personal/crawler/src/main/resources/web/static/images/logo/casa-con-alma.webp",
             80
         )
     }
