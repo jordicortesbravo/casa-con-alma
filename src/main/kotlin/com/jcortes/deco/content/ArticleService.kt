@@ -38,13 +38,13 @@ class ArticleService(
     }
 
     fun getTrending(excludedIds: List<Long>? = null, pageable: Pageable): List<Article> {
-        val request = ArticleSearchRequest(excludedIds = excludedIds, status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 1, pageSize = pageable.pageSize)
+        val request = ArticleSearchRequest(excludedIds = excludedIds, status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 0, pageSize = pageable.pageSize)
         return articleRepository.search(request)
     }
 
     fun getTrendingGroupedByCategory(categoriesOrder: List<SiteCategory>): SortedMap<SiteCategory, List<Article>> {
         return categoriesOrder.associateWith {
-            val request = ArticleSearchRequest(siteCategories = listOf(it.name), status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 1, pageSize = 5)
+            val request = ArticleSearchRequest(siteCategories = listOf(it.name), status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 0, pageSize = 4)
             articleRepository.search(request)
         }.toSortedMap(compareBy { categoriesOrder.indexOf(it) })
     }

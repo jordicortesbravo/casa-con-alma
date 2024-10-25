@@ -8,5 +8,5 @@ data class ArticleSearchRequest (
     val status: ArticleStatus? = null,
     val excludedIds: List<Long> ? = null,
     val pageSize: Int = 20,
-    val pageNumber: Int = 1
+    val pageNumber: Int = 0
 )

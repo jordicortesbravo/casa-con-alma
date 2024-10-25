@@ -3,24 +3,23 @@ package com.jcortes.deco.web
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.SiteCategory
-import com.jcortes.deco.util.Pageable
-import com.jcortes.deco.web.CategoryController.CategoryDetail
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
 import com.jcortes.deco.web.model.TwitterCard
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import java.util.SortedMap
+import kotlin.math.abs
+import kotlin.random.Random
 
 @Controller
 @RequestMapping("\${app.base-path}")
 class HomeController(
     private val articleService: ArticleService
 ) {
+
 
     @GetMapping("/", "")
     fun home(model: Model): String {
@@ -36,14 +35,15 @@ class HomeController(
             SiteCategory.BATHROOMS,
             SiteCategory.BEDROOMS,
             SiteCategory.OUTDOORS_AND_GARDENS,
-            SiteCategory.SEASONAL_DECORATION
         )
         val articles = articleService.getTrendingGroupedByCategory(categoriesOrder)
 
         return HomeData(
             title = "Casa con Alma: Diseña espacios con alma que cuentan historias",
             seo = seo(emptyList()),
-            sections = articles.entries.map { HomeSection.of(it) }
+            sections = articles.entries.map { HomeSection.of(it) },
+            featuredArticle = articles.firstEntry().value[abs(Random.nextInt(articles.firstEntry().value.size))],
+            trendingArticles = articles.values.flatten().sortedByDescending { 0.5 * it.updateInstant.toEpochMilli() + 0.5 * abs(Random.nextInt(1_000)) }.take(4)
         )
     }
 
@@ -72,16 +72,19 @@ class HomeController(
         val categories: List<ResourceItem> = SiteCategory.entries.map { ResourceItem(it.label, it.seoUrl) },
         val title: String,
         val seo: Seo,
-        val sections: List<HomeSection>
+        val sections: List<HomeSection>,
+        val featuredArticle: Article,
+        val trendingArticles: List<Article>,
     )
 
     data class HomeSection(
         val category: SiteCategory,
+        val mainArticle: Article,
         val articles: List<Article>
     ) {
         companion object {
             fun of(entry: Map.Entry<SiteCategory, List<Article>>): HomeSection {
-                return HomeSection(entry.key, entry.value)
+                return HomeSection(entry.key, entry.value.first(), entry.value.drop(1))
             }
         }
     }

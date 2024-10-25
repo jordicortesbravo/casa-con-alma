@@ -162,7 +162,7 @@
                                             <div class="blog-content">
                                                 <ul class="blog-meta">
                                                     <!--                                                        <li class="author"><span th:utext="${article.tags[0]}"></span></li>-->
-                                                    <li class="author"><span>Aquí va el tag</span></li>
+                                                    <li class="author"><span th:utext="${article.mainTag}"></span></li>
                                                 </ul>
                                                 <h3 class="heading-title"><a class="title-animation text-center" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h3>
                                                 <p style="text-align: center; padding-left: 5%; padding-right: 5%;"><a class="title-animation text-center" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.subtitle}"></a></p>

@@ -37,7 +37,7 @@ class Article {
         get() = siteCategories?.firstOrNull()
 
     val mainTag: String
-        get() = tags?.firstOrNull()?.let { DecorTag.fromLabel(it)?.label } ?: "Aquí va el tag"
+        get() = tags?.firstOrNull()?.let { DecorTag.fromLabel(it)?.label } ?: ""
 
 
 }
