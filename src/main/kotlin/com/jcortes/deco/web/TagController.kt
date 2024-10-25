@@ -7,12 +7,10 @@ import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.Pageable
-import com.jcortes.deco.web.ArticleDetailController.*
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
 import com.jcortes.deco.web.model.TwitterCard
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,7 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping("\${app.base-path}")
+@RequestMapping
 class TagController(
     private val articleService: ArticleService,
     private val imageService: ImageService,

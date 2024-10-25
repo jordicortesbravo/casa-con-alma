@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.concurrent.ConcurrentSkipListSet
 
 @RestController
-@RequestMapping("\${app.base-path}/crawl")
+@RequestMapping("/crawl")
 class CrawlerController(
     private val elMuebleCrawler: ElMuebleCrawler,
     private val decoraBlogCrawler: DecoraBlogCrawler,

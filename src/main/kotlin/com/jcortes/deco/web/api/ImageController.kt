@@ -6,7 +6,6 @@ import com.jcortes.deco.util.Pageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.io.File
@@ -14,7 +13,7 @@ import java.net.URI
 import java.nio.file.Files
 
 @RestController
-@RequestMapping("\${app.base-path}/images", "\${app.base-path}/static/images")
+@RequestMapping("/images", "/static/images")
 class ImageController(
     private val unsplashClient: UnsplashClient,
     private val imageService: ImageService

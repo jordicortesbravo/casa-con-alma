@@ -15,7 +15,7 @@ import kotlin.math.abs
 import kotlin.random.Random
 
 @Controller
-@RequestMapping("\${app.base-path}")
+@RequestMapping
 class HomeController(
     private val articleService: ArticleService
 ) {

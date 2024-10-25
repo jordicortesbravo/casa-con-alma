@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping("\${app.base-path}")
+@RequestMapping
 class ArticleDetailController(
     private val articleService: ArticleService,
     private val imageService: ImageService

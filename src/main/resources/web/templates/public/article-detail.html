@@ -157,9 +157,9 @@
                     <!-- bread crumb inner wrapper -->
                     <div class="breadcrumb-inner text-center">
                         <div class="meta">
-                            <a th:href="${detail.breadcrumbs[0].url}" th:utext="${detail.breadcrumbs[0].label}"></a>
+                            <a th:href="${@urlBuilder.contentUrl(detail.breadcrumbs[0].url)}" th:utext="${detail.breadcrumbs[0].label}"></a>
                             <img th:src="${@urlBuilder.staticUrl('images/icon/chevron-right.svg')}" alt="">
-                            <a th:href="${detail.breadcrumbs[1].url}" th:utext="${detail.breadcrumbs[1].label}"></a>
+                            <a th:href="${@urlBuilder.contentUrl(detail.breadcrumbs[1].url)}" th:utext="${detail.breadcrumbs[1].label}"></a>
                         </div>
                     </div>
                     <!-- bread crumb inner wrapper end -->

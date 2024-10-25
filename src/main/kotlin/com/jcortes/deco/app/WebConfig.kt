@@ -24,9 +24,6 @@ class WebConfig : WebMvcConfigurer {
     @Value("\${app.allowed-origins}")
     private lateinit var allowedOrigins: List<String>
 
-    @Value("\${app.base-path}")
-    private lateinit var basePath: String
-
     @Value("\${app.content-base-url}")
     private lateinit var contentBaseUrl: String
 
@@ -34,13 +31,17 @@ class WebConfig : WebMvcConfigurer {
     private lateinit var staticBaseUrl: String
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("$basePath/static/**")
+        registry.addResourceHandler("/static/**")
+            .addResourceLocations("classpath:/web/static/")
+            .setCachePeriod(3600)
+
+        registry.addResourceHandler("/robots.txt")
             .addResourceLocations("classpath:/web/static/")
             .setCachePeriod(3600)
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("$basePath/**")
+        registry.addMapping("/**")
             .allowedOriginPatterns(*allowedOrigins.toTypedArray())
             .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
             .allowCredentials(true).maxAge(3600)
@@ -86,7 +87,7 @@ class WebConfig : WebMvcConfigurer {
         @ExceptionHandler
         @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
         fun internalServerError(exception: Exception): ResponseEntity<ErrorResponse> {
-                log.error("Internal server error", exception)
+            log.error("Internal server error", exception)
             return ResponseEntity.internalServerError().body(getErrorResponse(exception))
         }
 
