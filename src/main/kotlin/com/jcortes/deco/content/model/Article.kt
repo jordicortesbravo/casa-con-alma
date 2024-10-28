@@ -16,7 +16,7 @@ class Article {
     var subtitle: String? = null
     var content: String? = null
     var keywords: List<String>? = null
-    var tags: List<String>? = null
+    var tags: List<DecorTag>? = null
     var siteCategories: List<SiteCategory>? = null
     var productCategories: List<String>? = null
     var images: List<Image>? = null
@@ -37,7 +37,7 @@ class Article {
         get() = siteCategories?.firstOrNull()
 
     val mainTag: String
-        get() = tags?.firstOrNull()?.let { DecorTag.fromLabel(it)?.label } ?: ""
+        get() = tags?.firstOrNull()?.label ?: ""
 
 
 }

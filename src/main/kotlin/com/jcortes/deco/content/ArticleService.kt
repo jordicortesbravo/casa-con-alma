@@ -52,7 +52,7 @@ class ArticleService(
     fun search(
         query: String? = null,
         siteCategories: List<String>? = null,
-        tags: List<String>? = null,
+        tags: List<DecorTag>? = null,
         status: ArticleStatus? = null,
         pageable: Pageable
     ): List<Article> {
@@ -63,7 +63,7 @@ class ArticleService(
 
     fun enrich() {
 //        val articles = articleRepository.iterate().asSequence().toList().sortedBy { it.id }
-//        val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.DRAFT }.sortedBy { it.id }
+//        val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.READY_TO_PUBLISH }.sortedBy { it.id }
 //        articles.forEach { article ->
 //            try {
 //               self.fillArticleWithGenerativeAI(article)
@@ -134,10 +134,10 @@ class ArticleService(
         }
         val json = bedrockTextClient.invokeTextModel(inferenceRequest) { objectMapper.readTree(it) }
 
-        article.description = json?.get("description")?.asText()
-        article.seoUrl = json?.get("seoUrl")?.asText()?.let { "${article.mainCategory?.seoUrl}/$it" }
-        article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
-        article.tags = json?.get("tags")?.asSequence()?.map { it.asText() }?.toList()
+//        article.description = json?.get("description")?.asText()
+//        article.seoUrl = json?.get("seoUrl")?.asText()?.let { "${article.mainCategory?.seoUrl}/$it" }
+//        article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
+        article.tags = json?.get("tags")?.asSequence()?.mapNotNull { try { DecorTag.valueOf(it.asText())} catch(e: Exception) { null } }?.toList()
         log.info("Generated SEO data for article ${article.title}")
     }
 
@@ -210,7 +210,7 @@ class ArticleService(
         """
 
         private const val SEO_PROMPT = """
-            Debes generar metainformación de un artículo de decoración e interiorismo para que quede bien optimizado para SEO:
+             Debes generar metainformación de un artículo de decoración e interiorismo para que quede bien optimizado para SEO:
 
             Como respuesta siempre generarás un json con esta estructura:
                            
@@ -218,7 +218,83 @@ class ArticleService(
                    "description": "Breve resumen del artículo",
                    "seoUrl":"URL SEO friendly a partir del contenido del artículo",
                    "keywords": [], //array de keywords para SEO para ser usadas en un tag meta de html
-                   "tags": [] //lista de tags coincidentes para el texto dentro de esta lista: decoración de salones, decoración de comedores, muebles de salón, sofás y sillones, mesas de comedor, decoración de interiores, colores para interiores, iluminación en interiores, estilos de decoración, decoración moderna, decoración rústica, decoración minimalista, decoración vintage, textiles para el hogar, cortinas y estores, alfombras y tapices, cojines decorativos, decoración con plantas, decoración con madera, estanterías y librerías, organización en el hogar, espacios pequeños, decoración de cocinas, cocinas abiertas, colores para cocinas, muebles de cocina, encimeras y superficies, distribución de cocinas, iluminación en cocinas, cocinas modernas, cocinas rústicas, dormitorios infantiles, decoración de dormitorios, cabeceros de cama, ropa de cama, iluminación en dormitorios, armarios y vestidores, dormitorios modernos, dormitorios rústicos, dormitorios minimalistas, decoración de baños, colores para baños, baños pequeños, azulejos y cerámica, muebles de baño, accesorios de baño, iluminación en baños, baños modernos, baños rústicos, jardines y terrazas, decoración de exteriores, muebles de exterior, plantas y flores, iluminación exterior, terrazas pequeñas, patios y jardines, pérgolas y toldos, decoración estacional, decoración de Navidad, decoración de primavera, decoración de verano, decoración de otoño, tendencias de decoración, DIY decoración, decoración low cost, reciclaje y decoración, arte y cuadros decorativos, espejos decorativos, papeles pintados, paredes y revestimientos, reformas del hogar, distribución de espacios, diseño de interiores
+                   "tags": [] //lista de tags que puedan encajar con el contenido de las disponibles de la enumeración DecorTag. Solo incluye las que tengan una probabilidad de pertenecer a ese tag en más de un 0.75
+                }
+
+                enum class DecorTag {
+                    LIVING_ROOM_DECOR,
+                    DINING_ROOM_DECOR,
+                    LIVING_ROOM_FURNITURE,
+                    SOFAS_ARMCHAIRS,
+                    DINING_TABLES,
+                    INTERIOR_DECOR,
+                    INTERIOR_COLORS,
+                    INTERIOR_LIGHTING,
+                    DECOR_STYLES,
+                    MODERN_DECOR,
+                    RUSTIC_DECOR,
+                    MINIMALIST_DECOR,
+                    VINTAGE_DECOR,
+                    HOME_TEXTILES,
+                    CURTAINS_BLINDS,
+                    RUGS_TAPESTRIES,
+                    DECORATIVE_CUSHIONS,
+                    PLANT_DECOR,
+                    WOOD_DECOR,
+                    SHELVES_BOOKCASES,
+                    HOME_ORGANIZATION,
+                    SMALL_SPACES,
+                    KITCHEN_DECOR,
+                    OPEN_KITCHENS,
+                    KITCHEN_COLORS,
+                    KITCHEN_FURNITURE,
+                    COUNTERTOPS_SURFACES,
+                    KITCHEN_LAYOUT,
+                    KITCHEN_LIGHTING,
+                    MODERN_KITCHENS,
+                    RUSTIC_KITCHENS,
+                    KIDS_BEDROOMS,
+                    BEDROOM_DECOR,
+                    BED_HEADBOARDS,
+                    BEDDING,
+                    BEDROOM_LIGHTING,
+                    WARDROBES_CLOSET,
+                    MODERN_BEDROOMS,
+                    RUSTIC_BEDROOMS,
+                    MINIMALIST_BEDROOMS,
+                    BATHROOM_DECOR,
+                    BATHROOM_COLORS,
+                    SMALL_BATHROOMS,
+                    TILES_CERAMICS,
+                    BATHROOM_FURNITURE,
+                    BATHROOM_ACCESSORIES,
+                    BATHROOM_LIGHTING,
+                    MODERN_BATHROOMS,
+                    RUSTIC_BATHROOMS,
+                    GARDENS_TERRACES,
+                    OUTDOOR_DECOR,
+                    OUTDOOR_FURNITURE,
+                    PLANTS_FLOWERS,
+                    OUTDOOR_LIGHTING,
+                    SMALL_TERRACES,
+                    PATIOS_GARDENS,
+                    PERGOLAS_AWNINGS,
+                    SEASONAL_DECOR,
+                    CHRISTMAS_DECOR,
+                    SPRING_DECOR,
+                    SUMMER_DECOR,
+                    FALL_DECOR,
+                    DECOR_TRENDS,
+                    DIY_DECOR,
+                    LOW_COST_DECOR,
+                    RECYCLED_DECOR,
+                    DECOR_ART,
+                    DECOR_MIRRORS,
+                    WALLPAPERS,
+                    WALLS_COVERINGS,
+                    HOME_RENOVATIONS,
+                    SPACE_LAYOUT,
+                    INTERIOR_DESIGN;
                 }
         """
 

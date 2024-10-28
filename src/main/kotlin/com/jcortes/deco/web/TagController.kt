@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping
+@RequestMapping("/temas")
 class TagController(
     private val articleService: ArticleService,
     private val imageService: ImageService,
 ) {
 
-    @GetMapping("/temas/{tag}")
+    @GetMapping("{tag}")
     fun tag(@PathVariable tag: String, model: Model): String {
         val decorTag = DecorTag.entries.find { it.seoUrl.endsWith(tag) } ?: throw IllegalArgumentException("Invalid tag $tag")
 
@@ -33,7 +33,7 @@ class TagController(
     }
 
     private fun detail(decorTag: DecorTag): TagDetail {
-        val articles = articleService.search(tags = listOf(decorTag.label), status = ArticleStatus.READY_TO_PUBLISH, pageable = Pageable(0, 8 * 4))
+        val articles = articleService.search(tags = listOf(decorTag), status = ArticleStatus.READY_TO_PUBLISH, pageable = Pageable(0, 8 * 4))
 
         return TagDetail(
             title = "Artículos de ${decorTag.label}",

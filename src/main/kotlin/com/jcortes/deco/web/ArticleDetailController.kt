@@ -41,7 +41,7 @@ class ArticleDetailController(
     private fun detail(article: Article): ArticleDetail {
         val trendingArticles = articleService.getTrending(excludedIds = listOf(article.id!!), pageable = Pageable(0, 4))
         val relatedArticles = articleService.getTrending(excludedIds = trendingArticles.mapNotNull { it.id } + article.id!!, pageable = Pageable(0, 8))
-        val tags = article.tags?.take(3) ?: DecorTag.entries.toTypedArray().take(3).map { it.label }
+        val tags = article.tags?.take(3) ?: DecorTag.entries.toTypedArray().take(3)
 
         return ArticleDetail(
             article = article,
@@ -49,7 +49,7 @@ class ArticleDetailController(
             relatedArticles = relatedArticles,
             featuredArticle = trendingArticles.first(),
             trendingArticles = trendingArticles.subList(1, trendingArticles.size),
-            tags = tags.mapNotNull { DecorTag.fromLabel(it)}.map { ResourceItem(it.label, it.seoUrl) },
+            tags = tags.map { ResourceItem(it.label, it.seoUrl) },
             seo = seo(article)
         )
     }

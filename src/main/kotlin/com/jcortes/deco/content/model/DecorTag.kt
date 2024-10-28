@@ -73,7 +73,8 @@ enum class DecorTag(val label: String, val seoUrl: String, val description: Stri
     WALLS_COVERINGS("Paredes y revestimientos","temas/paredes-revestimientos", DecorTagDescriptions.WALLS_COVERINGS_DESCRIPTION),
     HOME_RENOVATIONS("Reformas del hogar","temas/reformas-hogar", DecorTagDescriptions.HOME_RENOVATIONS_DESCRIPTION),
     SPACE_LAYOUT("Distribución de espacios","temas/distribucion-espacios", DecorTagDescriptions.SPACE_LAYOUT_DESCRIPTION),
-    INTERIOR_DESIGN("Diseño de interiores","temas/diseno-interiores", DecorTagDescriptions.INTERIOR_DESIGN_DESCRIPTION),;
+    INTERIOR_DESIGN("Diseño de interiores","temas/diseno-interiores", DecorTagDescriptions.INTERIOR_DESIGN_DESCRIPTION),
+    HALLOWEEN_DECOR("Decoración de Halloween","temas/decoracion-halloween", DecorTagDescriptions.HALLOWEEN_DECOR_DESCRIPTION),;
 
     companion object {
         fun fromLabel(label: String): DecorTag? {
@@ -156,5 +157,5 @@ private object DecorTagDescriptions {
     const val HOME_RENOVATIONS_DESCRIPTION = "Ideas y consejos para realizar reformas en el hogar, mejorando su funcionalidad y estética."
     const val SPACE_LAYOUT_DESCRIPTION = "Estrategias para organizar y distribuir el espacio en el hogar de manera eficiente."
     const val INTERIOR_DESIGN_DESCRIPTION = "Conceptos y técnicas de diseño de interiores que optimizan la estética y funcionalidad de los espacios."
-
+    const val HALLOWEEN_DECOR_DESCRIPTION = "Ideas para decorar tu hogar en Halloween y crear un ambiente terrorífico."
 }

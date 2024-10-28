@@ -65,6 +65,7 @@ class JdbcArticleRepository(
             WHERE id IN (:ids)
         """
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("ids" to ids)) { rs, _ -> rs.getBinaryStream("content") }
+            .filterNotNull()
             .map {
                 val doc = objectMapper.readValue(it, Article::class.java)
                 doc.images = listImages(doc)
@@ -95,7 +96,7 @@ class JdbcArticleRepository(
         }
         request.excludedIds?.let { params.addValue("excludedIds", request.excludedIds) }
         params.addValue("siteCategories", stringArrayOf(request.siteCategories), Types.ARRAY)
-        params.addValue("tags", stringArrayOf(request.tags), Types.ARRAY)
+        params.addValue("tags", stringArrayOf(request.tags?.map { it.name }), Types.ARRAY)
         params.addValue("status", request.status?.name)
         params.addValue("limit", request.pageSize)
         params.addValue("offset", (request.pageNumber * request.pageSize) + 1)
@@ -164,9 +165,9 @@ class JdbcArticleRepository(
     private fun indexParamsOf(article: Article): MapSqlParameterSource {
         val params = MapSqlParameterSource()
         params.addValue("id", article.id)
-        params.addValue("seoUrl", article.seoUrl?.toString())
+        params.addValue("seoUrl", article.seoUrl)
         params.addValue("keywords", stringArrayOf(article.keywords), Types.ARRAY)
-        params.addValue("tags", stringArrayOf(article.tags), Types.ARRAY)
+        params.addValue("tags", stringArrayOf(article.tags?.map { it.name }), Types.ARRAY)
         params.addValue("siteCategories", stringArrayOf(article.siteCategories?.map { it.name }), Types.ARRAY)
         params.addValue("productCategories", stringArrayOf(article.productCategories), Types.ARRAY)
         params.addValue("status", article.status.name)
@@ -200,7 +201,8 @@ class JdbcArticleRepository(
 
     private companion object {
         private const val TABLE_INDEX = "deco.article_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, seo_url, keywords, tags, site_categories, product_categories, status, create_instant, update_instant, publish_instant, embedding)
+        private const val SAVE_INDEX_QUERY =
+            """INSERT INTO $TABLE_INDEX (id, seo_url, keywords, tags, site_categories, product_categories, status, create_instant, update_instant, publish_instant, embedding)
             VALUES (:id, :seoUrl, :keywords, :tags, :siteCategories, :productCategories, :status, :createInstant, :updateInstant, :publishInstant, :embedding)
             ON CONFLICT (id) DO UPDATE
             SET seo_url = :seoUrl, keywords = :keywords, tags = :tags, site_categories = :siteCategories, product_categories = :productCategories, status = :status, create_instant = :createInstant, update_instant = :updateInstant, publish_instant = :publishInstant, embedding = :embedding"""
