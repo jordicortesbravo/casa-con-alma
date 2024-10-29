@@ -39,5 +39,7 @@ class Article {
     val mainTag: String
         get() = tags?.firstOrNull()?.label ?: ""
 
+    val isPublished: Boolean
+        get() = status == ArticleStatus.PUBLISHED
 
 }
