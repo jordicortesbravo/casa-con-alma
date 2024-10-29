@@ -2,8 +2,8 @@ package com.jcortes.deco.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.jcortes.deco.content.model.Image
-import com.jcortes.deco.util.Page
-import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.util.paging.Page
+import com.jcortes.deco.util.paging.Pageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File

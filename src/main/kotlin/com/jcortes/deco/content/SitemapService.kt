@@ -4,7 +4,7 @@ import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
-import com.jcortes.deco.util.UrlBuilder
+import com.jcortes.deco.util.url.UrlBuilder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File

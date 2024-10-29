@@ -1,4 +1,4 @@
-package com.jcortes.deco.util
+package com.jcortes.deco.util.jdbc
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 

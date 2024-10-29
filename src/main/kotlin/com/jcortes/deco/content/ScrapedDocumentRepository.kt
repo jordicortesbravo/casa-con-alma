@@ -1,7 +1,7 @@
 package com.jcortes.deco.content
 
 import com.jcortes.deco.content.model.ScrapedDocument
-import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.util.paging.Pageable
 
 interface ScrapedDocumentRepository {
 

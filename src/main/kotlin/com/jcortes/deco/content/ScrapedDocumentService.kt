@@ -2,7 +2,7 @@ package com.jcortes.deco.content
 
 import com.jcortes.deco.client.bedrock.BedrockTextClient
 import com.jcortes.deco.content.model.ScrapedDocument
-import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.util.paging.Pageable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service

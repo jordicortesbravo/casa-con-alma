@@ -5,7 +5,7 @@ import com.jcortes.deco.client.bedrock.BedrockImageInferenceRequest
 import com.jcortes.deco.client.bedrock.BedrockImageModel
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.content.model.ImageSearchRequest
-import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.util.paging.Pageable
 import io.github.mojtabaJ.cwebp.WebpConverter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

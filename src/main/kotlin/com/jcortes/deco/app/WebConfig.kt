@@ -1,6 +1,6 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.util.UrlBuilder
+import com.jcortes.deco.util.url.UrlBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean

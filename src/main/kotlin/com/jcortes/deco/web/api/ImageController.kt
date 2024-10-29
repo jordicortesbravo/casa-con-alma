@@ -2,7 +2,7 @@ package com.jcortes.deco.web.api
 
 import com.jcortes.deco.client.UnsplashClient
 import com.jcortes.deco.content.ImageService
-import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.util.paging.Pageable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

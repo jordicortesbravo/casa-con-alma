@@ -1,4 +1,4 @@
-package com.jcortes.deco.util
+package com.jcortes.deco.util.url
 
 class UrlBuilder(
     private val contentBaseUrl: String,

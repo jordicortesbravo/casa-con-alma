@@ -6,9 +6,9 @@ import com.jcortes.deco.content.ImageRepository
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleSearchRequest
 import com.jcortes.deco.content.model.Image
-import com.jcortes.deco.util.ChunkIterator
-import com.jcortes.deco.util.DefaultChunkIteratorState
-import com.jcortes.deco.util.JdbcUtils
+import com.jcortes.deco.util.paging.ChunkIterator
+import com.jcortes.deco.util.paging.DefaultChunkIteratorState
+import com.jcortes.deco.util.jdbc.JdbcUtils
 import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate

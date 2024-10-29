@@ -1,4 +1,4 @@
-package com.jcortes.deco.util
+package com.jcortes.deco.util.paging
 
 class Page<E>(
     val pageNumber: Int,

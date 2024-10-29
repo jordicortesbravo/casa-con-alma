@@ -2,7 +2,7 @@ package com.jcortes.deco.web.api
 
 import com.jcortes.deco.content.ScrapedDocumentService
 import com.jcortes.deco.content.model.ScrapedDocument
-import com.jcortes.deco.util.Pageable
+import com.jcortes.deco.util.paging.Pageable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam

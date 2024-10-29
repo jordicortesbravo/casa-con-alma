@@ -1,4 +1,4 @@
-package com.jcortes.deco.util
+package com.jcortes.deco.util.paging
 
 import kotlin.math.max
 
