@@ -21,7 +21,7 @@ class HomeController(
 ) {
 
 
-    @GetMapping("/", "")
+    @GetMapping("/", "", "home")
     fun home(model: Model): String {
         model.addAttribute("detail", homeData())
         return "public/home"

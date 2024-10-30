@@ -17,11 +17,6 @@ class ToolsController(
     private val imageService: ImageService
 ) {
 
-    @GetMapping("/generate-sitemap")
-    fun generateSitemap() {
-        sitemapService.generateSitemap()
-    }
-
     @GetMapping("/publish-content")
     fun publishContent() {
         publisherService.publishContent()

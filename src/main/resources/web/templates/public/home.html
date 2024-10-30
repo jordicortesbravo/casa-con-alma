@@ -156,7 +156,7 @@
                                         <div class="home-with-soul-featured-news style-two big">
                                             <a th:href="${@urlBuilder.contentUrl(section.mainArticle.seoUrl)}">
                                                 <div class="content-img-container">
-                                                    <img class="content-img" th:src="${@urlBuilder.staticUrl(section.mainArticle.coverImage)}" th:alt="${section.mainArticle.coverImageCaption}">
+                                                    <img class="content-img" th:src="${@urlBuilder.imageUrl(section.mainArticle.coverImage)}" th:alt="${section.mainArticle.coverImageCaption}">
                                                 </div>
                                             </a>
                                             <div class="blog-content">
@@ -173,7 +173,7 @@
                                         <div class="home-with-soul-featured-news style-two small">
                                             <div class="image-area">
                                                 <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}">
-                                                    <img th:src="${@urlBuilder.staticUrl(article.coverImage)}" th:alt="${article.coverImageCaption}">
+                                                    <img th:src="${@urlBuilder.imageUrl(article.coverImage)}" th:alt="${article.coverImageCaption}">
                                                 </a>
                                             </div>
                                             <div class="blog-content">
@@ -197,7 +197,7 @@
                             <div class="featured-post sidebar">
                                 <div class="image-area">
                                     <a th:href="${@urlBuilder.contentUrl(detail.featuredArticle.seoUrl)}">
-                                        <img th:src="${@urlBuilder.staticUrl(detail.featuredArticle.coverImage)}" th:alt="${detail.featuredArticle.coverImageCaption}">
+                                        <img th:src="${@urlBuilder.imageUrl(detail.featuredArticle.coverImage)}" th:alt="${detail.featuredArticle.coverImageCaption}">
                                     </a>
                                 </div>
                                 <div class="blog-content">
@@ -215,7 +215,7 @@
                             <div class="small-post">
                                 <div class="home-with-soul-post-list-style" th:each="article : ${detail.trendingArticles}">
                                     <div class="image-area">
-                                        <a href="#"><img th:src="${@urlBuilder.staticUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
+                                        <a href="#"><img th:src="${@urlBuilder.imageUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
                                     </div>
                                     <div class="blog-content">
                                         <h4 class="heading-title"><a class="title-animation" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h4>

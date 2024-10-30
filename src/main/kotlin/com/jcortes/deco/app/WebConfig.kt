@@ -1,6 +1,5 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.util.url.UrlBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -24,12 +23,6 @@ class WebConfig : WebMvcConfigurer {
     @Value("\${app.allowed-origins}")
     private lateinit var allowedOrigins: List<String>
 
-    @Value("\${app.content-base-url}")
-    private lateinit var contentBaseUrl: String
-
-    @Value("\${app.static-base-url}")
-    private lateinit var staticBaseUrl: String
-
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/static/**")
             .addResourceLocations("classpath:/web/static/")
@@ -46,9 +39,6 @@ class WebConfig : WebMvcConfigurer {
             .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
             .allowCredentials(true).maxAge(3600)
     }
-
-    @Bean
-    fun urlBuilder() = UrlBuilder(contentBaseUrl, staticBaseUrl)
 
     @Bean
     fun templateResolver() = ClassLoaderTemplateResolver().apply {

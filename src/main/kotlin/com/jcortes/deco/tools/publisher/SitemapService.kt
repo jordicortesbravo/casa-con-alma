@@ -1,11 +1,13 @@
 package com.jcortes.deco.tools.publisher
 
+import com.idealista.yaencontre.io.storage.Storage
 import com.jcortes.deco.content.ArticleRepository
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.url.UrlBuilder
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
@@ -15,12 +17,16 @@ import java.time.LocalDate
 class SitemapService(
     private val articleRepository: ArticleRepository,
     private val urlBuilder: UrlBuilder,
+    private val staticResourcesStorage: Storage
 ) {
 
     @Value("\${app.content-base-url}")
     private lateinit var siteUrl: String
 
-    fun generateSitemap() {
+    private val log = LoggerFactory.getLogger(this::class.java)
+
+    fun publishSitemap() {
+        log.info("Generating sitemap")
         val articles = articleRepository.iterate().asSequence().filter{ it.status == ArticleStatus.READY_TO_PUBLISH }.toList()
 
         val mainSitemap = generateMainSitemap()
@@ -28,6 +34,7 @@ class SitemapService(
         val imageSitemap = generateImageSitemap(articles)
 
         generateIndexSitemap(mainSitemap, urlSitemap, imageSitemap)
+        log.info("Sitemap generated")
     }
 
     private fun generateMainSitemap(): String {
@@ -96,7 +103,7 @@ class SitemapService(
                 sitemapBuilder.append("<url>")
                 sitemapBuilder.append("<loc>${urlBuilder.contentUrl(article.seoUrl)}</loc>")
                 sitemapBuilder.append("<image:image>")
-                sitemapBuilder.append("<image:loc>${urlBuilder.staticUrl(image.seoUrl)}</image:loc>")
+                sitemapBuilder.append("<image:loc>${urlBuilder.imageUrl(image.seoUrl)}</image:loc>")
                 sitemapBuilder.append("<image:caption>${image.caption}</image:caption>")
                 sitemapBuilder.append("</image:image>")
                 sitemapBuilder.append("</url>")
@@ -132,13 +139,13 @@ class SitemapService(
         indexSitemapBuilder.append("</sitemapindex>")
 
         // Guardar los sitemaps en archivos
-        saveToFile("sitemap-main.xml", mainSitemap) // Guarda el sitemap principal
-        saveToFile("sitemap-urls.xml", urlSitemap)
-        saveToFile("sitemap-images.xml", imageSitemap)
-        saveToFile("sitemap-index.xml", indexSitemapBuilder.toString())
+        publish("sitemap-main.xml", mainSitemap) // Guarda el sitemap principal
+        publish("sitemap-urls.xml", urlSitemap)
+        publish("sitemap-images.xml", imageSitemap)
+        publish("sitemap-index.xml", indexSitemapBuilder.toString())
     }
 
-    private fun saveToFile(fileName: String, content: String) {
-        File(fileName).writeText(content)
+    private fun publish(fileName: String, content: String) {
+        staticResourcesStorage.put("sitemaps/$fileName", content.byteInputStream())
     }
 }

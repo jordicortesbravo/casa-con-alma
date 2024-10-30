@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${detail.seo.language}">
 
 <head>
-    <base th:href="${@urlBuilder.staticUrl()}">
+    <base th:href="${@urlBuilder.imageUrl()}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" th:content="${detail.seo.description}">
     <meta name="keywords" th:content="${detail.seo.keywords}">
@@ -243,7 +243,7 @@
                                 <div class="featured-post sidebar">
                                     <div class="image-area">
                                         <a th:href="${@urlBuilder.contentUrl(detail.featuredArticle.seoUrl)}">
-                                            <img th:src="${@urlBuilder.contentUrl(detail.featuredArticle.coverImage)}" th:alt="${detail.featuredArticle.coverImageCaption}">
+                                            <img th:src="${@urlBuilder.imageUrl(detail.featuredArticle.coverImage)}" th:alt="${detail.featuredArticle.coverImageCaption}">
                                         </a>
                                     </div>
                                     <div class="blog-content">
@@ -263,7 +263,7 @@
                                 <div class="small-post">
                                     <div class="home-with-soul-post-list-style" th:each="article : ${detail.trendingArticles}">
                                         <div class="image-area">
-                                            <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.contentUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
+                                            <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.imageUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
                                         </div>
                                         <div class="blog-content">
                                             <h4 class="heading-title"><a class="title-animation" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h4>
@@ -385,7 +385,7 @@
                     <div class="col-xl-3 col-lg-6 col-md-6" th:each="article : ${detail.relatedArticles}">
                         <div class="home-with-soul-featured-news style-two small">
                             <div class="image-area">
-                                <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.contentUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
+                                <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.imageUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
                             </div>
                             <div class="blog-content text-left">
                                 <p class="tag mb--15" th:utext="${article.siteCategories[0].label}"></p>

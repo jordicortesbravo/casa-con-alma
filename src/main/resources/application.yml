@@ -4,7 +4,8 @@
 app:
   name: crawler
   content-base-url: ${CONTENT_BASE_URL}
-  static-base-url: ${STATIC_BASE_URL}
+  images-base-url: ${STATIC_BASE_URL}
+  static-resources-base-url: ${STATIC_BASE_URL}
   allowed-origins: ${ALLOWED_ORIGINS}
 
   content-storage: s3://pro-home-with-soul-es-content
