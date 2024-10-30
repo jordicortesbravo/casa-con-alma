@@ -25,6 +25,8 @@ hs_err_*
 ### Http Client ###
 **/*.private.env.json
 
-/images/**
+/images
 
 target
+
+publish-bucket

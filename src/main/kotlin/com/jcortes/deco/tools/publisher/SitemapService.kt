@@ -1,5 +1,6 @@
-package com.jcortes.deco.content
+package com.jcortes.deco.tools.publisher
 
+import com.jcortes.deco.content.ArticleRepository
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.DecorTag

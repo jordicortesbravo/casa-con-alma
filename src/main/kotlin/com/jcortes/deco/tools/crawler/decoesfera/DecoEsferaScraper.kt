@@ -1,6 +1,6 @@
-package com.jcortes.deco.crawler.decoesfera
+package com.jcortes.deco.tools.crawler.decoesfera
 
-import com.jcortes.deco.crawler.GenericScraper
+import com.jcortes.deco.tools.crawler.GenericScraper
 import org.jsoup.nodes.Document
 import java.time.Instant
 import java.time.LocalDate

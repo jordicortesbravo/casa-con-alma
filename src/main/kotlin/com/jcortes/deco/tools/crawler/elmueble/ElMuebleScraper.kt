@@ -1,6 +1,6 @@
-package com.jcortes.deco.crawler.elmueble
+package com.jcortes.deco.tools.crawler.elmueble
 
-import com.jcortes.deco.crawler.GenericScraper
+import com.jcortes.deco.tools.crawler.GenericScraper
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 

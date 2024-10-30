@@ -1,4 +1,4 @@
-package com.jcortes.deco.crawler
+package com.jcortes.deco.tools.crawler
 
 import com.jcortes.deco.content.model.ScrapedDocument
 import org.slf4j.Logger

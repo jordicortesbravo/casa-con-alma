@@ -1,10 +1,10 @@
 package com.jcortes.deco.web.api
 
 import com.jcortes.deco.content.ScrapedDocumentService
-import com.jcortes.deco.crawler.Crawler
-import com.jcortes.deco.crawler.decoesfera.DecoEsferaCrawler
-import com.jcortes.deco.crawler.decorablog.DecoraBlogCrawler
-import com.jcortes.deco.crawler.elmueble.ElMuebleCrawler
+import com.jcortes.deco.tools.crawler.Crawler
+import com.jcortes.deco.tools.crawler.decoesfera.DecoEsferaCrawler
+import com.jcortes.deco.tools.crawler.decorablog.DecoraBlogCrawler
+import com.jcortes.deco.tools.crawler.elmueble.ElMuebleCrawler
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController

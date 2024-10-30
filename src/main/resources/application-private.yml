@@ -1,5 +1,8 @@
 # src/main/resources/application-private.yml
 app:
+  content-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/content
+  images-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/images
+  static-resources-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/static-resource
   content-base-url: http://localhost:8083/
   static-base-url: http://localhost:8083/static/
   allowed-origins: "http://localhost:${server.port}"  # when testing cors requests, remember to change this to the correct origin

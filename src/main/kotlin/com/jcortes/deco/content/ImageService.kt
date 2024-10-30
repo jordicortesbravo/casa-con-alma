@@ -6,6 +6,7 @@ import com.jcortes.deco.client.bedrock.BedrockImageModel
 import com.jcortes.deco.content.model.Image
 import com.jcortes.deco.content.model.ImageSearchRequest
 import com.jcortes.deco.util.paging.Pageable
+import com.jcortes.deco.util.url.SeoUrlNormalizer
 import io.github.mojtabaJ.cwebp.WebpConverter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -33,6 +34,18 @@ class ImageService(
 
     private val baseImageDir = File("/Users/jcortes/workspace/personal/crawler/images/ia-generated")
 
+    fun get(imageId: Long): Image {
+        return imageRepository.get(imageId) ?: throw NoSuchElementException("Image $imageId not found")
+    }
+
+    fun getBySeoUrl(seoUrl: String): Image {
+        return imageRepository.getBySeoUrl(seoUrl) ?: throw NoSuchElementException("Image $seoUrl not found")
+    }
+
+    fun list(): List<Image> {
+        return imageRepository.iterate().asSequence().toList()
+    }
+
     @Transactional
     fun enrich() {
         val images = imageRepository.iterate().asSequence().toList()
@@ -56,14 +69,6 @@ class ImageService(
         }
     }
 
-    fun get(imageId: Long): Image {
-        return imageRepository.get(imageId) ?: throw NoSuchElementException("Image $imageId not found")
-    }
-
-    fun getBySeoUrl(seoUrl: String): Image {
-        return imageRepository.getBySeoUrl(seoUrl) ?: throw NoSuchElementException("Image $seoUrl not found")
-    }
-
     private fun enrich(image: Image) {
         val base64Image = image.toBase64()
         val keywords = image.keywords ?: bedrockImageClient.keywordsOf(base64Image)
@@ -72,7 +77,7 @@ class ImageService(
         val multiModalEmbeddings = image.id?.let { imageRepository.getEmbedding(it, EmbeddingType.MULTI_MODAL) } ?: description?.let { bedrockImageClient.multimodalEmbeddingsOf(it, base64Image) }
         val caption = image.caption ?: bedrockImageClient.captionOf(base64Image)
         val characteristics = image.characteristics ?: bedrockImageClient.characteristicsOf(image)
-        val seoUrl = image.seoUrl ?: bedrockImageClient.seoUrlOf(caption ?: description)
+        val seoUrl = (image.seoUrl ?: bedrockImageClient.seoUrlOf(caption ?: description))?.let { SeoUrlNormalizer.normalize(it) }
 
         image.keywords = keywords ?: emptyList()
         image.description = description
@@ -124,6 +129,11 @@ class ImageService(
         enrich(image)
         log.info("Generated image: ${image.internalUri.toString().replace("file:", "file://")}")
         return image
+    }
+
+    @Transactional
+    fun save(image: Image) {
+        imageRepository.save(image)
     }
 
     fun search(query: String?, keywords: List<String>, hasRights: Boolean? = false, pageable: Pageable): List<Image> {

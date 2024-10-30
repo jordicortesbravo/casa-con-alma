@@ -1,12 +1,12 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.crawler.CrawlerConfig
-import com.jcortes.deco.crawler.decoesfera.DecoEsferaCrawler
-import com.jcortes.deco.crawler.decoesfera.DecoEsferaScraper
-import com.jcortes.deco.crawler.decorablog.DecoraBlogCrawler
-import com.jcortes.deco.crawler.decorablog.DecoraBlogScraper
-import com.jcortes.deco.crawler.elmueble.ElMuebleCrawler
-import com.jcortes.deco.crawler.elmueble.ElMuebleScraper
+import com.jcortes.deco.tools.crawler.CrawlerConfig
+import com.jcortes.deco.tools.crawler.decoesfera.DecoEsferaCrawler
+import com.jcortes.deco.tools.crawler.decoesfera.DecoEsferaScraper
+import com.jcortes.deco.tools.crawler.decorablog.DecoraBlogCrawler
+import com.jcortes.deco.tools.crawler.decorablog.DecoraBlogScraper
+import com.jcortes.deco.tools.crawler.elmueble.ElMuebleCrawler
+import com.jcortes.deco.tools.crawler.elmueble.ElMuebleScraper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.regex.Pattern

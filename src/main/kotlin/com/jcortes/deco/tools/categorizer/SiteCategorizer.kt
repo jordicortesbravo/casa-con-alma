@@ -1,4 +1,4 @@
-package com.jcortes.deco.content.categorizer
+package com.jcortes.deco.tools.categorizer
 
 import com.jcortes.deco.content.model.SiteCategory
 

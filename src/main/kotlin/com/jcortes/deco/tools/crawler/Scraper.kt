@@ -1,7 +1,7 @@
-package com.jcortes.deco.crawler
+package com.jcortes.deco.tools.crawler
 
-import com.jcortes.deco.content.categorizer.ProductCategorizer
-import com.jcortes.deco.content.categorizer.SiteCategorizer
+import com.jcortes.deco.tools.categorizer.ProductCategorizer
+import com.jcortes.deco.tools.categorizer.SiteCategorizer
 import com.jcortes.deco.content.model.ScrapedDocument
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

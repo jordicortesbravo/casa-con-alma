@@ -23,7 +23,7 @@ class ImageController(
 
     @GetMapping("{seoUrl}", produces = ["image/webp", "image/jpeg", "image/png"])
     fun getImage(@PathVariable seoUrl: String): ResponseEntity<ByteArray>  {
-        val image = imageService.getBySeoUrl(seoUrl)
+        val image = imageService.getBySeoUrl(seoUrl.replace(".jpg", ""))
         val bytes = Files.readAllBytes(File(URI(image.internalUri!!.replace("jpeg", "webp"))).toPath())
         return ResponseEntity(bytes, HttpStatus.OK)
     }

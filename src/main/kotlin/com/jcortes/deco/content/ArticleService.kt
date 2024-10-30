@@ -6,6 +6,7 @@ import com.jcortes.deco.client.bedrock.BedrockTextInferenceRequest
 import com.jcortes.deco.client.bedrock.BedrockTextModel
 import com.jcortes.deco.content.model.*
 import com.jcortes.deco.util.paging.Pageable
+import com.jcortes.deco.util.url.SeoUrlNormalizer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
@@ -29,6 +30,8 @@ class ArticleService(
 
     private val objectMapper = jacksonObjectMapper()
 
+    fun iterate() = articleRepository.iterate()
+
     fun get(id: Long): Article {
         return articleRepository.get(id) ?: throw NoSuchElementException("Article $id not found")
     }
@@ -47,6 +50,10 @@ class ArticleService(
             val request = ArticleSearchRequest(siteCategories = listOf(it.name), status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 0, pageSize = 4)
             articleRepository.search(request)
         }.toSortedMap(compareBy { categoriesOrder.indexOf(it) })
+    }
+
+    fun listPublishable(): List<Article> {
+        return articleRepository.iterate().asSequence().filter { it.status == ArticleStatus.READY_TO_PUBLISH  || it.status == ArticleStatus.PUBLISHED }.toList()
     }
 
     fun search(
@@ -134,9 +141,9 @@ class ArticleService(
         }
         val json = bedrockTextClient.invokeTextModel(inferenceRequest) { objectMapper.readTree(it) }
 
-//        article.description = json?.get("description")?.asText()
-//        article.seoUrl = json?.get("seoUrl")?.asText()?.let { "${article.mainCategory?.seoUrl}/$it" }
-//        article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
+        article.description = json?.get("description")?.asText()
+        article.seoUrl = json?.get("seoUrl")?.asText()?.let { SeoUrlNormalizer.normalize("${article.mainCategory?.seoUrl}/$it") }
+        article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
         article.tags = json?.get("tags")?.asSequence()?.mapNotNull { try { DecorTag.valueOf(it.asText())} catch(e: Exception) { null } }?.toList()
         log.info("Generated SEO data for article ${article.title}")
     }
