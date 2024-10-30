@@ -6,6 +6,7 @@ import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.paging.Pageable
+import com.jcortes.deco.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
@@ -20,7 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 @RequestMapping
 class ArticleDetailController(
     private val articleService: ArticleService,
-    private val imageService: ImageService
+    private val imageService: ImageService,
+    private val urlBuilder: UrlBuilder
 ) {
 
     @GetMapping("/article/{id}")
@@ -34,6 +36,10 @@ class ArticleDetailController(
     fun detail(@PathVariable category: String, @PathVariable slug: String, model: Model): String {
         val seoUrl = "$category/$slug"
         val article = articleService.getBySeoUrl(seoUrl)
+        article.content = SRC_IMG_REGEX.replace(article.content!!) { matchResult ->
+            val srcUrl = matchResult.groupValues[2] // Obtén la URL original en el atributo src
+            "${matchResult.groupValues[1]}${urlBuilder.imageUrl(srcUrl.replace("images/", ""))}${matchResult.groupValues[3]}"
+        }
         model.addAttribute("detail", detail(article))
         return "public/article-detail"
     }
@@ -93,4 +99,8 @@ class ArticleDetailController(
         val tags: List<ResourceItem>,
         val seo: Seo
     )
+
+    companion object {
+        val SRC_IMG_REGEX = Regex("""(<img\s+class="content-img"\s+src=")([^"]*)(")""")
+    }
 }

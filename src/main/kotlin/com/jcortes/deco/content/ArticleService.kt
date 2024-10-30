@@ -178,7 +178,7 @@ class ArticleService(
             val image = imageService.generate(prompt)
             images.add(image)
 
-            val newImgTag = """<div class="content-img-container"><img class="content-img" src="images/${image.seoUrl}" alt="${image.caption}"/></div>"""
+            val newImgTag = """<div class="content-img-container"><img class="content-img" src="${image.seoUrl}" alt="${image.caption}"/></div>"""
             content = content.replaceFirst(IMG_TAG_REGEX, newImgTag)
         }
         article.content = content.replace("</img>", "")
