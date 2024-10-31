@@ -62,7 +62,7 @@ class FSStorage(
             .sortedBy { it.name }
     }
 
-    override fun put(objectName: String, inputStream: InputStream): StorageObject {
+    override fun put(objectName: String, inputStream: InputStream, contentType: String?): StorageObject {
         val key = objectKeyFactory.fromObjectName(objectName)
         driver.put(key, inputStream)
         return fsObject(key)

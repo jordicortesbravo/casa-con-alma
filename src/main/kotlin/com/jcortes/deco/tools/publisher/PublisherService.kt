@@ -6,13 +6,16 @@ import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
+import jdk.jfr.ContentType
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.file.Files
 
 
 @Service
@@ -72,7 +75,7 @@ class PublisherService(
         log.info("Publishing images")
         imageService.list().forEach { image ->
             URI(image.internalUri!!).toURL().openStream().use { inputStream ->
-                imageStorage.put(image.seoUrl!!, inputStream)
+                imageStorage.put(image.seoUrl!!, inputStream, "image/webp")
             }
         }
         log.info("Images published")
@@ -84,7 +87,7 @@ class PublisherService(
         resource.file.walkTopDown().forEach { file ->
             if (file.isFile) {
                 val path = file.relativeTo(resource.file).path
-                file.inputStream().use { staticResourcesStorage.put(path, it) }
+                file.inputStream().use { staticResourcesStorage.put(path, it, Files.probeContentType(file.toPath())) }
             }
         }
         log.info("Static resources published")
@@ -101,7 +104,7 @@ class PublisherService(
             .uri(URI.create("$localUrl/$seoUrl"))
             .build()
         client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body().use { inputStream ->
-            contentStorage.put(seoUrl, inputStream)
+            contentStorage.put(seoUrl, inputStream, MediaType.TEXT_HTML_VALUE)
         }
     }
 }

@@ -12,7 +12,7 @@ interface Storage {
 
     fun list(prefix: String = ""): List<StorageObject>
 
-    fun put(objectName: String, inputStream: InputStream): StorageObject
+    fun put(objectName: String, inputStream: InputStream, contentType: String? = null): StorageObject
 
     fun move(sourceObjectName: String, targetObjectName: String): StorageObject
 

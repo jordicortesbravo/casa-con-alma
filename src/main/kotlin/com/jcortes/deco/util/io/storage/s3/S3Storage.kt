@@ -71,10 +71,10 @@ class S3Storage private constructor(
         }
     }
 
-    override fun put(objectName: String, inputStream: InputStream): StorageObject {
+    override fun put(objectName: String, inputStream: InputStream, contentType: String?): StorageObject {
         val key = objectKeyFactory.fromObjectName(objectName)
         try {
-            driver.put(key, inputStream)
+            driver.put(key, inputStream, contentType)
             return remoteS3Object(key)
         } catch (e: Exception) {
             throw IOException("Failed to upload data to $objectName", e)

@@ -5,10 +5,22 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
 import java.net.URI
+
 
 @Configuration
 class StorageConfig {
+
+    @Bean
+    fun s3Client(credentialsProvider: AwsCredentialsProvider, region: Region): S3Client {
+        return S3Client.builder()
+            .credentialsProvider(credentialsProvider)
+            .region(region)
+            .build()
+    }
 
     @Bean
     fun contentStorage(@Value("\${app.content-storage}") storageUri: URI, ctx: ApplicationContext) = StorageConfiguration.createStorage(storageUri, ctx)
@@ -18,4 +30,5 @@ class StorageConfig {
 
     @Bean
     fun staticResourcesStorage(@Value("\${app.static-resources-storage}") storageUri: URI, ctx: ApplicationContext) = StorageConfiguration.createStorage(storageUri, ctx)
+
 }

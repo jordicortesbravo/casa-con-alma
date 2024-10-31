@@ -9,6 +9,7 @@ import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.url.UrlBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import java.io.File
 import java.time.LocalDate
@@ -146,6 +147,6 @@ class SitemapService(
     }
 
     private fun publish(fileName: String, content: String) {
-        staticResourcesStorage.put("sitemaps/$fileName", content.byteInputStream())
+        staticResourcesStorage.put("sitemaps/$fileName", content.byteInputStream(), MediaType.APPLICATION_XML_VALUE)
     }
 }

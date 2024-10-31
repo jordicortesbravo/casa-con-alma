@@ -48,11 +48,11 @@ class S3Driver(private val bucket: String, private val s3Client: S3Client, local
         }
     }
 
-    fun put(key: S3ObjectKey, inputStream: InputStream) {
+    fun put(key: S3ObjectKey, inputStream: InputStream, contentType: String? = null) {
         val localSourceTempPath = localTempPath(key)
         try {
             inputStream.use { Files.copy(it, localSourceTempPath) }
-            s3Client.putObject({ it.bucket(bucket).key(key.value) }, RequestBody.fromFile(localSourceTempPath))
+            s3Client.putObject({ it.bucket(bucket).key(key.value).contentType(contentType) }, RequestBody.fromFile(localSourceTempPath))
         } catch (e: Exception) {
             throw IOException("Failed to upload data to $key", e)
         } finally {

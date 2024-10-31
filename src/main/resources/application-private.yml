@@ -1,8 +1,11 @@
 # src/main/resources/application-private.yml
 app:
-  content-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/content
-  images-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/images
-  static-resources-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/static-resource
+#  content-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/content
+#  images-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/images
+#  static-resources-storage: file:///Users/jcortes/workspace/personal/crawler/publish-bucket/static-resource
+  content-storage: s3://ye-playground-demo1-bucket
+  images-storage: s3://ye-playground-demo1-bucket
+  static-resources-storage: s3://ye-playground-demo1-bucket
   content-base-url: http://localhost:8083/
   images-base-url: http://localhost:8083/images/
   static-resources-base-url: http://localhost:8083/static/

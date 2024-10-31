@@ -1,5 +1,9 @@
 package com.jcortes.deco
 
+import io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+import io.awspring.cloud.autoconfigure.core.CredentialsProviderAutoConfiguration
+import io.awspring.cloud.autoconfigure.core.RegionProviderAutoConfiguration
+import io.awspring.cloud.autoconfigure.s3.S3AutoConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.boot.Banner
 import org.springframework.boot.SpringBootConfiguration
