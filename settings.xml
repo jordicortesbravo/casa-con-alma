@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>jht-libs</id>
+            <username>aws</username>
+            <password>${CODEARTIFACT_AUTH_TOKEN}</password>
+        </server>
+    </servers>
+</settings>

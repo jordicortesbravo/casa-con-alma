@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/node": "^22.1.0s"
+  },
+  "dependencies": {
+    "@pulumi/aws": "^6.57.0",
+    "@pulumi/awsx": "^2.5.0",
+    "@pulumi/pulumi": "^3.137.0"
+  }
+}

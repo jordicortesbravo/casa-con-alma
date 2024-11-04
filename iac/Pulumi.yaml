@@ -1,0 +1,6 @@
+name: crawler
+runtime: nodejs
+description: Crawler
+backend:
+  url: s3://pulumi-state-bucket-20201120175035797900000001/crawler
+

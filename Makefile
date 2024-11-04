@@ -42,15 +42,12 @@ BUILD_DIR := $(BASE_PATH)target
 IAC_DIR := $(BASE_PATH)iac
 DOCKER_DIR := $(BASE_PATH)docker
 AWS_DIR := $(BUILD_DIR)/aws
-AWS_PROFILE := YE-Devops
-
-SONAR_URL ?= https://sonarqube.yaencontre.com
 
 PROJECT_NAME := $(call xmlparse, select --template --value-of _:project/_:artifactId $(BASE_PATH)pom.xml)
-PROJECT_VERSION := $(call xmlparse, select --template --value-of _:project/_:properties/_:revision $(BASE_PATH)pom.xml)
-DOCKER_IMAGE := $(PROJECT_NAME):$(PROJECT_VERSION)
+PROJECT_VERSION := $(call xmlparse, select --template --value-of _:project/_:version $(BASE_PATH)pom.xml)
+APP_DOCKER_IMAGE := $(PROJECT_NAME):$(PROJECT_VERSION)
 JAR_FILE :=  $(PROJECT_NAME)-$(PROJECT_VERSION).jar
-LOCAL_URL := http://localhost:8080/content-service/actuator
+LOCAL_URL := http://localhost:8083/actuator
 
 PROJECT_NAME_COMPOSE_DEV := $(PROJECT_NAME)-dev
 PROJECT_NAME_COMPOSE_LOCAL := $(PROJECT_NAME)-local
@@ -71,68 +68,76 @@ clean:
 .PHONY: clean/all
 clean/all: clean dev/destroy local/destroy
 	@echo $@
-	@docker image remove $(DOCKER_IMAGE) 2> error.log || $(TRUE)
+	@docker image remove $(APP_DOCKER_IMAGE) 2> error.log || $(TRUE)
 	@$(call rm, error.log)
 	@$(call rm, $(BUILD_DIR))
 
 # AWS configuration
-aws/configure/yedevops $(AWS_DIR)/configure.yedevops.flag:
+aws/configure/yeplayground $(AWS_DIR)/configure.yeplayground.flag:
 	@echo $@
 	@$(call mkdir, $(AWS_DIR))
 ifdef CI
-	@aws configure set region $(AWS_DEFAULT_REGION) --profile YE-Devops
-	@aws configure set aws_access_key_id $(YE_DEVOPS_AWS_ACCESS_KEY_ID) --profile YE-Devops
-	@aws configure set aws_secret_access_key $(YE_DEVOPS_AWS_SECRET_ACCESS_KEY) --profile YE-Devops
+	$(eval AWS_STS_CREDENTIALS := $(shell aws sts assume-role-with-web-identity --role-arn $(YE_DEVOPS_ROLE_ARN) --role-session-name BitbucketSession --web-identity-token $(BITBUCKET_STEP_OIDC_TOKEN)))
+	$(eval AWS_CREDENTIALS := $(shell echo '$(AWS_STS_CREDENTIALS)' | jq -r '.Credentials.AccessKeyId, .Credentials.SecretAccessKey, .Credentials.SessionToken'))
+	@aws configure set region $(AWS_DEFAULT_REGION) --profile YE-Playground
+	@aws configure set aws_access_key_id $(word 1, $(AWS_CREDENTIALS)) --profile YE-Playground
+	@aws configure set aws_secret_access_key $(word 2, $(AWS_CREDENTIALS)) --profile YE-Playground
+	@aws configure set aws_session_token $(word 3, $(AWS_CREDENTIALS)) --profile YE-Playground
+endif
+	@$(call touch, $@)
+
+aws/configure $(AWS_DIR)/configure.flag:
+	@echo $@
+ifdef CI
+	$(eval AWS_PROFILE := $(shell pulumi config get aws:profile --cwd $(IAC_DIR) --stack $(STACK)))
+	$(eval AWS_STS_CREDENTIALS := $(shell aws sts assume-role-with-web-identity --role-arn $(AWS_ROLE_ARN) --role-session-name BitbucketSession --web-identity-token $(BITBUCKET_STEP_OIDC_TOKEN)))
+	$(eval AWS_CREDENTIALS := $(shell echo '$(AWS_STS_CREDENTIALS)' | jq -r '.Credentials.AccessKeyId, .Credentials.SecretAccessKey, .Credentials.SessionToken'))
+	@aws configure set region $(AWS_DEFAULT_REGION) --profile $(AWS_PROFILE)
+	@aws configure set aws_access_key_id $(word 1, $(AWS_CREDENTIALS)) --profile $(AWS_PROFILE)
+	@aws configure set aws_secret_access_key $(word 2, $(AWS_CREDENTIALS)) --profile $(AWS_PROFILE)
+	@aws configure set aws_session_token $(word 3, $(AWS_CREDENTIALS)) --profile $(AWS_PROFILE)
 endif
 	@$(call touch, $@)
 
 .PHONY: login
-login $(BUILD_DIR)/settings.xml: $(AWS_DIR)/configure.yedevops.flag pom.xml settings.xml
+login $(AWS_DIR)/settings.xml: $(AWS_DIR)/configure.yeplayground.flag pom.xml settings.xml
 	@echo $@
-	@$(eval CODEARTIFACT_AUTH_TOKEN := $(shell aws codeartifact get-authorization-token --domain jht --query authorizationToken --duration-seconds 900 --output text $(AWS_PROFILE)))
-	@$(call mkdir, $(BUILD_DIR))
-	@$(call cp, settings.xml, $(BUILD_DIR)/settings.xml)
-	@$(call sed, $(BUILD_DIR)/settings.xml, $${CODEARTIFACT_AUTH_TOKEN}, $(CODEARTIFACT_AUTH_TOKEN))
+	@$(eval CODEARTIFACT_AUTH_TOKEN := $(shell aws codeartifact get-authorization-token --domain jht --query authorizationToken --duration-seconds 900 --profile YE-Playground --output text))
+	@$(call mkdir, $(AWS_DIR))
+	@$(call cp, settings.xml, $(AWS_DIR)/settings.xml)
+	@$(call sed, $(AWS_DIR)/settings.xml, $${CODEARTIFACT_AUTH_TOKEN}, $(CODEARTIFACT_AUTH_TOKEN))
 
+### Docker
 ### Build
 SKIP_TESTS ?= $(if $(filter yes, $(skip-tests)),-Dmaven.test.skip=true,)
-build: $(BUILD_DIR)/$(JAR_FILE)
-$(BUILD_DIR)/$(JAR_FILE): $(call listfiles, src/, *.*) $(BUILD_DIR)/settings.xml
+build: build/app
+build/app: $(BUILD_DIR)/app/build.flag
+$(BUILD_DIR)/app/build.flag: $(call listfiles, src/, *.*) $(AWS_DIR)/settings.xml
 	@echo $@
-	@mvn package --settings $(BUILD_DIR)/settings.xml --batch-mode $(SKIP_TESTS)
-	@$(call cp, $(BASE_PATH)$(PROJECT_NAME)-public/target/$(PROJECT_NAME)-public-$(PROJECT_VERSION).jar, $(BUILD_DIR)/$(JAR_FILE))
-
-libs/deploy: AWS_PROFILE :=
-libs/deploy: $(BUILD_DIR)/settings.xml
-	@echo $@
-	@mvn deploy --settings $(BUILD_DIR)/settings.xml --batch-mode $(SKIP_TESTS)
+	@mvn package --settings $(AWS_DIR)/settings.xml -DbuildDirectory=${BUILD_DIR}/app/target --batch-mode $(SKIP_TESTS)
+	@$(call touch, $@)
 
 ### Test
 .PHONY: test
-test: $(BUILD_DIR)/settings.xml
+test: $(AWS_DIR)/settings.xml
 	@echo $@
-	@export TESTCONTAINERS_RYUK_DISABLED=true && mvn test --settings $(BUILD_DIR)/settings.xml --batch-mode
-
-.PHONY: verify
-verify: $(BUILD_DIR)/settings.xml
-ifeq (,$(SONAR_LOGIN))
-	$(error Sonar login not found. Check your SONAR_LOGIN env variable)
-endif
-	@echo $@
-	@export TESTCONTAINERS_RYUK_DISABLED=true && mvn verify sonar:sonar --settings $(BUILD_DIR)/settings.xml --batch-mode -Dsonar.host.url=$(SONAR_URL) -Dsonar.qualitygate.wait=true -Dsonar.login=$(SONAR_LOGIN)
+	@mvn test --settings $(AWS_DIR)/settings.xml -DbuildDirectory=${BUILD_DIR}/app/target --batch-mode
 
 ### Docker
-build/dockerfile: $(BUILD_DIR)/Dockerfile
-$(BUILD_DIR)/Dockerfile: $(DOCKER_DIR)/Dockerfile pom.xml
+build/dockerfile: build/app/dockerfile
+build/app/dockerfile: $(BUILD_DIR)/app/build-dockerfile.flag
+$(BUILD_DIR)/app/build-dockerfile.flag: $(BASE_PATH)docker/app/Dockerfile
 	@echo $@
-	@$(call mkdir, $(BUILD_DIR))
-	@$(call cp, $(DOCKER_DIR)/Dockerfile, $(BUILD_DIR))
-	@$(call sed, $(BUILD_DIR)/Dockerfile, $${JAR_FILE}, $(JAR_FILE))
+	@$(call mkdir, $(BUILD_DIR)/app)
+	@$(call cpr, $(DOCKER_DIR)/app, $(BUILD_DIR))
+	@$(call sed, $(BUILD_DIR)/app/Dockerfile, $${JAR_FILE}, $(JAR_FILE))
+	@$(call touch, $@)
 
-build/image: $(BUILD_DIR)/build-image.flag
-$(BUILD_DIR)/build-image.flag: $(BUILD_DIR)/$(JAR_FILE) $(BUILD_DIR)/Dockerfile
+build/image: build/app/image
+build/app/image: $(BUILD_DIR)/app/build-image.flag
+$(BUILD_DIR)/app/build-image.flag: $(BUILD_DIR)/app/build-dockerfile.flag $(BUILD_DIR)/app/build.flag
 	@echo $@
-	@docker build --tag $(DOCKER_IMAGE) $(BUILD_DIR)
+	@docker build --tag $(APP_DOCKER_IMAGE) $(BUILD_DIR)/app
 	@$(call touch, $@)
 
 build/dev-compose: $(BUILD_DIR)/docker-compose-dev.yml
@@ -145,8 +150,8 @@ build/local-compose: $(BUILD_DIR)/docker-compose-local.yml
 $(BUILD_DIR)/docker-compose-local.yml: $(DOCKER_DIR)/docker-compose-local.yml
 	@echo $@
 	@$(call mkdir, $(BUILD_DIR))
-	@$(call mkdir, $(BUILD_DIR))
-	@$(call sed, $(BUILD_DIR)/docker-compose-local.yml, $${DOCKER_IMAGE}, $(DOCKER_IMAGE))
+	@$(call cp, $(DOCKER_DIR)/docker-compose-local.yml, $(BUILD_DIR))
+	@$(call sed, $(BUILD_DIR)/docker-compose-local.yml, $${APP_DOCKER_IMAGE}, $(APP_DOCKER_IMAGE))
 
 ### Dev environment
 dev dev/start: DOCKER_CMD := up -d --build
@@ -159,7 +164,6 @@ dev/logs: DOCKER_CMD := logs
 dev/inspect dev/logs: dev/start
 dev dev/start dev/inspect dev/logs dev/status dev/stop dev/destroy: build/dev-compose
 	@echo $@
-	@echo $(BUILD_DIR)/docker-compose-dev.yml
 	@docker-compose --file $(BUILD_DIR)/docker-compose-dev.yml --project-name $(PROJECT_NAME_COMPOSE_DEV) $(DOCKER_CMD)
 
 ### Local environment
@@ -182,13 +186,11 @@ local/inspect local/logs local/status local/stop local/destroy: build/local-comp
 ### IAC
 stack ?= dev
 STACK ?= $(stack)
-localPortNumber ?= 9999
-LOCAL_PORT_NUMBER ?= $(localPortNumber)
 INTERACTIVE ?= $(if $(filter no, $(interactive)),--yes --skip-preview --non-interactive,)
 BUILD_STAGE ?= $(if $(filter yes, $(skip-build)),,build)
 
 aws/deps: $(IAC_DIR)/node_modules/.package-lock.json
-$(IAC_DIR)/node_modules/.package-lock.json: $(AWS_DIR)/configure.yedevops.flag $(IAC_DIR)/package.json
+$(IAC_DIR)/node_modules/.package-lock.json: $(AWS_DIR)/configure.yeplayground.flag $(IAC_DIR)/package.json
 	@echo $@
 	@(npm run co:login --prefix $(IAC_DIR) && npm install --prefix $(IAC_DIR))
 	@$(call touch, $@)
@@ -202,46 +204,45 @@ aws/destroy: PULUMI_CMD=destroy $(INTERACTIVE)
 aws/refresh: PULUMI_CMD=refresh
 
 aws aws/preview aws/deploy: build/dockerfile $(BUILD_STAGE)
-aws aws/preview aws/deploy aws/destroy aws/refresh: aws/deps
+aws aws/preview aws/deploy aws/destroy aws/refresh: aws/deps $(AWS_DIR)/configure.flag
 	@pulumi $(PULUMI_CMD) --stack $(STACK) --cwd $(IAC_DIR)
 
-aws/start: DESIRED_COUNT = 1
+aws/start: DESIRED_COUNT = 2
 aws/stop: DESIRED_COUNT = 0
 aws/start aws/stop: aws/deps
-	$(eval AWS_REGION := $(shell pulumi config get aws:region --cwd $(IAC_DIR) --stack $(STACK)))
+	$(eval AWS_PROFILE := $(shell pulumi config get aws:profile --cwd $(IAC_DIR) --stack $(STACK)))
 	$(eval CLUSTER_NAME := $(shell pulumi stack output ecsClusterName --cwd $(IAC_DIR) --stack $(STACK)))
 	$(eval SERVICE_NAME := $(shell pulumi stack output ecsServiceName --cwd $(IAC_DIR) --stack $(STACK)))
-	@aws ecs update-service --cluster $(CLUSTER_NAME) --service $(SERVICE_NAME) --desired-count $(DESIRED_COUNT) --region $(AWS_REGION)
+	@aws ecs update-service --cluster $(CLUSTER_NAME) --service $(SERVICE_NAME) --desired-count $(DESIRED_COUNT) --profile $(AWS_PROFILE)
 
 ### AWS utils
 .PHONY: aws/inspect
 aws/inspect: container ?= $(DEFAULT_CONTAINER_AWS)
 aws/inspect:
 	$(eval AWS_REGION := $(shell pulumi config get aws:region --cwd $(IAC_DIR) --stack $(STACK)))
+	$(eval AWS_PROFILE := $(shell pulumi config get aws:profile --cwd $(IAC_DIR) --stack $(STACK)))
 	$(eval CLUSTER_NAME := $(shell pulumi stack output ecsClusterName --cwd $(IAC_DIR) --stack $(STACK)))
-	$(eval TASK_ARN := $(shell aws ecs list-tasks --cluster $(CLUSTER_NAME) --region $(AWS_REGION) --query 'taskArns[0]' --output=text))
-	@aws ecs execute-command --cluster $(CLUSTER_NAME) --task $(TASK_ARN) --region $(AWS_REGION) --container $(container) --command "/bin/sh" --interactive
+	$(eval TASK_ARN := $(shell aws ecs list-tasks --cluster $(CLUSTER_NAME) --profile $(AWS_PROFILE) --region $(AWS_REGION) --query 'taskArns[0]' --output=text))
+	@aws ecs execute-command --cluster $(CLUSTER_NAME) --task $(TASK_ARN) --container $(container) --command "/bin/sh" --interactive --profile $(AWS_PROFILE) --region $(AWS_REGION)
 
 .PHONY: aws/logs
 aws/logs:
 	$(eval AWS_REGION := $(shell pulumi config get aws:region --cwd $(IAC_DIR) --stack $(STACK)))
+	$(eval AWS_PROFILE := $(shell pulumi config get aws:profile --cwd $(IAC_DIR) --stack $(STACK)))
 	$(eval LOG_GROUP := $(shell pulumi stack output ecsLogGroup --cwd $(IAC_DIR) --stack $(STACK)))
-	@aws logs tail $(LOG_GROUP) --since 30m --follow --region $(AWS_REGION)
+	@aws logs tail $(LOG_GROUP) --since 30m --follow --profile $(AWS_PROFILE) --region $(AWS_REGION)
 
-.PHONY: aws/session/jmx aws/session/http aws/session/rds
-aws/session/jmx: SESSION_PARAMETERS = "localPortNumber=$(LOCAL_PORT_NUMBER),portNumber=9999"
+.PHONY: aws/session/jmx aws/session/http
+aws/session/jmx: SESSION_PARAMETERS = "localPortNumber=9999,portNumber=9999"
 aws/session/http: SESSION_PARAMETERS = "localPortNumber=8080,portNumber=8080"
-aws/session/jmx aws/session/http: DOCUMENT_NAME = "AWS-StartPortForwardingSession"
-aws/session/rds: SESSION_PARAMETERS = "host=$(RDS_CLUSTER_ENDPOINT),localPortNumber=5432, portNumber=5432"
-aws/session/rds: DOCUMENT_NAME = "AWS-StartPortForwardingSessionToRemoteHost"
-aws/session/jmx aws/session/http aws/session/rds:
+aws/session/jmx aws/session/http:
 	$(eval AWS_REGION := $(shell pulumi config get aws:region --cwd $(IAC_DIR) --stack $(STACK)))
+	$(eval AWS_PROFILE := $(shell pulumi config get aws:profile --cwd $(IAC_DIR) --stack $(STACK)))
 	$(eval CLUSTER_NAME := $(shell pulumi stack output ecsClusterName --cwd $(IAC_DIR) --stack $(STACK)))
-	$(eval RDS_CLUSTER_ENDPOINT := $(shell pulumi stack output databaseClusterEndpoint --cwd $(IAC_DIR) --stack $(STACK)))
-	$(eval TASK_ARN := $(shell aws ecs list-tasks --cluster $(CLUSTER_NAME) --region $(AWS_REGION) --query 'taskArns[0]' --output=text))
-	$(eval CONTAINER_ID := $(shell aws ecs describe-tasks --cluster $(CLUSTER_NAME) --tasks $(TASK_ARN) --query 'tasks[].containers[?name == `app`]'.runtimeId --region $(AWS_REGION) --output=text))
+	$(eval TASK_ARN := $(shell aws ecs list-tasks --cluster $(CLUSTER_NAME) --profile $(AWS_PROFILE) --region $(AWS_REGION) --query 'taskArns[0]' --output=text))
+	$(eval CONTAINER_ID := $(shell aws ecs describe-tasks --cluster $(CLUSTER_NAME) --tasks $(TASK_ARN) --profile $(AWS_PROFILE) --region $(AWS_REGION) --query 'tasks[].containers[?name == `app`]'.runtimeId --output=text))
 	$(eval TASK_ID := $(call taskId, $(TASK_ARN)))
-	@aws ssm start-session --target ecs:$(CLUSTER_NAME)_$(TASK_ID)_$(CONTAINER_ID) --document-name $(DOCUMENT_NAME) --parameters $(SESSION_PARAMETERS) --region $(AWS_REGION)
+	@aws ssm start-session --target ecs:$(CLUSTER_NAME)_$(TASK_ID)_$(CONTAINER_ID) --document-name AWS-StartPortForwardingSession --parameters $(SESSION_PARAMETERS) --profile $(AWS_PROFILE) --region $(AWS_REGION)
 
 ################################################################################################
 # Project name, version and help
@@ -264,7 +265,6 @@ Targets:
     login                     login to AWS CodeArtifact
     build                     build the jar file
     build/image               build the docker image
-    libs/deploy               build and deploy jar files into repository
     test                      test project
     verify                    test and push data to sonar
 
@@ -296,7 +296,6 @@ Targets:
     aws/logs                  tail container log
     aws/session/jmx           start SSM port forwarding session for jmx protocol
     aws/session/http          start SSM port forwarding session for http protocol
-    aws/session/rds           start SSM port forwarding session for rds
 
     help                      display this help and exit
     name | project-name       print pom's artifactId
@@ -309,7 +308,6 @@ Parameters:
     stack                     The pulumi stack. Default dev.
     interactive               If the pulumi must be interactive. Values: yes | no. Default yes.
     container                 container name to login. Review container list in your docker-compose files and in your fargate config.
-    localPortNumber           Local port where starts SSM port forwarding session. Default 9999.
 
 Examples:
     make aws/deploy stack=pro skip-build=yes skip-tests=yes
