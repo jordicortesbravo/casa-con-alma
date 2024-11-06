@@ -3,9 +3,9 @@
 # --------------------------------------
 app:
   name: crawler
-  content-base-url: ${CONTENT_BASE_URL}
-  images-base-url: ${STATIC_BASE_URL}
-  static-resources-base-url: ${STATIC_BASE_URL}
+  content-base-url: ${CONTENT_BASE_URL:https://www.casaconalma.com/}
+  images-base-url: ${IMAGES_BASE_URL:https://images.casaconalma.com/}
+  static-resources-base-url: ${STATIC_RESOURCES_BASE_URL:https://static-resources.casaconalma.com/}
   allowed-origins: ${ALLOWED_ORIGINS}
 
   content-storage: s3://pro-home-with-soul-es-content

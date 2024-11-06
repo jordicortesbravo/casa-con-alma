@@ -295,6 +295,9 @@
 
     <!-- main js file -->
     <script th:src="${@urlBuilder.staticUrl('js/main.js')}" defer></script>
+
+    <script th:src="${@urlBuilder.staticUrl('js/klaro-config.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/vendor/klaro.min.js')}" defer data-config="klaroConfig" type="application/javascript"></script>
     <!-- End Footer Area -->
 
 </body>

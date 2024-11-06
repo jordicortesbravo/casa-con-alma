@@ -1,6 +1,7 @@
 package com.jcortes.deco.tools.publisher
 
 import com.idealista.yaencontre.io.storage.Storage
+import com.idealista.yaencontre.io.storage.s3.S3Storage
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.content.model.Article
@@ -8,6 +9,7 @@ import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
 import jdk.jfr.ContentType
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -28,12 +30,22 @@ class PublisherService(
     private val staticResourcesStorage: Storage
 ) {
 
+    @Value("\${app.content-base-url}")
+    private lateinit var contentBaseUrl: String
+
+    @Value("\${app.images-base-url}")
+    private lateinit var imagestBaseUrl: String
+
+    @Value("\${app.static-resources-base-url}")
+    private lateinit var staticResourcesBaseUrl: String
+
     val localUrl = "http://localhost:8083"
     val client: HttpClient = HttpClient.newHttpClient()
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
     fun publishContent() {
+        assertPublish()
         log.info("Publish process started")
         publishArticles()
         publishCategories()
@@ -105,6 +117,14 @@ class PublisherService(
             .build()
         client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body().use { inputStream ->
             contentStorage.put(seoUrl, inputStream, MediaType.TEXT_HTML_VALUE)
+        }
+    }
+
+    private fun assertPublish() {
+        if ((contentStorage is S3Storage && !contentBaseUrl.startsWith("https://www.casaconalma.com"))
+            || (imageStorage is S3Storage && !imagestBaseUrl.startsWith("https://images.casaconalma.com"))
+            || (staticResourcesStorage is S3Storage && !staticResourcesBaseUrl.startsWith("https://static-resources.casaconalma.com"))) {
+            throw IllegalStateException("Be careful! You are trying to publish to a production environment from a non-production environment")
         }
     }
 }

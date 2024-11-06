@@ -22,14 +22,7 @@
     <link rel="canonical" th:href="${detail.seo.canonicalUrl}">
     <meta http-equiv="Content-Language" th:content="${detail.seo.language}">
     <title th:utext="${detail.article.title}"></title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YZBBH93Q9Y"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
 
-        gtag('config', 'G-YZBBH93Q9Y');
-    </script>
     <link rel="shortcut icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma.svg')}" type="image/x-icon">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/plugins/fontawesome-5.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/bootstrap.min.css')}" as="style">
@@ -37,7 +30,9 @@
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/metismenu.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/fonts.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/magnific-popup.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/klaro.min.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.css')}" as="style">
+
 </head>
 
 <body class="home-inner">
@@ -512,6 +507,9 @@
     <script th:src="${@urlBuilder.staticUrl('js/plugins/resize-sensor.min.js')}" defer></script>
     <script th:src="${@urlBuilder.staticUrl('js/plugins/theia-sticky-sidebar.min.js')}" defer></script>
     <script th:src="${@urlBuilder.staticUrl('js/main.js')}" defer></script>
+
+    <script th:src="${@urlBuilder.staticUrl('js/klaro-config.js')}" defer></script>
+    <script th:src="${@urlBuilder.staticUrl('js/vendor/klaro.min.js')}" defer data-config="klaroConfig" type="application/javascript"></script>
 </body>
 
 </html>

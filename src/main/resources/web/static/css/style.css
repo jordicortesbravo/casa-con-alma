@@ -8287,6 +8287,7 @@ textarea:focus {
   border-color: var(--color-primary);
 }
 
+/*
 input[type=checkbox],
 input[type=radio] {
   opacity: 0;
@@ -8334,6 +8335,11 @@ input[type=radio] ~ label::after {
 input[type=checkbox]:checked ~ label::after,
 input[type=radio]:checked ~ label::after {
   opacity: 1;
+}
+*/
+
+.klaro .cookie-modal .cm-modal .hide {
+    width: auto !important
 }
 
 input:checked ~ .rn-check-box-label::before {
