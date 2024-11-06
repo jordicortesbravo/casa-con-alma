@@ -18,8 +18,7 @@
 
 
 /* Default  */
-@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Teko:wght@300..700&display=swap");
+@import url("./fonts/google-fonts.css");
 :root {
   --color-primary: #00C89A;
   --color-primary-2: #B66A25;
@@ -8339,7 +8338,7 @@ input[type=radio]:checked ~ label::after {
 */
 
 .klaro .cookie-modal .cm-modal .hide {
-    width: auto !important
+    display: none;width: 1
 }
 
 input:checked ~ .rn-check-box-label::before {
