@@ -7,7 +7,6 @@ import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.DecorTag
 import com.jcortes.deco.content.model.SiteCategory
-import jdk.jfr.ContentType
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
@@ -47,12 +46,13 @@ class PublisherService(
     fun publishContent() {
         assertPublish()
         log.info("Publish process started")
+        publishStaticResources()
+        publishImages()
         publishArticles()
         publishCategories()
         publishDecorTagsPages()
         publishHome()
-        publishImages()
-        publishStaticResources()
+        publishErrorPage()
         sitemapService.publishSitemap()
         log.info("Publish process ended")
     }
@@ -109,6 +109,12 @@ class PublisherService(
         log.info("Publishing home")
         fetchAndPublishPage("home")
         log.info("Home published")
+    }
+
+    fun publishErrorPage() {
+        log.info("Publishing error page")
+        fetchAndPublishPage("404")
+        log.info("Error page published")
     }
 
     private fun fetchAndPublishPage(seoUrl: String) {
