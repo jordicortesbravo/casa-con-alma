@@ -37,13 +37,18 @@ class HomeController(
             SiteCategory.OUTDOORS_AND_GARDENS,
         )
         val articles = articleService.getTrendingGroupedByCategory(categoriesOrder)
+        val featuredArticles = articles.firstEntry().value[abs(Random.nextInt(articles.firstEntry().value.size))]
+        val trendingArticles = articles.values.flatten().sortedByDescending { 0.5 * it.updateInstant.toEpochMilli() + 0.5 * abs(Random.nextInt(1_000)) }.take(4)
+        val interestingArticles = articles.values.asSequence().flatten().filter { a-> !trendingArticles.map { it.id }.contains(a.id) }.sortedByDescending { 0.2 * it.updateInstant.toEpochMilli() + 0.8 * abs(Random.nextInt(1_000)) }.drop(4).take(4)
+            .toList()
 
         return HomeData(
             title = "Casa con Alma: Diseña espacios con alma que cuentan historias",
             seo = seo(emptyList()),
             sections = articles.entries.map { HomeSection.of(it) },
-            featuredArticle = articles.firstEntry().value[abs(Random.nextInt(articles.firstEntry().value.size))],
-            trendingArticles = articles.values.flatten().sortedByDescending { 0.5 * it.updateInstant.toEpochMilli() + 0.5 * abs(Random.nextInt(1_000)) }.take(4)
+            featuredArticle = featuredArticles,
+            trendingArticles = trendingArticles,
+            interestingArticles = interestingArticles
         )
     }
 
@@ -75,6 +80,7 @@ class HomeController(
         val sections: List<HomeSection>,
         val featuredArticle: Article,
         val trendingArticles: List<Article>,
+        val interestingArticles: List<Article>
     )
 
     data class HomeSection(
