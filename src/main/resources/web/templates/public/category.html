@@ -18,7 +18,7 @@
     <meta name="twitter:title" th:content="${detail.seo.twitterCard.title}">
     <meta name="twitter:description" th:content="${detail.seo.twitterCard.description}">
     <meta name="twitter:image" th:content="${detail.seo.twitterCard.image}">
-    <link rel="canonical" th:href="${detail.seo.canonicalUrl}">
+    <link rel="canonical" th:href="${@urlBuilder.contentUrl(detail.seo.canonicalUrl)}">
     <meta http-equiv="Content-Language" th:content="${detail.seo.language}">
     <title th:utext="${detail.title}"></title>
     <link rel="shortcut icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma.svg')}" type="image/x-icon">
@@ -194,7 +194,7 @@
                             <input type="email" name="email" placeholder="Correo electrónico" required>
                         </div>
                         <div class="single-input-wrapper">
-                            <button type="submit" class="subscribe-btn tp-btn btn-primary">Subscribir</button>
+                            <button type="submit" class="subscribe-btn tp-btn btn-primary">Suscribir</button>
                         </div>
                     </div>
                 </form>

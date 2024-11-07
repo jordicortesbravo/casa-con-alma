@@ -18,7 +18,7 @@
     <meta name="twitter:title" th:content="${detail.seo.twitterCard.title}">
     <meta name="twitter:description" th:content="${detail.seo.twitterCard.description}">
     <meta name="twitter:image" th:content="${detail.seo.twitterCard.image}">
-    <link rel="canonical" th:href="${detail.seo.canonicalUrl}">
+    <link rel="canonical" th:href="${@urlBuilder.contentUrl(detail.seo.canonicalUrl)}">
     <meta http-equiv="Content-Language" th:content="${detail.seo.language}">
     <title th:utext="${detail.title}"></title>
     <link rel="shortcut icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma.svg')}" type="image/x-icon">
@@ -227,33 +227,49 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="home-with-soul-right-side-post category2">
-                            <p class="title">Browse Category</p>
-                            <div class="category-area">
-                                <ul class="category-wrapper">
-                                    <li>
-                                        <div class="image-area">
-                                            <a href="#"><img th:src="${@urlBuilder.staticUrl('images/category/category-04.jpg')}" alt=""></a>
-                                            <p class="text"><a href="#">Fashion</a></p>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="image-area">
-                                            <a href="#"><img th:src="${@urlBuilder.staticUrl('images/category/category-05.jpg')}" alt=""></a>
-                                            <p class="text"><a href="#">Life Style </a></p>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="image-area">
-                                            <a href="#"><img th:src="${@urlBuilder.staticUrl('images/category/category-06.jpg')}" alt=""></a>
-                                            <p class="text"><a href="#">Travel</a></p>
-                                        </div>
-                                    </li>
-                                </ul>
+                        <div class="home-with-soul-right-side-post popular">
+                            <p class="title">También te gustará</p>
+                            <div class="small-post">
+                                <div class="home-with-soul-post-list-style" th:each="article : ${detail.interestingArticles}">
+                                    <div class="image-area">
+                                        <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.imageUrl(article.coverImage)}" th:alt="${article.coverImageCaption}"></a>
+                                    </div>
+                                    <div class="blog-content">
+                                        <h4 class="heading-title"><a class="title-animation" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h4>
+                                        <ul class="blog-meta">
+                                            <li th:utext="${article.siteCategories[0].label}"></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+<!--                        <div class="home-with-soul-right-side-post category2">-->
+<!--                            <p class="title">Browse Category</p>-->
+<!--                            <div class="category-area">-->
+<!--                                <ul class="category-wrapper">-->
+<!--                                    <li>-->
+<!--                                        <div class="image-area">-->
+<!--                                            <a href="#"><img th:src="${@urlBuilder.staticUrl('images/category/category-04.jpg')}" alt=""></a>-->
+<!--                                            <p class="text"><a href="#">Fashion</a></p>-->
+<!--                                        </div>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <div class="image-area">-->
+<!--                                            <a href="#"><img th:src="${@urlBuilder.staticUrl('images/category/category-05.jpg')}" alt=""></a>-->
+<!--                                            <p class="text"><a href="#">Life Style </a></p>-->
+<!--                                        </div>-->
+<!--                                    </li>-->
+<!--                                    <li>-->
+<!--                                        <div class="image-area">-->
+<!--                                            <a href="#"><img th:src="${@urlBuilder.staticUrl('images/category/category-06.jpg')}" alt=""></a>-->
+<!--                                            <p class="text"><a href="#">Travel</a></p>-->
+<!--                                        </div>-->
+<!--                                    </li>-->
+<!--                                </ul>-->
+<!--                            </div>-->
+<!--                        </div>-->
                         <div class="home-with-soul-right-side-post social-area">
-                            <p class="title">Follow Me</p>
+                            <p class="title">Síguenos en</p>
                             <div class="social-area area-2">
                                 <ul class="social-wrapper">
                                     <li>
@@ -302,23 +318,18 @@
                             </div>
                         </div>
                         <div class="home-with-soul-right-side-post newsletter">
-                            <p class="title">Subscribe News Letter</p>
+                            <p class="title">Suscríbete a la Newsletter</p>
                             <div class="newsletter-area area-2">
                                 <form action="#">
                                     <div class="form-inner">
                                         <div class="single-input-wrapper">
-                                            <input type="email" name="email" placeholder="Your mail address" required>
+                                            <input type="email" name="email" placeholder="Correo electrónico" required>
                                         </div>
                                         <div class="single-input-wrapper">
-                                            <button type="submit" class="subscribe-btn tp-btn">Subscribe</button>
+                                            <button type="submit" class="subscribe-btn tp-btn">Suscribir</button>
                                         </div>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-                        <div class="home-with-soul-right-side-post ad">
-                            <div class="home-with-soul-ad-area">
-                                <img th:src="${@urlBuilder.staticUrl('images/banner/ad-02.jpg')}" alt="">
                             </div>
                         </div>
                     </div>
@@ -343,7 +354,7 @@
                         <input type="email" name="email" placeholder="Correo electrónico" required>
                     </div>
                     <div class="single-input-wrapper">
-                        <button type="submit" class="subscribe-btn tp-btn btn-primary">Subscribir</button>
+                        <button type="submit" class="subscribe-btn tp-btn btn-primary">Suscribir</button>
                     </div>
                 </div>
             </form>
