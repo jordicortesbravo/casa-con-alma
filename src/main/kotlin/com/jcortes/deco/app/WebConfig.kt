@@ -26,11 +26,11 @@ class WebConfig : WebMvcConfigurer {
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/static/**")
             .addResourceLocations("classpath:/web/static/")
-            .setCachePeriod(3600)
+            .setCachePeriod(604800)
 
         registry.addResourceHandler("/robots.txt")
             .addResourceLocations("classpath:/web/static/")
-            .setCachePeriod(3600)
+            .setCachePeriod(604800)
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
