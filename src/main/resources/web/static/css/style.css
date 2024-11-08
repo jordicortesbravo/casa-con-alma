@@ -7898,7 +7898,11 @@ input[type=submit] {
 
 button[disabled],
 input[disabled] {
-  cursor: default;
+  cursor: not-allowed;
+}
+
+button[disabled] {
+    background: #b66a25c7 !important;
 }
 
 input[type=checkbox],
