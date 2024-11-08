@@ -1,4 +1,4 @@
-package com.jcortes.deco.web.api
+package com.jcortes.deco.content.entrypoint
 
 import com.jcortes.deco.content.ScrapedDocumentService
 import com.jcortes.deco.content.model.ScrapedDocument

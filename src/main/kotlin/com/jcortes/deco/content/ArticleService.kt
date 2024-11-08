@@ -112,6 +112,15 @@ class ArticleService(
     }
 
     @Transactional
+    fun setCategory(articleId: Long, newCategory: SiteCategory) {
+        val article = get(articleId)
+        val previousCategoryLabel = article.mainCategory?.seoUrl
+        article.siteCategories = listOf(newCategory)
+        article.seoUrl = article.seoUrl?.replace("$previousCategoryLabel/", "${newCategory.seoUrl}/")
+        save(article)
+    }
+
+    @Transactional
     fun save(article: Article) {
         articleRepository.save(article)
     }

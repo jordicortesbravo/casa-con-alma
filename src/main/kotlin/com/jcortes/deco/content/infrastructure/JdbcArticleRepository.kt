@@ -99,7 +99,7 @@ class JdbcArticleRepository(
         params.addValue("tags", stringArrayOf(request.tags?.map { it.name }), Types.ARRAY)
         params.addValue("status", request.status?.name)
         params.addValue("limit", request.pageSize)
-        params.addValue("offset", (request.pageNumber * request.pageSize) + 1)
+        params.addValue("offset", (request.pageNumber * request.pageSize))
 
         val ids = jdbcTemplate.query(query, params) { rs, _ -> rs.getLong("id") }
         return list(ids)

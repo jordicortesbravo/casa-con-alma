@@ -1,7 +1,8 @@
-package com.jcortes.deco.web.api
+package com.jcortes.deco.content.entrypoint
 
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.model.Article
+import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.paging.Pageable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,6 +14,11 @@ import org.springframework.web.bind.annotation.RestController
 class ArticleController(
     private val articleService: ArticleService
 ) {
+
+    @GetMapping("change-category")
+    fun changeCategory(@RequestParam articleId: Long, @RequestParam newCategory: SiteCategory) {
+        articleService.setCategory(articleId, newCategory)
+    }
 
     @GetMapping("/enrich")
     fun enrich() {

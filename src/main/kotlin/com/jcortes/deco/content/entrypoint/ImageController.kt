@@ -1,4 +1,4 @@
-package com.jcortes.deco.web.api
+package com.jcortes.deco.content.entrypoint
 
 import com.jcortes.deco.client.UnsplashClient
 import com.jcortes.deco.content.ImageService
