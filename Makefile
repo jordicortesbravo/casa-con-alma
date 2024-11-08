@@ -192,11 +192,11 @@ BUILD_STAGE ?= $(if $(filter yes, $(skip-build)),,build)
 aws/deps: $(IAC_DIR)/node_modules/.package-lock.json
 $(IAC_DIR)/node_modules/.package-lock.json: $(AWS_DIR)/configure.yeplayground.flag $(IAC_DIR)/package.json
 	@echo $@
-	@(npm run co:login --prefix $(IAC_DIR) && npm install --prefix $(IAC_DIR))
+	@(npm install --prefix $(IAC_DIR))
 	@$(call touch, $@)
 
 aws/deps/version:
-	@npm run co:login --prefix $(IAC_DIR) && ncu --color --cwd $(IAC_DIR)
+	@ncu --color --cwd $(IAC_DIR)
 
 aws/preview: PULUMI_CMD = preview
 aws aws/start aws/stop aws/deploy: PULUMI_CMD = up $(INTERACTIVE)
