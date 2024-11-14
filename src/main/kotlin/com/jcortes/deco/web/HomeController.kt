@@ -35,6 +35,7 @@ class HomeController(
             SiteCategory.BATHROOMS,
             SiteCategory.BEDROOMS,
             SiteCategory.OUTDOORS_AND_GARDENS,
+            SiteCategory.SEASONAL_DECORATION
         )
         val articles = articleService.getTrendingGroupedByCategory(categoriesOrder)
         val featuredArticles = articles.firstEntry().value[abs(Random.nextInt(articles.firstEntry().value.size))]

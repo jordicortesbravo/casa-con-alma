@@ -97,10 +97,14 @@ class ArticleService(
         }
     }
 
+    fun regenerate(articleId: Long) {
+        fillArticleWithGenerativeAI(get(articleId))
+    }
+
     @Transactional
-    fun fillArticleWithGenerativeAI(article: Article) {
+    fun fillArticleWithGenerativeAI(article: Article, systemPrompt: String? = null) {
         log.info("Generating article ${article.title}")
-        generateContent(article)
+        generateContent(article, systemPrompt)
         generateSiteCategories(article)
         generateSEOData(article)
         generateEmbedding(article)
@@ -125,14 +129,14 @@ class ArticleService(
         articleRepository.save(article)
     }
 
-    private fun generateContent(article: Article) {
+    private fun generateContent(article: Article, systemPrompt: String? = null) {
         log.info("Generating content for article ${article.title}")
         val inferenceRequest = BedrockTextInferenceRequest().apply {
-            model = BedrockTextModel.CLAUDE_SONNET_3_5
-            userPrompt = article.title!!
-            systemPrompt = CONTENT_PROMPT
-            temperature = 1.0f
-            maxTokens = 4096
+            this.model = BedrockTextModel.CLAUDE_SONNET_3_5
+            this.userPrompt = article.title!!
+            this.systemPrompt = systemPrompt ?: CONTENT_PROMPT
+            this.temperature = 1.0f
+            this.maxTokens = 4096
         }
         val generatedContent = bedrockTextClient.invokeTextModel(inferenceRequest) { objectMapper.readTree(it) }
         val content = generatedContent?.get("content")?.asText()

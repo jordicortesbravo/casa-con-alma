@@ -1,7 +1,7 @@
-package com.idealista.yaencontre.io.storage.s3
+package com.jcortes.deco.util.io.storage.s3
 
-import com.idealista.yaencontre.io.AutoCloseInputStream
-import com.idealista.yaencontre.io.storage.StorageObject
+import com.jcortes.deco.util.io.AutoCloseInputStream
+import com.jcortes.deco.util.io.storage.StorageObject
 import java.io.InputStream
 import java.nio.file.Path
 

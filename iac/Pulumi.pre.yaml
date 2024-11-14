@@ -1,4 +1,0 @@
-secretsprovider: awskms://alias/yaencontre-pulumi-backend-key?region=eu-west-1&awssdk=v2&profile=YE-Devops
-encryptedkey: AQICAHjcnaVm8KehKaFdaERqWUEhlMQl9o3YTtWNDNX/vytghQFir7+blAzHnap+OGRxUAluAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMBVzYIUua0hymZ+KCAgEQgDsCqso7lMIp+eSPZLO17V2dM6R9uQiYDoL4Zrlg+3IjpNpkYvCIYCqxU7BwZCJlNBC1eI0C/bCELwdtCQ==
-config:
-  aws:region: eu-west-1

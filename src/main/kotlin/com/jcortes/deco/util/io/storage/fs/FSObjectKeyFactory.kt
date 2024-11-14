@@ -1,6 +1,6 @@
-package com.idealista.yaencontre.io.storage.fs
+package com.jcortes.deco.util.io.storage.fs
 
-import com.idealista.yaencontre.io.storage.StorageObjectKeyFactory
+import com.jcortes.deco.util.io.storage.StorageObjectKeyFactory
 import java.nio.file.Path
 
 class FSObjectKeyFactory(private val basePath: Path): StorageObjectKeyFactory<Path> {

@@ -5,6 +5,8 @@ import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.paging.Pageable
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -25,6 +27,16 @@ class ArticleController(
         articleService.enrich()
     }
 
+    @GetMapping("/regenerate")
+    fun regenerate(@RequestParam articleId: Long) {
+        articleService.regenerate(articleId)
+    }
+
+    @PostMapping
+    fun createFromScratch(@RequestBody createArticleRequest: CreateArticleRequest) {
+        articleService.fillArticleWithGenerativeAI(createArticleRequest.article, createArticleRequest.systemPrompt)
+    }
+
     @GetMapping("/search")
     fun search(
         @RequestParam query: String? = null,
@@ -38,4 +50,9 @@ class ArticleController(
     }
 
     data class ArticlesResponse(val results: List<Article>)
+
+    data class CreateArticleRequest(
+        val article: Article,
+        val systemPrompt: String? = null
+    )
 }

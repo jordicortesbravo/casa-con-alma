@@ -10,16 +10,27 @@ import software.amazon.awssdk.regions.Region
 class AwsConfig {
 
     companion object {
-        private const val PROFILE_NAME = "YE-Playground"
+        private const val CONTENT_GENERATION_PROFILE_NAME = "YE-Playground"
+        private const val PUBLICATION_PROFILE_NAME = "casa-con-alma"
     }
 
     @Bean
-    fun ssoProfileCredentialsProvider(): AwsCredentialsProvider {
-        return ProfileCredentialsProvider.create(PROFILE_NAME)
+    fun contentProfileCredentialsProvider(): AwsCredentialsProvider {
+        return ProfileCredentialsProvider.create(CONTENT_GENERATION_PROFILE_NAME)
     }
 
     @Bean
-    fun ssoProfileRegion(): Region {
+    fun contentProfileRegion(): Region {
         return Region.of("us-west-2")
+    }
+
+    @Bean
+    fun publicationProfileCredentialsProvider(): AwsCredentialsProvider {
+        return ProfileCredentialsProvider.create(PUBLICATION_PROFILE_NAME)
+    }
+
+    @Bean
+    fun publicationProfileRegion(): Region {
+        return Region.of("eu-south-2")
     }
 }

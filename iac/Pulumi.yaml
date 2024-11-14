@@ -1,6 +1,6 @@
-name: crawler
+name: casa-con-alma
 runtime: nodejs
-description: Crawler
+description: Casa con Alma infrastructure
 backend:
-  url: s3://pulumi-state-bucket-20201120175035797900000001/crawler
+  url: s3://pulumi-state-jcortes
 

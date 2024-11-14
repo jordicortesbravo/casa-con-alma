@@ -1,7 +1,7 @@
 package com.jcortes.deco.tools.publisher
 
-import com.idealista.yaencontre.io.storage.Storage
-import com.idealista.yaencontre.io.storage.s3.S3Storage
+import com.jcortes.deco.util.io.storage.Storage
+import com.jcortes.deco.util.io.storage.s3.S3Storage
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.ImageService
 import com.jcortes.deco.content.model.Article
@@ -59,35 +59,52 @@ class PublisherService(
 
     fun publishArticles() {
         log.info("Publishing articles")
-        articleService.listPublishable().forEach { publishArticle(it) }
+        articleService.listPublishable().parallelStream().forEach { publishArticle(it) }
         log.info("Articles published")
     }
 
     fun publishArticle(article: Article) {
-        article.seoUrl?.let { fetchAndPublishPage(it) }
+        article.seoUrl?.let { fetchAndPublishPage(it, "public, max-age=604800, s-maxage=604800") }
     }
 
     fun publishCategories() {
         log.info("Publishing categories")
-        SiteCategory.entries.forEach { category ->
-            fetchAndPublishPage(category.seoUrl)
+        SiteCategory.entries.parallelStream().forEach { category ->
+            fetchAndPublishPage(category.seoUrl, "public, max-age=43200, s-maxage=43200")
         }
         log.info("Categories published")
     }
 
     fun publishDecorTagsPages() {
         log.info("Publishing decor tags pages")
-        DecorTag.entries.forEach { tag ->
-            fetchAndPublishPage(tag.seoUrl)
+        DecorTag.entries.parallelStream().forEach { tag ->
+            fetchAndPublishPage(tag.seoUrl, "public, max-age=43200, s-maxage=43200")
         }
         log.info("Decor tags pages published")
     }
 
     fun publishImages() {
         log.info("Publishing images")
-        imageService.list().forEach { image ->
+        imageService.list().parallelStream().forEach { image ->
             URI(image.internalUri!!).toURL().openStream().use { inputStream ->
-                imageStorage.put(image.seoUrl!!, inputStream, "image/webp")
+                imageStorage.put(
+                    objectName = image.seoUrl!!,
+                    inputStream = inputStream,
+                    metadata = mapOf(
+                        "Content-Type" to "image/webp",
+                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                    )
+                )
+            }
+            URI(image.internalUri!!.replace(".webp", ".jpeg")).toURL().openStream().use { inputStream ->
+                imageStorage.put(
+                    objectName = "jpeg/${image.seoUrl!!}",
+                    inputStream = inputStream,
+                    metadata = mapOf(
+                        "Content-Type" to "image/jpeg",
+                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                    )
+                )
             }
         }
         log.info("Images published")
@@ -99,7 +116,16 @@ class PublisherService(
         resource.file.walkTopDown().forEach { file ->
             if (file.isFile) {
                 val path = file.relativeTo(resource.file).path
-                file.inputStream().use { staticResourcesStorage.put(path, it, Files.probeContentType(file.toPath())) }
+                file.inputStream().use {
+                    staticResourcesStorage.put(
+                        objectName = path,
+                        inputStream = it,
+                        metadata = mapOf(
+                            "Content-Type" to Files.probeContentType(file.toPath()),
+                            "Cache-Control" to "max-age=86400, s-maxage=31536000"
+                        )
+                    )
+                }
             }
         }
         log.info("Static resources published")
@@ -107,29 +133,37 @@ class PublisherService(
 
     fun publishHome() {
         log.info("Publishing home")
-        fetchAndPublishPage("home")
+        fetchAndPublishPage("home", "public, max-age=43200, s-maxage=43200")
         log.info("Home published")
     }
 
     fun publishErrorPage() {
         log.info("Publishing error page")
-        fetchAndPublishPage("404")
+        fetchAndPublishPage("404", "no-store, no-cache")
         log.info("Error page published")
     }
 
-    private fun fetchAndPublishPage(seoUrl: String) {
+    private fun fetchAndPublishPage(seoUrl: String, cacheControl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$localUrl/$seoUrl"))
             .build()
         client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body().use { inputStream ->
-            contentStorage.put(seoUrl, inputStream, MediaType.TEXT_HTML_VALUE)
+            contentStorage.put(
+                objectName = seoUrl,
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to MediaType.TEXT_HTML_VALUE,
+                    "Cache-Control" to cacheControl
+                )
+            )
         }
     }
 
     private fun assertPublish() {
         if ((contentStorage is S3Storage && !contentBaseUrl.startsWith("https://www.casaconalma.com"))
             || (imageStorage is S3Storage && !imagestBaseUrl.startsWith("https://images.casaconalma.com"))
-            || (staticResourcesStorage is S3Storage && !staticResourcesBaseUrl.startsWith("https://static-resources.casaconalma.com"))) {
+            || (staticResourcesStorage is S3Storage && !staticResourcesBaseUrl.startsWith("https://static-resources.casaconalma.com"))
+        ) {
             throw IllegalStateException("Be careful! You are trying to publish to a production environment from a non-production environment")
         }
     }

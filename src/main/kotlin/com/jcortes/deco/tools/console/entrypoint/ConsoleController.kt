@@ -1,4 +1,4 @@
-package com.jcortes.deco.web
+package com.jcortes.deco.tools.console.entrypoint
 
 import com.jcortes.deco.content.ArticleService
 import org.springframework.stereotype.Controller

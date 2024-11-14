@@ -1,8 +1,8 @@
 package com.jcortes.deco.util.io.storage
 
-import com.idealista.yaencontre.io.storage.Storage
-import com.idealista.yaencontre.io.storage.fs.FSStorage
-import com.idealista.yaencontre.io.storage.s3.S3Storage
+import com.jcortes.deco.util.io.storage.Storage
+import com.jcortes.deco.util.io.storage.fs.FSStorage
+import com.jcortes.deco.util.io.storage.s3.S3Storage
 import org.springframework.context.ApplicationContext
 import software.amazon.awssdk.services.s3.S3Client
 import java.net.URI

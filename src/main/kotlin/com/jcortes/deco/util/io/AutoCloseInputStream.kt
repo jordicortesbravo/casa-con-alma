@@ -1,4 +1,4 @@
-package com.idealista.yaencontre.io
+package com.jcortes.deco.util.io
 
 import java.io.InputStream
 

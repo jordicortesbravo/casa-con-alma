@@ -1,5 +1,6 @@
-package com.idealista.yaencontre.io.storage
+package com.jcortes.deco.util.io.storage
 
+import com.jcortes.deco.util.io.storage.StorageObject
 import java.io.InputStream
 
 interface Storage {
@@ -12,7 +13,7 @@ interface Storage {
 
     fun list(prefix: String = ""): List<StorageObject>
 
-    fun put(objectName: String, inputStream: InputStream, contentType: String? = null): StorageObject
+    fun put(objectName: String, inputStream: InputStream, metadata: Map<String, String>? = null): StorageObject
 
     fun move(sourceObjectName: String, targetObjectName: String): StorageObject
 

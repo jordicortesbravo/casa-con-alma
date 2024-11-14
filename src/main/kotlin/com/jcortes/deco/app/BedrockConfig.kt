@@ -17,8 +17,7 @@ import java.time.Duration
 class BedrockConfig {
 
     @Bean
-    fun bedrockRuntimeClient(credentialsProvider: AwsCredentialsProvider, region: Region): BedrockRuntimeClient {
-
+    fun bedrockRuntimeClient(contentProfileCredentialsProvider: AwsCredentialsProvider, contentProfileRegion: Region): BedrockRuntimeClient {
         val timeoutConfig = AttributeMap.builder()
             .put(SdkHttpConfigurationOption.READ_TIMEOUT, Duration.ofMinutes(5))
             .build()
@@ -31,8 +30,8 @@ class BedrockConfig {
             .overrideConfiguration(ClientOverrideConfiguration.builder()
                 .apiCallTimeout(null)
                 .build())
-            .credentialsProvider(credentialsProvider)
-            .region(region)
+            .credentialsProvider(contentProfileCredentialsProvider)
+            .region(contentProfileRegion)
             .build()
     }
 

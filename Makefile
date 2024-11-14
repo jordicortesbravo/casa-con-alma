@@ -73,36 +73,25 @@ clean/all: clean dev/destroy local/destroy
 	@$(call rm, $(BUILD_DIR))
 
 # AWS configuration
-aws/configure/yeplayground $(AWS_DIR)/configure.yeplayground.flag:
+aws/configure/casaconalma $(AWS_DIR)/configure.casaconalma.flag:
 	@echo $@
 	@$(call mkdir, $(AWS_DIR))
 ifdef CI
-	$(eval AWS_STS_CREDENTIALS := $(shell aws sts assume-role-with-web-identity --role-arn $(YE_DEVOPS_ROLE_ARN) --role-session-name BitbucketSession --web-identity-token $(BITBUCKET_STEP_OIDC_TOKEN)))
-	$(eval AWS_CREDENTIALS := $(shell echo '$(AWS_STS_CREDENTIALS)' | jq -r '.Credentials.AccessKeyId, .Credentials.SecretAccessKey, .Credentials.SessionToken'))
-	@aws configure set region $(AWS_DEFAULT_REGION) --profile YE-Playground
-	@aws configure set aws_access_key_id $(word 1, $(AWS_CREDENTIALS)) --profile YE-Playground
-	@aws configure set aws_secret_access_key $(word 2, $(AWS_CREDENTIALS)) --profile YE-Playground
-	@aws configure set aws_session_token $(word 3, $(AWS_CREDENTIALS)) --profile YE-Playground
+	@aws configure set aws:profile casa-con-alma
 endif
 	@$(call touch, $@)
 
 aws/configure $(AWS_DIR)/configure.flag:
 	@echo $@
 ifdef CI
-	$(eval AWS_PROFILE := $(shell pulumi config get aws:profile --cwd $(IAC_DIR) --stack $(STACK)))
-	$(eval AWS_STS_CREDENTIALS := $(shell aws sts assume-role-with-web-identity --role-arn $(AWS_ROLE_ARN) --role-session-name BitbucketSession --web-identity-token $(BITBUCKET_STEP_OIDC_TOKEN)))
-	$(eval AWS_CREDENTIALS := $(shell echo '$(AWS_STS_CREDENTIALS)' | jq -r '.Credentials.AccessKeyId, .Credentials.SecretAccessKey, .Credentials.SessionToken'))
-	@aws configure set region $(AWS_DEFAULT_REGION) --profile $(AWS_PROFILE)
-	@aws configure set aws_access_key_id $(word 1, $(AWS_CREDENTIALS)) --profile $(AWS_PROFILE)
-	@aws configure set aws_secret_access_key $(word 2, $(AWS_CREDENTIALS)) --profile $(AWS_PROFILE)
-	@aws configure set aws_session_token $(word 3, $(AWS_CREDENTIALS)) --profile $(AWS_PROFILE)
+	@aws configure set aws:profile casa-con-alma
 endif
 	@$(call touch, $@)
 
 .PHONY: login
-login $(AWS_DIR)/settings.xml: $(AWS_DIR)/configure.yeplayground.flag pom.xml settings.xml
+login $(AWS_DIR)/settings.xml: $(AWS_DIR)/configure.casaconalma.flag pom.xml settings.xml
 	@echo $@
-	@$(eval CODEARTIFACT_AUTH_TOKEN := $(shell aws codeartifact get-authorization-token --domain jht --query authorizationToken --duration-seconds 900 --profile YE-Playground --output text))
+	@$(eval CODEARTIFACT_AUTH_TOKEN := $(shell aws codeartifact get-authorization-token --domain jht --query authorizationToken --duration-seconds 900 --profile casa-con-alma --output text))
 	@$(call mkdir, $(AWS_DIR))
 	@$(call cp, settings.xml, $(AWS_DIR)/settings.xml)
 	@$(call sed, $(AWS_DIR)/settings.xml, $${CODEARTIFACT_AUTH_TOKEN}, $(CODEARTIFACT_AUTH_TOKEN))
@@ -184,13 +173,13 @@ local/inspect local/logs local/status local/stop local/destroy: build/local-comp
 	@docker-compose --file $(BUILD_DIR)/docker-compose-local.yml --project-name $(PROJECT_NAME_COMPOSE_LOCAL) $(DOCKER_CMD)
 
 ### IAC
-stack ?= dev
+stack ?= pro
 STACK ?= $(stack)
 INTERACTIVE ?= $(if $(filter no, $(interactive)),--yes --skip-preview --non-interactive,)
 BUILD_STAGE ?= $(if $(filter yes, $(skip-build)),,build)
 
 aws/deps: $(IAC_DIR)/node_modules/.package-lock.json
-$(IAC_DIR)/node_modules/.package-lock.json: $(AWS_DIR)/configure.yeplayground.flag $(IAC_DIR)/package.json
+$(IAC_DIR)/node_modules/.package-lock.json: $(AWS_DIR)/configure.casaconalma.flag $(IAC_DIR)/package.json
 	@echo $@
 	@(npm install --prefix $(IAC_DIR))
 	@$(call touch, $@)

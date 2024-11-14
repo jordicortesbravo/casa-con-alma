@@ -213,7 +213,7 @@
         const searchText = document.getElementById('searchText').value;
         const siteCategory = document.getElementById('siteCategories').value;
 
-        const response = await fetch(`http://localhost:8083/crawler/scraped-documents/search?query=${searchText}&category=${siteCategory}&page=${page}&size=${pageSize}`);
+        const response = await fetch(`http://localhost:8083/scraped-documents/search?query=${searchText}&category=${siteCategory}&page=${page}&size=${pageSize}`);
         const data = await response.json();
         return data.results;
     }

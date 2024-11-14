@@ -1,4 +1,4 @@
-package com.idealista.yaencontre.io.storage
+package com.jcortes.deco.util.io.storage
 
 class StorageObjectKey<T> private constructor(val name: String, val value: T) {
 

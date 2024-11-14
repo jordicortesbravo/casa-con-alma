@@ -15,10 +15,10 @@ import java.net.URI
 class StorageConfig {
 
     @Bean
-    fun s3Client(credentialsProvider: AwsCredentialsProvider, region: Region): S3Client {
+    fun s3Client(publicationProfileCredentialsProvider: AwsCredentialsProvider, publicationProfileRegion: Region): S3Client {
         return S3Client.builder()
-            .credentialsProvider(credentialsProvider)
-            .region(region)
+            .credentialsProvider(publicationProfileCredentialsProvider)
+            .region(publicationProfileRegion)
             .build()
     }
 

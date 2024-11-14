@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const keywords = Array.from(keywordsSelect.selectedOptions).map(option => option.value).join(',');
         const hasRights = hasRightsCheck.checked;
 
-        fetch(`http://localhost:8083/crawler/images/search?query=${query}&keywords=${keywords}&hasRights=${hasRights}&page=${page}`)
+        fetch(`http://localhost:8083/images/search?query=${query}&keywords=${keywords}&hasRights=${hasRights}&page=${page}`)
             .then(response => response.json())
             .then(data => {
                 if (page === 1) {

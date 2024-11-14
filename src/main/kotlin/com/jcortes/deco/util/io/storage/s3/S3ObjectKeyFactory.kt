@@ -1,6 +1,6 @@
-package com.idealista.yaencontre.io.storage.s3
+package com.jcortes.deco.util.io.storage.s3
 
-import com.idealista.yaencontre.io.storage.StorageObjectKeyFactory
+import com.jcortes.deco.util.io.storage.StorageObjectKeyFactory
 
 class S3ObjectKeyFactory(namespace: String?): StorageObjectKeyFactory<String> {
 

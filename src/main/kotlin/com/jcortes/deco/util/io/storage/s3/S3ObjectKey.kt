@@ -1,5 +1,5 @@
-package com.idealista.yaencontre.io.storage.s3
+package com.jcortes.deco.util.io.storage.s3
 
-import com.idealista.yaencontre.io.storage.StorageObjectKey
+import com.jcortes.deco.util.io.storage.StorageObjectKey
 
 typealias S3ObjectKey = StorageObjectKey<String>

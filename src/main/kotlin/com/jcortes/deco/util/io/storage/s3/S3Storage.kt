@@ -1,7 +1,7 @@
-package com.idealista.yaencontre.io.storage.s3
+package com.jcortes.deco.util.io.storage.s3
 
-import com.idealista.yaencontre.io.storage.Storage
-import com.idealista.yaencontre.io.storage.StorageObject
+import com.jcortes.deco.util.io.storage.Storage
+import com.jcortes.deco.util.io.storage.StorageObject
 import software.amazon.awssdk.services.s3.S3Client
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -71,10 +71,10 @@ class S3Storage private constructor(
         }
     }
 
-    override fun put(objectName: String, inputStream: InputStream, contentType: String?): StorageObject {
+    override fun put(objectName: String, inputStream: InputStream, metadata: Map<String, String>?): StorageObject {
         val key = objectKeyFactory.fromObjectName(objectName)
         try {
-            driver.put(key, inputStream, contentType)
+            driver.put(key, inputStream, metadata)
             return remoteS3Object(key)
         } catch (e: Exception) {
             throw IOException("Failed to upload data to $objectName", e)

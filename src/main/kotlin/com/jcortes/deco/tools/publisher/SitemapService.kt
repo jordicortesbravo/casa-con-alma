@@ -1,6 +1,6 @@
 package com.jcortes.deco.tools.publisher
 
-import com.idealista.yaencontre.io.storage.Storage
+import com.jcortes.deco.util.io.storage.Storage
 import com.jcortes.deco.content.ArticleRepository
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleStatus
@@ -147,6 +147,6 @@ class SitemapService(
     }
 
     private fun publish(fileName: String, content: String) {
-        staticResourcesStorage.put("sitemaps/$fileName", content.byteInputStream(), MediaType.APPLICATION_XML_VALUE)
+        staticResourcesStorage.put("sitemaps/$fileName", content.byteInputStream(), mapOf("Content-Type" to MediaType.APPLICATION_XML_VALUE))
     }
 }

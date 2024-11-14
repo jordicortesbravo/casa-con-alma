@@ -182,6 +182,7 @@
         <tr>
             <th>ID</th>
             <th>Site Categories</th>
+            <th>Status</th>
             <th>Title</th>
             <th>Actions</th>
             <th>URL</th>
@@ -205,6 +206,7 @@
     </div>
 </div>
 
+</body>
 <script>
     let currentPage = 0;
     const pageSize = 10; // Number of documents per page
@@ -213,7 +215,7 @@
         const searchText = document.getElementById('searchText').value;
         const siteCategory = document.getElementById('siteCategories').value;
 
-        const response = await fetch(`http://localhost:8083/crawler/articles/search?query=${searchText}&category=${siteCategory}&page=${page}&size=${pageSize}`);
+        const response = await fetch(`http://localhost:8083/articles/search?query=${searchText}&category=${siteCategory}&page=${page}&size=${pageSize}`);
         const data = await response.json();
         return data.results;
     }
@@ -223,12 +225,13 @@
         row.innerHTML = `
             <td>${article.id}</td>
             <td>${article.siteCategories}</td>
+            <td>${article.status}</td>
             <td>${article.title}</td>
             <td>
                 <button class="preview-btn" data-content="${encodeURIComponent(JSON.stringify(article.content))}">Preview</button>
             </td>
             <td>
-                <button class="open-url-btn" onclick="window.open('${article.url}', '_blank')">Open</button>
+                <button class="open-url-btn" onclick="window.open('http://localhost:8083/${article.seoUrl}', '_blank')">Open</button>
             </td>
         `;
         return row;
@@ -283,5 +286,4 @@
         }
     }
 </script>
-</body>
 </html>

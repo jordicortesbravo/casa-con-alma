@@ -1,7 +1,7 @@
-package com.idealista.yaencontre.io.storage.fs
+package com.jcortes.deco.util.io.storage.fs
 
-import com.idealista.yaencontre.io.storage.Storage
-import com.idealista.yaencontre.io.storage.StorageObject
+import com.jcortes.deco.util.io.storage.Storage
+import com.jcortes.deco.util.io.storage.StorageObject
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.nio.file.Path
@@ -62,7 +62,7 @@ class FSStorage(
             .sortedBy { it.name }
     }
 
-    override fun put(objectName: String, inputStream: InputStream, contentType: String?): StorageObject {
+    override fun put(objectName: String, inputStream: InputStream, metadata: Map<String, String>?): StorageObject {
         val key = objectKeyFactory.fromObjectName(objectName)
         driver.put(key, inputStream)
         return fsObject(key)

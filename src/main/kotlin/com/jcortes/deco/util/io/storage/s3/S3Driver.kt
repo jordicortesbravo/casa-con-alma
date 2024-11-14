@@ -1,4 +1,4 @@
-package com.idealista.yaencontre.io.storage.s3
+package com.jcortes.deco.util.io.storage.s3
 
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
@@ -48,11 +48,11 @@ class S3Driver(private val bucket: String, private val s3Client: S3Client, local
         }
     }
 
-    fun put(key: S3ObjectKey, inputStream: InputStream, contentType: String? = null) {
+    fun put(key: S3ObjectKey, inputStream: InputStream, metadata: Map<String, String>? = null) {
         val localSourceTempPath = localTempPath(key)
         try {
             inputStream.use { Files.copy(it, localSourceTempPath) }
-            s3Client.putObject({ it.bucket(bucket).key(key.value).contentType(contentType) }, RequestBody.fromFile(localSourceTempPath))
+            s3Client.putObject({ it.bucket(bucket).key(key.value).metadata(metadata) }, RequestBody.fromFile(localSourceTempPath))
         } catch (e: Exception) {
             throw IOException("Failed to upload data to $key", e)
         } finally {

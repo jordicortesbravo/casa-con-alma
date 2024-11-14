@@ -1,6 +1,6 @@
-package com.idealista.yaencontre.io.storage.fs
+package com.jcortes.deco.util.io.storage.fs
 
-import com.idealista.yaencontre.io.storage.StorageObject
+import com.jcortes.deco.util.io.storage.StorageObject
 import java.io.InputStream
 
 class FSObject private constructor(

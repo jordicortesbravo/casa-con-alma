@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jcortes</groupId>
-    <artifactId>crawler</artifactId>
-    <version>0.0.1</version>
+    <artifactId>casa-con-alma</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Crawler</name>
+    <name>Casa con Alma</name>
     <inceptionYear>2024</inceptionYear>
 
     <properties>
