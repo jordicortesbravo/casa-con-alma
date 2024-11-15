@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 
-export function createRoute53Records(cloudfrontDistribution: aws.cloudfront.Distribution) {
+export function createRoute53Records(cloudFrontDistribution: aws.cloudfront.Distribution) {
     const siteName = "casaconalma.com";
 
     const zone = new aws.route53.Zone("mainZone", {
@@ -12,8 +12,8 @@ export function createRoute53Records(cloudfrontDistribution: aws.cloudfront.Dist
         name: "www",
         type: "A",
         aliases: [{
-            name: cloudfrontDistribution.domainName,
-            zoneId: cloudfrontDistribution.hostedZoneId,
+            name: cloudFrontDistribution.domainName,
+            zoneId: cloudFrontDistribution.hostedZoneId,
             evaluateTargetHealth: false,
         }],
     });
@@ -23,8 +23,8 @@ export function createRoute53Records(cloudfrontDistribution: aws.cloudfront.Dist
         name: "images",
         type: "A",
         aliases: [{
-            name: cloudfrontDistribution.domainName,
-            zoneId: cloudfrontDistribution.hostedZoneId,
+            name: cloudFrontDistribution.domainName,
+            zoneId: cloudFrontDistribution.hostedZoneId,
             evaluateTargetHealth: false,
         }],
     });
@@ -34,8 +34,8 @@ export function createRoute53Records(cloudfrontDistribution: aws.cloudfront.Dist
         name: "static-resources",
         type: "A",
         aliases: [{
-            name: cloudfrontDistribution.domainName,
-            zoneId: cloudfrontDistribution.hostedZoneId,
+            name: cloudFrontDistribution.domainName,
+            zoneId: cloudFrontDistribution.hostedZoneId,
             evaluateTargetHealth: false,
         }],
     });

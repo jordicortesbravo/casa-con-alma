@@ -1,8 +1,11 @@
 import * as aws from "@pulumi/aws";
 
-export function createCloudFrontDistribution(contentBucket: aws.s3.Bucket, imagesBucket: aws.s3.Bucket, staticResourcesBucket: aws.s3.Bucket) {
-    const originAccessIdentity = new aws.cloudfront.OriginAccessIdentity("websiteOriginAccessIdentity");
-
+export function createCloudFrontDistribution(
+    contentBucket: aws.s3.Bucket,
+    imagesBucket: aws.s3.Bucket,
+    staticResourcesBucket: aws.s3.Bucket,
+    originAccessIdentity: aws.cloudfront.OriginAccessIdentity
+) {
     const cloudfrontDistribution = new aws.cloudfront.Distribution("websiteDistribution", {
         origins: [
             {
@@ -35,7 +38,7 @@ export function createCloudFrontDistribution(contentBucket: aws.s3.Bucket, image
                 restrictionType: "none",
             },
         },
-        defaultRootObject: "index.html",
+        defaultRootObject: "home",
         enabled: true,
         defaultCacheBehavior: {
             targetOriginId: contentBucket.id,
