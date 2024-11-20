@@ -84,7 +84,7 @@ class ArticleDetailController(
         )
         return Seo(
             description = article.description ?: "social-network-description-not-found",
-            keywords = article.tags?.joinToString(", ") ?: "",
+            keywords = article.tags?.joinToString(", ") { it.label } ?: "",
             socialNetworkTags = socialNetworkTags,
             twitterCard = twitterCard,
             canonicalUrl = article.seoUrl?.toString() ?: "seo-url-not-found"

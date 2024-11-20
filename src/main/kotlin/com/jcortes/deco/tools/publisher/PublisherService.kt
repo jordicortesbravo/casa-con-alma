@@ -48,13 +48,13 @@ class PublisherService(
         log.info("Publish process started")
 //        publishStaticResources()
 //        publishImages()
-//        publishArticles()
-//        publishCategories()
+        publishArticles()
+        publishCategories()
         publishDecorTagsPages()
         publishHome()
-//        publishErrorPage()
+        publishErrorPage()
 //        publishRobotsTxt()
-        sitemapService.publishSitemap()
+//        sitemapService.publishSitemap()
         log.info("Publish process ended")
     }
 

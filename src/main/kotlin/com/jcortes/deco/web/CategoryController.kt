@@ -59,7 +59,7 @@ class CategoryController(
         )
         return Seo(
             description = category.label,
-            keywords = articles.flatMap { it.tags ?: emptyList() }.toSet().joinToString(", "),
+            keywords = articles.flatMap { it.tags ?: emptyList() }.map { it.label }.toSet().joinToString(", "),
             socialNetworkTags = socialNetworkTags,
             twitterCard = twitterCard,
             canonicalUrl = category.seoUrl

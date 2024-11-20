@@ -69,7 +69,7 @@ class HomeController(
         )
         return Seo(
             description = "Explora nuestra selección de artículos de decoración y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            keywords = articles.flatMap { it.tags ?: emptyList() }.toSet().joinToString(", "),
+            keywords = articles.flatMap { it.tags ?: emptyList() }.map { it.label }.toSet().joinToString(", "),
             socialNetworkTags = socialNetworkTags,
             twitterCard = twitterCard,
             canonicalUrl = "/"
