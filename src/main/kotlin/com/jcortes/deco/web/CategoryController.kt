@@ -6,6 +6,7 @@ import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.ArticleStatus
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.paging.Pageable
+import com.jcortes.deco.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
@@ -20,7 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 @RequestMapping
 class CategoryController(
     private val articleService: ArticleService,
-    private val imageService: ImageService
+    private val imageService: ImageService,
+    private val urlBuilder: UrlBuilder
 ) {
 
     @GetMapping("/{category:decoracion|salones-y-comedores|cocinas|dormitorios|banos|exteriores-y-jardines|decoracion-estacional}")
@@ -47,13 +49,13 @@ class CategoryController(
         val socialNetworkTags = SocialNetworkTags(
             title = "Artículos de ${category.label}",
             description = "Explora nuestra selección de artículos de ${category.label} y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            image = "social-network-image-not-found",
-            url = category.seoUrl
+            image = articles.first().images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
+            url = category.seoUrl.let { urlBuilder.contentUrl(it) } ?: category.seoUrl
         )
         val twitterCard = TwitterCard(
             title = "Artículos de ${category.label}",
             description = "Explora nuestra selección de artículos de ${category.label} y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            image = "social-network-image-not-found"
+            image = articles.first().images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
         )
         return Seo(
             description = category.label,

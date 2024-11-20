@@ -3,6 +3,7 @@ package com.jcortes.deco.web
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.model.Article
 import com.jcortes.deco.content.model.SiteCategory
+import com.jcortes.deco.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
@@ -17,7 +18,8 @@ import kotlin.random.Random
 @Controller
 @RequestMapping
 class HomeController(
-    private val articleService: ArticleService
+    private val articleService: ArticleService,
+    private val urlBuilder: UrlBuilder
 ) {
 
 
@@ -57,13 +59,13 @@ class HomeController(
         val socialNetworkTags = SocialNetworkTags(
             title = "Casa con Alma: Diseña espacios con alma que cuentan historias",
             description = "Explora nuestra selección de artículos de decoración y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            image = "social-network-image-not-found",
-            url = "/"
+            image = articles.firstOrNull()?.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
+            url = urlBuilder.contentUrl()
         )
         val twitterCard = TwitterCard(
             title = "Casa con Alma: Diseña espacios con alma que cuentan historias",
             description = "Explora nuestra selección de artículos de decoración y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            image = "social-network-image-not-found"
+            image = articles.firstOrNull()?.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
         )
         return Seo(
             description = "Explora nuestra selección de artículos de decoración y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",

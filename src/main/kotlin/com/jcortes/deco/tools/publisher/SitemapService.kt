@@ -41,7 +41,7 @@ class SitemapService(
     private fun generateMainSitemap(): String {
         val sitemapBuilder = StringBuilder()
         sitemapBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        sitemapBuilder.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap-image/1.1\">")
+        sitemapBuilder.append("""<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">""")
 
         // Generar URL de la página de inicio
         sitemapBuilder.append("<url>")
@@ -78,7 +78,7 @@ class SitemapService(
     private fun generateUrlSitemap(articles: List<Article>): String {
         val sitemapBuilder = StringBuilder()
         sitemapBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        sitemapBuilder.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap-image/1.1\">")
+        sitemapBuilder.append("""<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">""")
 
         for (article in articles) {
             sitemapBuilder.append("<url>")
@@ -96,7 +96,7 @@ class SitemapService(
     private fun generateImageSitemap(articles: List<Article>): String {
         val sitemapBuilder = StringBuilder()
         sitemapBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        sitemapBuilder.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap-image/1.1\">")
+        sitemapBuilder.append("""<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">""")
 
         for(article in articles) {
             val images = article.images ?: emptyList()
@@ -117,23 +117,23 @@ class SitemapService(
     private fun generateIndexSitemap(mainSitemap: String, urlSitemap: String, imageSitemap: String) {
         val indexSitemapBuilder = StringBuilder()
         indexSitemapBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        indexSitemapBuilder.append("<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap-image/1.0\">")
+        indexSitemapBuilder.append("""<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">""")
 
         // Añadir sitemap principal
         indexSitemapBuilder.append("<sitemap>")
-        indexSitemapBuilder.append("<loc>${siteUrl}sitemap-main.xml</loc>")
+        indexSitemapBuilder.append("<loc>${siteUrl}sitemaps/sitemap-main.xml</loc>")
         indexSitemapBuilder.append("<lastmod>${LocalDate.now()}</lastmod>")
         indexSitemapBuilder.append("</sitemap>")
 
         // Añadir sitemap de URLs
         indexSitemapBuilder.append("<sitemap>")
-        indexSitemapBuilder.append("<loc>${siteUrl}sitemap-urls.xml</loc>")
+        indexSitemapBuilder.append("<loc>${siteUrl}sitemaps/sitemap-urls.xml</loc>")
         indexSitemapBuilder.append("<lastmod>${LocalDate.now()}</lastmod>")
         indexSitemapBuilder.append("</sitemap>")
 
         // Añadir sitemap de imágenes
         indexSitemapBuilder.append("<sitemap>")
-        indexSitemapBuilder.append("<loc>${siteUrl}sitemap-images.xml</loc>")
+        indexSitemapBuilder.append("<loc>${siteUrl}sitemaps/sitemap-images.xml</loc>")
         indexSitemapBuilder.append("<lastmod>${LocalDate.now()}</lastmod>")
         indexSitemapBuilder.append("</sitemap>")
 

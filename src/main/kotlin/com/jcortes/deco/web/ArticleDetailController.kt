@@ -74,13 +74,13 @@ class ArticleDetailController(
         val socialNetworkTags = SocialNetworkTags(
             title = article.title ?: "social-network-title-not-found",
             description = article.description ?: "social-network-description-not-found",
-            image = article.images?.firstOrNull()?.url?.toString() ?: "social-network-image-not-found",
-            url = article.seoUrl?.toString() ?: "seo-url-not-found"
+            image = article.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
+            url = article.seoUrl?.let { urlBuilder.contentUrl(it)} ?: "seo-url-not-found"
         )
         val twitterCard = TwitterCard(
             title = article.title ?: "social-network-title-not-found",
             description = article.description ?: "social-network-description-not-found",
-            image = article.images?.firstOrNull()?.url?.toString() ?: "social-network-image-not-found",
+            image = article.images?.firstOrNull()?.url?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
         )
         return Seo(
             description = article.description ?: "social-network-description-not-found",

@@ -1,16 +1,14 @@
-import { createS3Buckets } from "./lib/s3";
+import { createAcmCertificate } from "./lib/acm";
 import { createCloudFrontDistribution } from "./lib/cloudfront";
-import { createRoute53Records } from "./lib/route53";
-import * as aws from "@pulumi/aws";
+import { createRoute53Records, createValidationRecords, createZone } from "./lib/route53";
+import { createS3Buckets } from "./lib/s3";
 
-// Crea la Origin Access Identity para CloudFront
-const originAccessIdentity = new aws.cloudfront.OriginAccessIdentity("websiteOriginAccessIdentity");
+const zone = createZone();
+const certificate = createAcmCertificate();
+const validationRecords = createValidationRecords(zone, certificate);
 
-// Crea los buckets de S3 con la política de acceso que restringe el acceso directo
-const { contentBucket, imagesBucket, staticResourcesBucket } = createS3Buckets(originAccessIdentity);
+const  contentBucket = createS3Buckets();
 
-// Crea la distribución de CloudFront usando los buckets y la OAI
-const cloudfrontDistribution = createCloudFrontDistribution(contentBucket, imagesBucket, staticResourcesBucket, originAccessIdentity);
+const cloudfrontDistribution = createCloudFrontDistribution(contentBucket, certificate, validationRecords);
 
-// Configura los registros de Route 53
-createRoute53Records(cloudfrontDistribution);
+createRoute53Records(zone, cloudfrontDistribution);

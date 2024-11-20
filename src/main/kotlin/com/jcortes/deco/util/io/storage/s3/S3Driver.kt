@@ -52,7 +52,7 @@ class S3Driver(private val bucket: String, private val s3Client: S3Client, local
         val localSourceTempPath = localTempPath(key)
         try {
             inputStream.use { Files.copy(it, localSourceTempPath) }
-            s3Client.putObject({ it.bucket(bucket).key(key.value).metadata(metadata) }, RequestBody.fromFile(localSourceTempPath))
+            s3Client.putObject({ it.bucket(bucket).key(key.value).contentType(metadata?.get("Content-Type")).cacheControl(metadata?.get("Cache-Control")) }, RequestBody.fromFile(localSourceTempPath))
         } catch (e: Exception) {
             throw IOException("Failed to upload data to $key", e)
         } finally {

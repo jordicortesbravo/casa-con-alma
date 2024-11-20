@@ -46,13 +46,14 @@ class PublisherService(
     fun publishContent() {
         assertPublish()
         log.info("Publish process started")
-        publishStaticResources()
-        publishImages()
-        publishArticles()
-        publishCategories()
+//        publishStaticResources()
+//        publishImages()
+//        publishArticles()
+//        publishCategories()
         publishDecorTagsPages()
         publishHome()
-        publishErrorPage()
+//        publishErrorPage()
+//        publishRobotsTxt()
         sitemapService.publishSitemap()
         log.info("Publish process ended")
     }
@@ -88,7 +89,7 @@ class PublisherService(
         imageService.list().parallelStream().forEach { image ->
             URI(image.internalUri!!).toURL().openStream().use { inputStream ->
                 imageStorage.put(
-                    objectName = image.seoUrl!!,
+                    objectName = "images/${image.seoUrl}",
                     inputStream = inputStream,
                     metadata = mapOf(
                         "Content-Type" to "image/webp",
@@ -118,7 +119,7 @@ class PublisherService(
                 val path = file.relativeTo(resource.file).path
                 file.inputStream().use {
                     staticResourcesStorage.put(
-                        objectName = path,
+                        objectName = "static/$path",
                         inputStream = it,
                         metadata = mapOf(
                             "Content-Type" to Files.probeContentType(file.toPath()),
@@ -143,6 +144,22 @@ class PublisherService(
         log.info("Error page published")
     }
 
+    fun publishRobotsTxt() {
+        log.info("Publishing robots.txt")
+        val resource = ClassPathResource("web/static/robots.txt")
+        resource.inputStream.use {
+            contentStorage.put(
+                objectName = "robots.txt",
+                inputStream = it,
+                metadata = mapOf(
+                    "Content-Type" to MediaType.TEXT_PLAIN_VALUE,
+                    "Cache-Control" to "public, max-age=86400, s-maxage=86400"
+                )
+            )
+        }
+        log.info("Robots.txt published")
+    }
+
     private fun fetchAndPublishPage(seoUrl: String, cacheControl: String) {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("$localUrl/$seoUrl"))
@@ -161,8 +178,8 @@ class PublisherService(
 
     private fun assertPublish() {
         if ((contentStorage is S3Storage && !contentBaseUrl.startsWith("https://www.casaconalma.com"))
-            || (imageStorage is S3Storage && !imagestBaseUrl.startsWith("https://images.casaconalma.com"))
-            || (staticResourcesStorage is S3Storage && !staticResourcesBaseUrl.startsWith("https://static-resources.casaconalma.com"))
+            || (imageStorage is S3Storage && !imagestBaseUrl.startsWith("https://www.casaconalma.com/images"))
+            || (staticResourcesStorage is S3Storage && !staticResourcesBaseUrl.startsWith("https://www.casaconalma.com/static"))
         ) {
             throw IllegalStateException("Be careful! You are trying to publish to a production environment from a non-production environment")
         }
