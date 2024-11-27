@@ -1,6 +1,9 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.content.infrastructure.JdbcScrapedDocumentRepository
+import com.jcortes.deco.article.infrastructure.jdbc.JdbcArticleRepository
+import com.jcortes.deco.image.infrastructure.jdbc.JdbcImageRepository
+import com.jcortes.deco.scrapeddocument.infrastructure.JdbcScrapedDocumentRepository
+import com.jcortes.deco.tools.util.jdbc.IdRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories
@@ -11,7 +14,7 @@ import javax.sql.DataSource
 
 
 @Configuration
-@EnableJdbcRepositories(basePackageClasses = [JdbcScrapedDocumentRepository::class])
+@EnableJdbcRepositories(basePackageClasses = [JdbcScrapedDocumentRepository::class, JdbcImageRepository::class, JdbcArticleRepository::class, IdRepository::class])
 class RepositoryConfig {
 
     @Bean

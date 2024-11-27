@@ -1,6 +1,6 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.util.io.storage.StorageConfiguration
+import com.jcortes.deco.tools.util.io.storage.StorageConfiguration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean

@@ -1,6 +1,6 @@
 package com.jcortes.deco.tools.console.entrypoint
 
-import com.jcortes.deco.content.ArticleService
+import com.jcortes.deco.article.ArticleService
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping

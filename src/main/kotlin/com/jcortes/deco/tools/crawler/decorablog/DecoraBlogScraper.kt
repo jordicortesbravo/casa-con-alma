@@ -1,6 +1,6 @@
 package com.jcortes.deco.tools.crawler.decorablog
 
-import com.jcortes.deco.content.model.ScrapedDocument
+import com.jcortes.deco.scrapeddocument.model.ScrapedDocument
 import com.jcortes.deco.tools.crawler.GenericScraper
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element

@@ -1,12 +1,12 @@
 package com.jcortes.deco.web
 
-import com.jcortes.deco.content.ArticleService
-import com.jcortes.deco.content.ImageService
-import com.jcortes.deco.content.model.Article
-import com.jcortes.deco.content.model.DecorTag
-import com.jcortes.deco.content.model.SiteCategory
-import com.jcortes.deco.util.paging.Pageable
-import com.jcortes.deco.util.url.UrlBuilder
+import com.jcortes.deco.article.ArticleService
+import com.jcortes.deco.image.ImageService
+import com.jcortes.deco.article.model.Article
+import com.jcortes.deco.article.model.DecorTag
+import com.jcortes.deco.article.model.SiteCategory
+import com.jcortes.deco.tools.util.paging.Pageable
+import com.jcortes.deco.tools.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags

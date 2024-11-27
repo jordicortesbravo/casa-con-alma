@@ -1,6 +1,6 @@
 package com.jcortes.deco.tools.crawler
 
-import com.jcortes.deco.content.model.ScrapedDocument
+import com.jcortes.deco.scrapeddocument.model.ScrapedDocument
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI

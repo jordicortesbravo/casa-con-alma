@@ -1,6 +1,6 @@
 package com.jcortes.deco.app
 
-import com.jcortes.deco.client.UnsplashClient
+import com.jcortes.deco.image.infrastructure.unsplash.UnsplashClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.io.File

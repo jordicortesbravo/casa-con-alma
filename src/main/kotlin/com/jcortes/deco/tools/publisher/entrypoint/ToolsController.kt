@@ -1,7 +1,7 @@
 package com.jcortes.deco.tools.publisher.entrypoint
 
-import com.jcortes.deco.content.ArticleService
-import com.jcortes.deco.content.ImageService
+import com.jcortes.deco.article.ArticleService
+import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.tools.publisher.PublisherService
 import com.jcortes.deco.tools.publisher.SitemapService
 import org.springframework.web.bind.annotation.GetMapping

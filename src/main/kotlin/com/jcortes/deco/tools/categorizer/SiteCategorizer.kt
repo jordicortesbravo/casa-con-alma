@@ -1,6 +1,6 @@
 package com.jcortes.deco.tools.categorizer
 
-import com.jcortes.deco.content.model.SiteCategory
+import com.jcortes.deco.article.model.SiteCategory
 
 object SiteCategorizer {
 

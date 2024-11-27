@@ -1,6 +1,6 @@
 package com.jcortes.deco.web
 
-import com.jcortes.deco.content.model.SiteCategory
+import com.jcortes.deco.article.model.SiteCategory
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags

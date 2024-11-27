@@ -1,17 +1,16 @@
 package com.jcortes.deco.tools.publisher
 
-import com.jcortes.deco.util.io.storage.Storage
-import com.jcortes.deco.content.ArticleRepository
-import com.jcortes.deco.content.model.Article
-import com.jcortes.deco.content.model.ArticleStatus
-import com.jcortes.deco.content.model.DecorTag
-import com.jcortes.deco.content.model.SiteCategory
-import com.jcortes.deco.util.url.UrlBuilder
+import com.jcortes.deco.tools.util.io.storage.Storage
+import com.jcortes.deco.article.ArticleRepository
+import com.jcortes.deco.article.model.Article
+import com.jcortes.deco.article.model.ArticleStatus
+import com.jcortes.deco.article.model.DecorTag
+import com.jcortes.deco.article.model.SiteCategory
+import com.jcortes.deco.tools.util.url.UrlBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import java.io.File
 import java.time.LocalDate
 
 @Service

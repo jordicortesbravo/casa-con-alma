@@ -1,0 +1,24 @@
+package com.jcortes.deco.article.model
+
+private object SiteCategoryDescriptions {
+    const val DECORATION_DESCRIPTION = "Convierte cada rincón de tu hogar en un espacio único con nuestras ideas de decoración. Desde salones hasta dormitorios, te mostramos cómo transformar tus espacios con detalles como pintura, espejos, fotografías y proyectos DIY. Descubre los secretos para elegir las cortinas perfectas, combinar alfombras y darle el toque ideal a tus paredes con el color adecuado."
+    const val LIVING_AND_DINING_ROOMS_DESCRIPTION = "Rediseña tu salón y comedor con estilo y personalidad. Te damos las mejores ideas para transformar estos espacios con muebles, colores y detalles que marcan la diferencia. Aprende a combinar mesas, sofás, textiles y decoración mural para crear un ambiente acogedor y funcional. Descubre cómo aprovechar la luz natural, elegir las cortinas ideales y darle vida a cada rincón con los accesorios adecuados."
+    const val KITCHENS_DESCRIPTION = "Renueva tu cocina con estilo y practicidad. Descubre ideas frescas para transformar este espacio en el corazón de tu hogar, con soluciones de almacenamiento, colores vibrantes y decoración funcional. Aprende a optimizar cada rincón, desde la elección de encimeras y muebles hasta la iluminación ideal. Te enseñamos a combinar materiales, organizar utensilios y darle un toque personal con pequeños detalles que harán de tu cocina un lugar acogedor y eficiente."
+    const val BEDROOMS_DESCRIPTION = "Transforma tu dormitorio en un refugio de paz y estilo. Descubre ideas creativas para crear un ambiente acogedor, donde cada detalle cuenta. Aprende a elegir la paleta de colores perfecta, combinar textiles y seleccionar muebles que maximicen el confort. Te mostramos cómo organizar el espacio para fomentar la relajación, además de sugerencias para la decoración mural y los toques personales que harán de tu dormitorio un lugar único y lleno de alma."
+    const val BATHROOMS_DESCRIPTION = "Convierte tu baño en un oasis de tranquilidad y estilo. Explora ideas innovadoras para maximizar el espacio, desde la elección de azulejos y grifería hasta la iluminación perfecta. Aprende a combinar funcionalidad y diseño, eligiendo muebles que optimicen el almacenamiento y detalles decorativos que añadan un toque personal. Te mostramos cómo crear un ambiente relajante y elegante, haciendo de tu baño un lugar donde quieras pasar tiempo."
+    const val OUTDOORS_AND_GARDENS_DESCRIPTION = "Transforma tus exteriores y jardines en un refugio de belleza y tranquilidad. Descubre ideas inspiradoras para crear espacios al aire libre que inviten a disfrutar de la naturaleza, desde la elección de muebles de jardín hasta la selección de plantas y decoraciones. Aprende a diseñar patios, terrazas y jardines que combinen funcionalidad y estilo, con consejos sobre iluminación, caminos y elementos acuáticos que añadan un toque especial. Haz de tu exterior el lugar perfecto para relajarte y compartir momentos inolvidables."
+    const val SEASONAL_DECORATION_DESCRIPTION = "Celebra cada temporada con una decoración que transforme tu hogar. Descubre ideas frescas y creativas para adaptar tu estilo a lo largo del año, desde adornos festivos para Navidad y Halloween hasta decoraciones coloridas para Pascua y verano. Aprende a combinar colores, texturas y elementos decorativos que añadan calidez y alegría en invierno, frescura en primavera y vibrante energía en verano. Haz que cada rincón de tu casa cuente una historia estacional y mantén la magia del hogar durante todo el año."
+}
+
+enum class SiteCategory(val label: String, val seoUrl: String, val description: String) {
+
+    DECORATION("Decoración", "decoracion", SiteCategoryDescriptions.DECORATION_DESCRIPTION),
+    LIVING_AND_DINING_ROOMS("Salones", "salones-y-comedores", SiteCategoryDescriptions.LIVING_AND_DINING_ROOMS_DESCRIPTION),
+    KITCHENS("Cocinas", "cocinas", SiteCategoryDescriptions.KITCHENS_DESCRIPTION),
+    BEDROOMS("Dormitorios", "dormitorios", SiteCategoryDescriptions.BEDROOMS_DESCRIPTION),
+    BATHROOMS("Baños", "banos", SiteCategoryDescriptions.BATHROOMS_DESCRIPTION),
+    OUTDOORS_AND_GARDENS("Exteriores", "exteriores-y-jardines", SiteCategoryDescriptions.OUTDOORS_AND_GARDENS_DESCRIPTION),
+    SEASONAL_DECORATION("Festividades", "decoracion-estacional", SiteCategoryDescriptions.SEASONAL_DECORATION_DESCRIPTION);
+
+
+}
