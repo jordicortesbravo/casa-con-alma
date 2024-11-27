@@ -1,7 +1,9 @@
 package com.jcortes.deco.content.entrypoint
 
+import com.jcortes.deco.client.bedrock.BedrockImageModel
 import com.jcortes.deco.content.ArticleService
 import com.jcortes.deco.content.model.Article
+import com.jcortes.deco.content.model.CreateArticleRequest
 import com.jcortes.deco.content.model.SiteCategory
 import com.jcortes.deco.util.paging.Pageable
 import org.springframework.web.bind.annotation.GetMapping
@@ -34,7 +36,7 @@ class ArticleController(
 
     @PostMapping
     fun createFromScratch(@RequestBody createArticleRequest: CreateArticleRequest) {
-        articleService.fillArticleWithGenerativeAI(createArticleRequest.article, createArticleRequest.systemPrompt)
+        articleService.fillArticleWithGenerativeAI(createArticleRequest)
     }
 
     @GetMapping("/search")
@@ -51,8 +53,4 @@ class ArticleController(
 
     data class ArticlesResponse(val results: List<Article>)
 
-    data class CreateArticleRequest(
-        val article: Article,
-        val systemPrompt: String? = null
-    )
 }

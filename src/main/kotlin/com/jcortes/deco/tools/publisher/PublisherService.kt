@@ -46,15 +46,15 @@ class PublisherService(
     fun publishContent() {
         assertPublish()
         log.info("Publish process started")
-//        publishStaticResources()
-//        publishImages()
+        publishStaticResources()
+        publishImages()
         publishArticles()
         publishCategories()
         publishDecorTagsPages()
         publishHome()
         publishErrorPage()
-//        publishRobotsTxt()
-//        sitemapService.publishSitemap()
+        publishRobotsTxt()
+        sitemapService.publishSitemap()
         log.info("Publish process ended")
     }
 

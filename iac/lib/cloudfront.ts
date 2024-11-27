@@ -20,7 +20,7 @@ export function createCloudFrontDistribution(
                 },
             }
         ],
-        aliases: ["casaconalma.com", "www.casaconalma.com"],
+        aliases: ["www.casaconalma.com"],
         restrictions: {
             geoRestriction: {
                 restrictionType: "none",

@@ -111,9 +111,9 @@ class ImageService(
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    fun generate(prompt: String): Image {
+    fun generate(prompt: String, imageModel: BedrockImageModel?): Image {
         val request = BedrockImageInferenceRequest().apply {
-            model = BedrockImageModel.STABLE_IMAGE_ULTRA
+            model = imageModel ?: BedrockImageModel.STABLE_IMAGE_ULTRA
             userPrompt = prompt
         }
 

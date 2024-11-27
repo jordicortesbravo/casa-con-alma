@@ -1,6 +1,7 @@
 package com.jcortes.deco.content
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.jcortes.deco.client.bedrock.BedrockImageModel
 import com.jcortes.deco.client.bedrock.BedrockTextClient
 import com.jcortes.deco.client.bedrock.BedrockTextInferenceRequest
 import com.jcortes.deco.client.bedrock.BedrockTextModel
@@ -85,8 +86,8 @@ class ArticleService(
             articles.forEach { (category, articles) ->
                 try {
                     if(i < articles.size) {
-                        val article = articles[i]
-                        self.fillArticleWithGenerativeAI(article)
+                        val request = CreateArticleRequest(article = articles[i])
+                        self.fillArticleWithGenerativeAI(request)
                     }
                 } catch (te: ThrottlingException) {
                     Thread.sleep(20_000)
@@ -98,13 +99,15 @@ class ArticleService(
     }
 
     fun regenerate(articleId: Long) {
-        fillArticleWithGenerativeAI(get(articleId))
+        val request = CreateArticleRequest(article = get(articleId))
+        fillArticleWithGenerativeAI(request)
     }
 
     @Transactional
-    fun fillArticleWithGenerativeAI(article: Article, systemPrompt: String? = null) {
+    fun fillArticleWithGenerativeAI(createArticleRequest: CreateArticleRequest) {
+        val article = createArticleRequest.article
         log.info("Generating article ${article.title}")
-        generateContent(article, systemPrompt)
+        generateContent(article, createArticleRequest.systemPrompt)
         generateSiteCategories(article)
         generateSEOData(article)
         generateEmbedding(article)
@@ -180,7 +183,7 @@ class ArticleService(
         log.info("Generated site categories for article ${article.title}")
     }
 
-    fun generateAndAddImages(article: Article) {
+    fun generateAndAddImages(article: Article, imageModel: BedrockImageModel? = null) {
         log.info("Generating images for article ${article.title}")
         val images = mutableListOf<Image>()
         var content = article.content!!
@@ -188,7 +191,7 @@ class ArticleService(
 
         imgMatches.forEach { matchResult ->
             val prompt = matchResult.groupValues[1]
-            val image = imageService.generate(prompt)
+            val image = imageService.generate(prompt, imageModel)
             images.add(image)
 
             val newImgTag = """<div class="content-img-container"><img class="content-img" src="${image.seoUrl}" alt="${image.caption}"/></div>"""

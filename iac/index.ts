@@ -2,6 +2,7 @@ import { createAcmCertificate } from "./lib/acm";
 import { createCloudFrontDistribution } from "./lib/cloudfront";
 import { createRoute53Records, createValidationRecords, createZone } from "./lib/route53";
 import { createS3Buckets } from "./lib/s3";
+import { createRedirectFromRootToWWW } from "./lib/redirect";
 
 const zone = createZone();
 const certificate = createAcmCertificate();
@@ -12,3 +13,5 @@ const  contentBucket = createS3Buckets();
 const cloudfrontDistribution = createCloudFrontDistribution(contentBucket, certificate, validationRecords);
 
 createRoute53Records(zone, cloudfrontDistribution);
+
+createRedirectFromRootToWWW(certificate, validationRecords);

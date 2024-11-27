@@ -56,7 +56,7 @@ class SitemapService(
             sitemapBuilder.append("<url>")
             sitemapBuilder.append("<loc>${urlBuilder.contentUrl(category.seoUrl)}</loc>")
             sitemapBuilder.append("<lastmod>${LocalDate.now()}</lastmod>")
-            sitemapBuilder.append("<changefreq>weekly</changefreq>")
+            sitemapBuilder.append("<changefreq>daily</changefreq>")
             sitemapBuilder.append("<priority>0.8</priority>")
             sitemapBuilder.append("</url>")
         }
@@ -66,7 +66,7 @@ class SitemapService(
             sitemapBuilder.append("<url>")
             sitemapBuilder.append("<loc>${urlBuilder.contentUrl(tag.seoUrl)}</loc>")
             sitemapBuilder.append("<lastmod>${LocalDate.now()}</lastmod>")
-            sitemapBuilder.append("<changefreq>weekly</changefreq>")
+            sitemapBuilder.append("<changefreq>daily</changefreq>")
             sitemapBuilder.append("<priority>0.5</priority>")
             sitemapBuilder.append("</url>")
         }
@@ -84,7 +84,7 @@ class SitemapService(
             sitemapBuilder.append("<url>")
             sitemapBuilder.append("<loc>${urlBuilder.contentUrl(article.seoUrl)}</loc>")
             sitemapBuilder.append("<lastmod>${LocalDate.now()}</lastmod>")
-            sitemapBuilder.append("<changefreq>monthly</changefreq>")
+            sitemapBuilder.append("<changefreq>daily</changefreq>")
             sitemapBuilder.append("<priority>0.8</priority>")
             sitemapBuilder.append("</url>")
         }
