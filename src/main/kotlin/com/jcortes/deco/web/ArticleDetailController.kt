@@ -1,16 +1,15 @@
 package com.jcortes.deco.web
 
 import com.jcortes.deco.article.ArticleService
-import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.article.model.Article
 import com.jcortes.deco.article.model.DecorTag
 import com.jcortes.deco.article.model.SiteCategory
+import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.tools.util.paging.Pageable
 import com.jcortes.deco.tools.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
-import com.jcortes.deco.web.model.TwitterCard
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -77,16 +76,10 @@ class ArticleDetailController(
             image = article.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
             url = article.seoUrl?.let { urlBuilder.contentUrl(it)} ?: "seo-url-not-found"
         )
-        val twitterCard = TwitterCard(
-            title = article.title ?: "social-network-title-not-found",
-            description = article.description ?: "social-network-description-not-found",
-            image = article.images?.firstOrNull()?.url?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
-        )
         return Seo(
             description = article.description ?: "social-network-description-not-found",
             keywords = article.tags?.joinToString(", ") { it.label } ?: "",
             socialNetworkTags = socialNetworkTags,
-            twitterCard = twitterCard,
             canonicalUrl = article.seoUrl?.toString() ?: "seo-url-not-found"
         )
     }

@@ -14,11 +14,11 @@
     <meta property="og:image" th:content="${detail.seo.socialNetworkTags.image}">
     <meta property="og:url" th:content="${detail.seo.socialNetworkTags.url}">
     <meta property="og:type" th:content="${detail.seo.socialNetworkTags.type}">
-    <meta name="twitter:card" th:content="${detail.seo.twitterCard.card}">
-    <meta name="twitter:title" th:content="${detail.seo.twitterCard.title}">
-    <meta name="twitter:description" th:content="${detail.seo.twitterCard.description}">
-    <meta name="twitter:image" th:content="${detail.seo.twitterCard.image}">
     <link rel="canonical" th:href="${@urlBuilder.contentUrl(detail.seo.canonicalUrl)}">
+    <link rel="icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma-32x32.png')}" sizes="32x32">
+    <link rel="icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma-192x192.png')}" sizes="192x192">
+    <link rel="apple-touch-icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma-180x180.png')}" sizes="180x180">
+    <link rel="apple-touch-icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma-270x270.png')}" sizes="270x270">
     <meta http-equiv="Content-Language" th:content="${detail.seo.language}">
     <title th:utext="${detail.title}"></title>
     <link rel="shortcut icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma.svg')}" type="image/x-icon">

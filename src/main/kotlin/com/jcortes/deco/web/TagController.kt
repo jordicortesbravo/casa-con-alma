@@ -1,17 +1,16 @@
 package com.jcortes.deco.web
 
 import com.jcortes.deco.article.ArticleService
-import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.article.model.Article
 import com.jcortes.deco.article.model.ArticleStatus
 import com.jcortes.deco.article.model.DecorTag
 import com.jcortes.deco.article.model.SiteCategory
+import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.tools.util.paging.Pageable
 import com.jcortes.deco.tools.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
-import com.jcortes.deco.web.model.TwitterCard
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -52,16 +51,10 @@ class TagController(
             image = articles.firstOrNull()?.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
             url = urlBuilder.contentUrl(decorTag.seoUrl) ?: decorTag.seoUrl
         )
-        val twitterCard = TwitterCard(
-            title = "Artículos de ${decorTag.label}",
-            description = "Explora nuestra selección de artículos de ${decorTag.label} y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            image = articles.firstOrNull()?.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
-        )
         return Seo(
             description = decorTag.label,
             keywords = articles.flatMap { it.tags ?: emptyList() }.map { it.label }.toSet().joinToString(", "),
             socialNetworkTags = socialNetworkTags,
-            twitterCard = twitterCard,
             canonicalUrl = decorTag.seoUrl
         )
     }

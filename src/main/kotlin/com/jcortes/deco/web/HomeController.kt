@@ -7,7 +7,6 @@ import com.jcortes.deco.tools.util.url.UrlBuilder
 import com.jcortes.deco.web.model.ResourceItem
 import com.jcortes.deco.web.model.Seo
 import com.jcortes.deco.web.model.SocialNetworkTags
-import com.jcortes.deco.web.model.TwitterCard
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -42,12 +41,13 @@ class HomeController(
         val articles = articleService.getTrendingGroupedByCategory(categoriesOrder)
         val featuredArticles = articles.firstEntry().value[abs(Random.nextInt(articles.firstEntry().value.size))]
         val trendingArticles = articles.values.flatten().sortedByDescending { 0.5 * it.updateInstant.toEpochMilli() + 0.5 * abs(Random.nextInt(1_000)) }.take(4)
-        val interestingArticles = articles.values.asSequence().flatten().filter { a-> !trendingArticles.map { it.id }.contains(a.id) }.sortedByDescending { 0.2 * it.updateInstant.toEpochMilli() + 0.8 * abs(Random.nextInt(1_000)) }.drop(4).take(4)
+        val interestingArticles = articles.values.asSequence().flatten().filter { a -> !trendingArticles.map { it.id }.contains(a.id) }
+            .sortedByDescending { 0.2 * it.updateInstant.toEpochMilli() + 0.8 * abs(Random.nextInt(1_000)) }.drop(4).take(4)
             .toList()
 
         return HomeData(
             title = "Casa con Alma: Diseña espacios con alma que cuentan historias",
-            seo = seo(emptyList()),
+            seo = seo(articles.values.flatten()),
             sections = articles.entries.map { HomeSection.of(it) },
             featuredArticle = featuredArticles,
             trendingArticles = trendingArticles,
@@ -62,17 +62,11 @@ class HomeController(
             image = articles.firstOrNull()?.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
             url = urlBuilder.contentUrl()
         )
-        val twitterCard = TwitterCard(
-            title = "Casa con Alma: Diseña espacios con alma que cuentan historias",
-            description = "Explora nuestra selección de artículos de decoración y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
-            image = articles.firstOrNull()?.images?.firstOrNull()?.seoUrl?.let { urlBuilder.imageUrl(it) } ?: "social-network-image-not-found",
-        )
         return Seo(
             description = "Explora nuestra selección de artículos de decoración y descubre las últimas tendencias, ideas inspiradoras y consejos para transformar tu hogar con estilo.",
             keywords = articles.flatMap { it.tags ?: emptyList() }.map { it.label }.toSet().joinToString(", "),
             socialNetworkTags = socialNetworkTags,
-            twitterCard = twitterCard,
-            canonicalUrl = "/"
+            canonicalUrl = urlBuilder.contentUrl()
         )
     }
 

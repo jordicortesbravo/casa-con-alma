@@ -95,7 +95,7 @@ class SitemapService(
     private fun generateImageSitemap(articles: List<Article>): String {
         val sitemapBuilder = StringBuilder()
         sitemapBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        sitemapBuilder.append("""<urlset xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">""")
+        sitemapBuilder.append("""<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">""")
 
         for(article in articles) {
             val images = article.images ?: emptyList()
