@@ -31,12 +31,12 @@ class HomeController(
     private fun homeData(): HomeData {
         val categoriesOrder = listOf(
             SiteCategory.LIVING_AND_DINING_ROOMS,
-            SiteCategory.DECORATION,
             SiteCategory.KITCHENS,
-            SiteCategory.BATHROOMS,
+            SiteCategory.DECORATION,
+            SiteCategory.SEASONAL_DECORATION,
             SiteCategory.BEDROOMS,
-            SiteCategory.OUTDOORS_AND_GARDENS,
-            SiteCategory.SEASONAL_DECORATION
+            SiteCategory.BATHROOMS,
+            SiteCategory.OUTDOORS_AND_GARDENS
         )
         val articles = articleService.getTrendingGroupedByCategory(categoriesOrder)
         val featuredArticles = articles.firstEntry().value[abs(Random.nextInt(articles.firstEntry().value.size))]

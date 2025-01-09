@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${detail.seo.language}">
 
 <head>
+    <meta th:charset="${detail.seo.charset}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" th:content="${detail.seo.description}">
     <meta name="keywords" th:content="${detail.seo.keywords}">
-    <meta th:charset="${detail.seo.charset}">
     <meta name="viewport" th:content="${detail.seo.viewport}">
     <meta name="robots" th:content="${detail.seo.robots}">
     <meta name="author" th:content="${detail.seo.author}">
@@ -28,7 +28,7 @@
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/metismenu.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/fonts.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/magnific-popup.css')}" as="style">
-    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.css')}" as="style">
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.min.css')}" as="style">
 </head>
 
 <body class="home-two">
@@ -154,10 +154,10 @@
                             </div>
                             <div class="post-section-inner">
                                 <div class="row g-5">
-                                    <div class="col-lg-4 col-md-6" th:each="article : ${detail.articles}">
+                                    <div class="col-lg-4 col-md-6" th:each="article,iterator : ${detail.articles}">
                                         <div class="home-with-soul-featured-news style-two small">
                                             <div class="image-area">
-                                                <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:src="${@urlBuilder.imageUrl(article.coverImage)}" alt=""></a>
+                                                <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:loading="${iterator.index < 3} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(article.coverImage, '480')}" alt=""></a>
                                             </div>
                                             <div class="blog-content">
                                                 <ul class="blog-meta">

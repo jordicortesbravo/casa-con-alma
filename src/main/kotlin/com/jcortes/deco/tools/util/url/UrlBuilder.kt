@@ -14,6 +14,10 @@ class UrlBuilder(
         return path?.let { "$imageBaseUrl$path" }
     }
 
+    fun imageUrl(path: String?, crop: String): String? {
+        return path?.let { "$imageBaseUrl$path-$crop" }
+    }
+
     fun staticUrl(path: String?): String? {
         return path?.let { "$staticResourcesBaseUrl$path" }
     }

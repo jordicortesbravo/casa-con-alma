@@ -19,6 +19,4 @@ enum class SiteCategory(val label: String, val seoUrl: String, val description: 
     BATHROOMS("Baños", "banos", SiteCategoryDescriptions.BATHROOMS_DESCRIPTION),
     OUTDOORS_AND_GARDENS("Exteriores", "exteriores-y-jardines", SiteCategoryDescriptions.OUTDOORS_AND_GARDENS_DESCRIPTION),
     SEASONAL_DECORATION("Festividades", "decoracion-estacional", SiteCategoryDescriptions.SEASONAL_DECORATION_DESCRIPTION);
-
-
 }

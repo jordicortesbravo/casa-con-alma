@@ -130,6 +130,15 @@ class ArticleService(
     }
 
     @Transactional
+    fun setTitle(articleId: Long, newTitle: String) {
+        val article = get(articleId)
+        val previousTitle = article.title
+        article.title = newTitle
+        article.content = article.content?.replaceFirst(previousTitle!!, newTitle)
+        save(article)
+    }
+
+    @Transactional
     fun save(article: Article) {
         articleRepository.save(article)
     }

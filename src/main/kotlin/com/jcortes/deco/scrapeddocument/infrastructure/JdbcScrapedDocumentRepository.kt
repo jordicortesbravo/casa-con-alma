@@ -93,7 +93,7 @@ class JdbcScrapedDocumentRepository(
 
     override fun search(searchEmbedding: List<Float>?, siteCategories: List<String>, pageable: Pageable): List<ScrapedDocument> {
         val embeddingClause = searchEmbedding?.let { " AND embedding <=> CAST(:embedding AS vector) < :threshold" } ?: ""
-        val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), id DESC" } ?: "id DESC"
+        val orderClause = searchEmbedding?.let { "embedding <=> CAST(:embedding AS vector), update_instant DESC" } ?: "update_instant DESC"
         val query = """
             SELECT id
             FROM $TABLE_INDEX

@@ -23,6 +23,11 @@ class ArticleController(
         articleService.setCategory(articleId, newCategory)
     }
 
+    @GetMapping("change-title")
+    fun changeTitle(@RequestParam articleId: Long, @RequestParam newTitle: String) {
+        articleService.setTitle(articleId, newTitle)
+    }
+
     @GetMapping("/enrich")
     fun enrich() {
         articleService.enrich()

@@ -46,15 +46,15 @@ class PublisherService(
     fun publishContent() {
         assertPublish()
         log.info("Publish process started")
-        publishStaticResources()
-        publishImages()
-        publishArticles()
+//        publishStaticResources()
+//        publishImages()
+//        publishArticles()
         publishCategories()
-        publishDecorTagsPages()
-        publishHome()
-        publishErrorPage()
-        publishRobotsTxt()
-        sitemapService.publishSitemap()
+//        publishDecorTagsPages()
+//        publishHome()
+//        publishErrorPage()
+//        publishRobotsTxt()
+//        sitemapService.publishSitemap()
         log.info("Publish process ended")
     }
 
@@ -87,7 +87,7 @@ class PublisherService(
     fun publishImages() {
         log.info("Publishing images")
         imageService.list().parallelStream().forEach { image ->
-            URI(image.internalUri!!).toURL().openStream().use { inputStream ->
+            URI(image.internalUri!!.replace(".jpeg", ".webp")).toURL().openStream().use { inputStream ->
                 imageStorage.put(
                     objectName = "images/${image.seoUrl}",
                     inputStream = inputStream,
@@ -97,9 +97,29 @@ class PublisherService(
                     )
                 )
             }
-            URI(image.internalUri!!.replace(".webp", ".jpeg")).toURL().openStream().use { inputStream ->
+            URI(image.internalUri!!.replace(".jpeg", "-150.webp")).toURL().openStream().use { inputStream ->
                 imageStorage.put(
-                    objectName = "jpeg/${image.seoUrl!!}",
+                    objectName = "images/${image.seoUrl}-150",
+                    inputStream = inputStream,
+                    metadata = mapOf(
+                        "Content-Type" to "image/webp",
+                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                    )
+                )
+            }
+            URI(image.internalUri!!.replace(".jpeg", "-480.webp")).toURL().openStream().use { inputStream ->
+                imageStorage.put(
+                    objectName = "images/${image.seoUrl}-480",
+                    inputStream = inputStream,
+                    metadata = mapOf(
+                        "Content-Type" to "image/webp",
+                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                    )
+                )
+            }
+            URI(image.internalUri!!).toURL().openStream().use { inputStream ->
+                imageStorage.put(
+                    objectName = "images/jpeg/${image.seoUrl!!}",
                     inputStream = inputStream,
                     metadata = mapOf(
                         "Content-Type" to "image/jpeg",
@@ -123,7 +143,7 @@ class PublisherService(
                         inputStream = it,
                         metadata = mapOf(
                             "Content-Type" to Files.probeContentType(file.toPath()),
-                            "Cache-Control" to "max-age=86400, s-maxage=31536000"
+                            "Cache-Control" to "max-age=2592000, s-maxage=31536000"
                         )
                     )
                 }
