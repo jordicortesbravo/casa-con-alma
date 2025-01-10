@@ -24,14 +24,14 @@
     <title th:utext="${detail.article.title}"></title>
 
     <link rel="shortcut icon" th:href="${@urlBuilder.staticUrl('images/icon/casa-con-alma.svg')}" type="image/x-icon">
-    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/plugins/fontawesome-5.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/bootstrap.min.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/swiper.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/metismenu.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/fonts.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/magnific-popup.css')}" as="style">
     <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/vendor/klaro.min.css')}" as="style">
-    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.min.css')}" as="style">
+<!--    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.min.css')}" as="style">-->
+    <link rel="stylesheet preload" th:href="${@urlBuilder.staticUrl('css/style.css')}" as="style">
 
 </head>
 
@@ -81,7 +81,7 @@
     <!-- side bar for desktop -->
     <div id="side-bar" class="side-bar header-one">
         <div class="inner">
-            <button class="close-icon-menu" aria-label="Cerrar"><i class="far fa-times"></i></button>
+            <button class="close-icon-menu" aria-label="Cerrar"><span style="color:white;font-weight:500">X</span></button>
             <!-- inner menu area desktop start -->
             <div class="inner-main-wrapper-desk d-none d-lg-block">
                 <div class="thumbnail">
@@ -503,8 +503,8 @@
     <!-- Start Scricpt Area -->
 
     <!--scroll top button-->
-    <button class="scroll-top-btn">
-        <i class="fa-regular fa-angles-up"></i>
+    <button class="scroll-top-btn" style="padding:10px">
+        <span style="color:white;font-weight:bold;font-size:40px;">^</span>
     </button>
     <!--scroll top button end-->
 

@@ -38,6 +38,11 @@ class ArticleController(
         articleService.regenerate(articleId)
     }
 
+    @GetMapping("lazy-loading")
+    fun addLazyLoadingToContentImages(@RequestParam articleId: Long) {
+        articleService.addLazyLoadingToContentImages(articleId)
+    }
+
     @PostMapping
     fun createFromScratch(@RequestBody createArticleRequest: CreateArticleRequest) {
         articleService.fillArticleWithGenerativeAI(createArticleRequest)

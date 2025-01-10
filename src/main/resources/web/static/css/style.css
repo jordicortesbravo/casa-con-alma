@@ -262,7 +262,7 @@ h6,
 }
 
 h1 {
-    font-size: 42px !important;
+    font-size: 42px;
 }
 
 h2 {
@@ -320,7 +320,7 @@ span {
 
 h1,
 .h1 {
-  font-size: var(--h1);
+  font-size: 42px;
   line-height: 1.25;
   font-weight: 700;
 }
@@ -392,24 +392,12 @@ h6 a,
 }
 
 .content-img-container {
-    width: 100%;
-    height: 500px;
-    overflow: hidden;
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-img.content-img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .blog-content h2 {
     font-size: 20px !important;
-    font-style: italic;
-    padding-left: 2%;
-    padding-right: 2%;
     color: var(--color-heading-2);
 }
 
@@ -677,6 +665,22 @@ ol ul {
 .paragraph-area p.disc {
   margin-bottom: 20px;
   color: #fff;
+}
+
+@media only screen and (min-width: 768px) and (max-width:8024px)  {
+  .content-img-container {
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    img.content-img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }
 
 @media only screen and (max-width: 1199px) {

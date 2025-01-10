@@ -56,7 +56,7 @@ class ArticleService(
     }
 
     fun listPublishable(): List<Article> {
-        return articleRepository.iterate().asSequence().filter { it.status == ArticleStatus.READY_TO_PUBLISH  || it.status == ArticleStatus.PUBLISHED }.toList()
+        return articleRepository.iterate().asSequence().filter { it.status == ArticleStatus.READY_TO_PUBLISH || it.status == ArticleStatus.PUBLISHED }.toList()
     }
 
     fun search(
@@ -84,10 +84,10 @@ class ArticleService(
 //            }
 //        }
         val articles = articleRepository.iterate().asSequence().toList().filter { it.status == ArticleStatus.DRAFT }.sortedBy { it.id }.groupBy { it.mainCategory }
-        for(i in 0..10) {
+        for (i in 0..10) {
             articles.forEach { (category, articles) ->
                 try {
-                    if(i < articles.size) {
+                    if (i < articles.size) {
                         val request = CreateArticleRequest(article = articles[i])
                         self.fillArticleWithGenerativeAI(request)
                     }
@@ -171,7 +171,13 @@ class ArticleService(
         article.description = json?.get("description")?.asText()
         article.seoUrl = json?.get("seoUrl")?.asText()?.let { SeoUrlNormalizer.normalize("${article.mainCategory?.seoUrl}/$it") }
         article.keywords = json?.get("keywords")?.asSequence()?.map { it.asText() }?.toList()
-        article.tags = json?.get("tags")?.asSequence()?.mapNotNull { try { DecorTag.valueOf(it.asText())} catch(e: Exception) { null } }?.toList()
+        article.tags = json?.get("tags")?.asSequence()?.mapNotNull {
+            try {
+                DecorTag.valueOf(it.asText())
+            } catch (e: Exception) {
+                null
+            }
+        }?.toList()
         log.info("Generated SEO data for article ${article.title}")
     }
 
@@ -200,12 +206,15 @@ class ArticleService(
         var content = article.content!!
         val imgMatches = IMG_TAG_REGEX.findAll(content).toList()
 
-        imgMatches.forEach { matchResult ->
+        imgMatches.forEachIndexed() { index, matchResult ->
             val prompt = matchResult.groupValues[1]
             val image = imageService.generate(prompt, imageModel)
             images.add(image)
 
-            val newImgTag = """<div class="content-img-container"><img class="content-img" src="${image.seoUrl}" alt="${image.caption}"/></div>"""
+            val loadingTag = if (index > 0) {
+                """loading="lazy""""
+            } else ""
+            val newImgTag = """<div class="content-img-container"><img class="content-img" src="${image.seoUrl}" alt="${image.caption}" $loadingTag/></div>"""
             content = content.replaceFirst(IMG_TAG_REGEX, newImgTag)
         }
         article.content = content.replace("</img>", "")
