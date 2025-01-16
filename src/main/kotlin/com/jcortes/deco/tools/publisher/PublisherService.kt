@@ -48,7 +48,6 @@ class PublisherService(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    @Transactional
     fun publishContent() {
         assertPublish()
         log.info("Publish process started")

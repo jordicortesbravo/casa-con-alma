@@ -1,6 +1,4 @@
 # TODO
-- Agregar status y publication_instant para imágenes
-- Modificar proceso de publicación para que solo publique lo que esté READY_TO_PUBLISH
 - Si regeneramos artículos porque las imágenes no casan bien, hay que eliminar las imágenes que no se usan
 - Añadir negativePrompt para texto y/o imágenes
 - Permitir que el método regenerate tenga prompts. Decidir cuales son los mejores
@@ -16,3 +14,28 @@
   - Reels
   - Videos
   - Galerias de imágenes
+
+
+
+# Queries
+
+## Contenido pendiente de publicar
+```sql
+select *
+from deco.article_index ai 
+where status = 'READY_TO_PUBLISH';
+
+select *
+from deco.image_index ii 
+where status = 'READY_TO_PUBLISH';
+```
+
+## Imágenes huérfanas
+```sql
+SELECT i.*
+FROM deco.image_index i
+LEFT JOIN deco.article_image ai
+ON i.id = ai.image_id
+WHERE ai.image_id IS NULL;
+```
+

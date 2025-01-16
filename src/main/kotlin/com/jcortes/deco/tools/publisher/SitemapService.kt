@@ -27,7 +27,7 @@ class SitemapService(
 
     fun publishSitemap() {
         log.info("Generating sitemap")
-        val articles = articleRepository.iterate().asSequence().filter{ it.status == ArticleStatus.READY_TO_PUBLISH }.toList()
+        val articles = articleRepository.iterate().asSequence().filter{ it.status == ArticleStatus.PUBLISHED }.toList()
 
         val mainSitemap = generateMainSitemap()
         val urlSitemap = generateUrlSitemap(articles)

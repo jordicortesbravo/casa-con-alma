@@ -110,8 +110,9 @@ class BedrockImageClient(
 
     fun invokeStableDiffusionModel(inferenceRequest: BedrockImageInferenceRequest): String? {
         try {
-            val nativeRequestTemplate = """{"prompt": "{{prompt}}"}"""
+            val nativeRequestTemplate = """{"prompt": "{{prompt}}", "negative_prompt": "{{negativePrompt}}"}"""
                 .replace("{{prompt}}", inferenceRequest.userPrompt)
+                .replace("{{negativePrompt}}", inferenceRequest.negativePrompt ?: "")
             val response = client.invokeModel { request ->
                 request.body(SdkBytes.fromUtf8String(nativeRequestTemplate))
                     .contentType("application/json")

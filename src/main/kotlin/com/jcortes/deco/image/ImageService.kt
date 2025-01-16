@@ -121,6 +121,7 @@ class ImageService(
         val request = BedrockImageInferenceRequest().apply {
             model = imageModel ?: BedrockImageModel.STABLE_IMAGE_ULTRA
             userPrompt = prompt
+            negativePrompt = IMAGE_NEGATIVE_PROMPT
         }
 
         val base64Image = bedrockImageClient.invokeStableDiffusionModel(request)
@@ -192,5 +193,7 @@ class ImageService(
 
     companion object {
         private val RANDOM = Random(System.currentTimeMillis())
+
+        const val IMAGE_NEGATIVE_PROMPT = "Exclude mansions, super luxury, over-the-top opulence, extravagant interiors, gold-plated details, crystal chandeliers, mixed areas, hybrid designs, and inconsistent layouts. Ensure spaces are clearly defined and not overlapping"
     }
 }

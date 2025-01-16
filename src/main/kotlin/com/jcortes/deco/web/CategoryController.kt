@@ -33,7 +33,7 @@ class CategoryController(
     }
 
     private fun detail(siteCategory: SiteCategory): CategoryDetail {
-        val articles = articleService.search(siteCategories = listOf(siteCategory.name), status = ArticleStatus.READY_TO_PUBLISH, pageable = Pageable(0, 8 * 4))
+        val articles = articleService.search(siteCategories = listOf(siteCategory.name), status = ArticleStatus.PUBLISHED, pageable = Pageable(0, 8 * 4))
 
         return CategoryDetail(
             title = "Artículos de ${siteCategory.label}",
