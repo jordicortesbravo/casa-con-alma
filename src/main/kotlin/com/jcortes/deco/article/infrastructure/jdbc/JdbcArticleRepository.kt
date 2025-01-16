@@ -152,7 +152,7 @@ class JdbcArticleRepository(
         return list(ids)
     }
 
-    private fun listImages(article: Article): List<Image> {
+    private fun listImages(article: Article): Set<Image> {
         val query = """
             SELECT image_id
             FROM $TABLE_DOC_IMAGE
@@ -161,6 +161,7 @@ class JdbcArticleRepository(
         return jdbcTemplate.query(query, JdbcUtils.paramsOf("docId" to article.id!!)) { rs, _ ->
             rs.getLong("image_id")
         }.mapNotNull { imageId -> imageRepository.get(imageId) }
+            .toSet()
     }
 
     private fun indexParamsOf(article: Article): MapSqlParameterSource {

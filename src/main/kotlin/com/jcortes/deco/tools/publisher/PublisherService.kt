@@ -5,18 +5,23 @@ import com.jcortes.deco.tools.util.io.storage.s3.S3Storage
 import com.jcortes.deco.article.ArticleService
 import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.article.model.Article
+import com.jcortes.deco.article.model.ArticleStatus
 import com.jcortes.deco.article.model.DecorTag
 import com.jcortes.deco.article.model.SiteCategory
+import com.jcortes.deco.image.model.Image
+import com.jcortes.deco.image.model.ImageStatus
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Files
+import java.time.Instant
 
 
 @Service
@@ -43,18 +48,19 @@ class PublisherService(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
+    @Transactional
     fun publishContent() {
         assertPublish()
         log.info("Publish process started")
-        publishStaticResources()
+//        publishStaticResources()
 //        publishImages()
         publishArticles()
         publishCategories()
         publishDecorTagsPages()
         publishHome()
-        publishErrorPage()
+//        publishErrorPage()
 //        publishRobotsTxt()
-//        sitemapService.publishSitemap()
+        sitemapService.publishSitemap()
         log.info("Publish process ended")
     }
 
@@ -65,7 +71,11 @@ class PublisherService(
     }
 
     fun publishArticle(article: Article) {
+        article.images?.filter { it.status == ImageStatus.READY_TO_PUBLISH }?.parallelStream()?.forEach { publishImage(it) }
         article.seoUrl?.let { fetchAndPublishPage(it, "public, max-age=604800, s-maxage=604800") }
+        article.status = ArticleStatus.PUBLISHED
+        article.publishInstant = Instant.now()
+        articleService.save(article)
     }
 
     fun publishCategories() {
@@ -86,49 +96,54 @@ class PublisherService(
 
     fun publishImages() {
         log.info("Publishing images")
-        imageService.list().parallelStream().forEach { image ->
-            URI(image.internalUri!!.replace(".jpeg", ".webp")).toURL().openStream().use { inputStream ->
-                imageStorage.put(
-                    objectName = "images/${image.seoUrl}",
-                    inputStream = inputStream,
-                    metadata = mapOf(
-                        "Content-Type" to "image/webp",
-                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
-                    )
-                )
-            }
-            URI(image.internalUri!!.replace(".jpeg", "-150.webp")).toURL().openStream().use { inputStream ->
-                imageStorage.put(
-                    objectName = "images/${image.seoUrl}-150",
-                    inputStream = inputStream,
-                    metadata = mapOf(
-                        "Content-Type" to "image/webp",
-                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
-                    )
-                )
-            }
-            URI(image.internalUri!!.replace(".jpeg", "-480.webp")).toURL().openStream().use { inputStream ->
-                imageStorage.put(
-                    objectName = "images/${image.seoUrl}-480",
-                    inputStream = inputStream,
-                    metadata = mapOf(
-                        "Content-Type" to "image/webp",
-                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
-                    )
-                )
-            }
-            URI(image.internalUri!!).toURL().openStream().use { inputStream ->
-                imageStorage.put(
-                    objectName = "images/jpeg/${image.seoUrl!!}",
-                    inputStream = inputStream,
-                    metadata = mapOf(
-                        "Content-Type" to "image/jpeg",
-                        "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
-                    )
-                )
-            }
-        }
+        imageService.list().parallelStream().forEach { publishImage(it) }
         log.info("Images published")
+    }
+
+    private fun publishImage(image: Image) {
+        URI(image.internalUri!!.replace(".jpeg", ".webp")).toURL().openStream().use { inputStream ->
+            imageStorage.put(
+                objectName = "images/${image.seoUrl}",
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to "image/webp",
+                    "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                )
+            )
+        }
+        URI(image.internalUri!!.replace(".jpeg", "-150.webp")).toURL().openStream().use { inputStream ->
+            imageStorage.put(
+                objectName = "images/${image.seoUrl}-150",
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to "image/webp",
+                    "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                )
+            )
+        }
+        URI(image.internalUri!!.replace(".jpeg", "-480.webp")).toURL().openStream().use { inputStream ->
+            imageStorage.put(
+                objectName = "images/${image.seoUrl}-480",
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to "image/webp",
+                    "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                )
+            )
+        }
+        URI(image.internalUri!!).toURL().openStream().use { inputStream ->
+            imageStorage.put(
+                objectName = "images/jpeg/${image.seoUrl!!}",
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to "image/jpeg",
+                    "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                )
+            )
+        }
+        image.status = ImageStatus.PUBLISHED
+        image.publishInstant = Instant.now()
+        imageService.save(image)
     }
 
     fun publishStaticResources() {

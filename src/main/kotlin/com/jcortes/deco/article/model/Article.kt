@@ -20,7 +20,7 @@ class Article {
     var tags: List<DecorTag>? = null
     var siteCategories: List<SiteCategory>? = null
     var productCategories: List<String>? = null
-    var images: List<Image>? = null
+    var images: Set<Image>? = null
     var status: ArticleStatus = ArticleStatus.DRAFT
     var embedding: List<Float>? = null
     var seoUrl: String? = null

@@ -194,7 +194,7 @@ class ArticleService(
 
     fun generateAndAddImages(article: Article, imageModel: BedrockImageModel? = null) {
         log.info("Generating images for article ${article.title}")
-        val images = mutableListOf<Image>()
+        val images = mutableSetOf<Image>()
         var content = article.content!!
         val imgMatches = IMG_TAG_REGEX.findAll(content).toList()
 

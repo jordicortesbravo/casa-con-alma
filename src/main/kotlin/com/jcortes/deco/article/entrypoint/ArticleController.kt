@@ -38,11 +38,6 @@ class ArticleController(
         articleService.regenerate(articleId)
     }
 
-    @GetMapping("lazy-loading")
-    fun addLazyLoadingToContentImages(@RequestParam articleId: Long) {
-        articleService.addLazyLoadingToContentImages(articleId)
-    }
-
     @PostMapping
     fun createFromScratch(@RequestBody createArticleRequest: CreateArticleRequest) {
         articleService.fillArticleWithGenerativeAI(createArticleRequest)
@@ -59,6 +54,7 @@ class ArticleController(
         val categories = if (category.isBlank()) emptyList() else listOf(category)
         return ArticlesResponse(articleService.search(query = query, siteCategories = categories, pageable = Pageable(page, pageSize)))
     }
+
 
     data class ArticlesResponse(val results: List<Article>)
 

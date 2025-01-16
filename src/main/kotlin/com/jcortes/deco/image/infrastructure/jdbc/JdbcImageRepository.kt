@@ -13,6 +13,7 @@ import org.postgresql.util.PGobject
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
+import java.sql.Timestamp
 import java.sql.Types
 import javax.sql.DataSource
 
@@ -183,6 +184,8 @@ class JdbcImageRepository(
         params.addValue("iaGenerated", image.iaGenerated)
         params.addValue("embedding", floatArrayOf(image.embedding), Types.ARRAY)
         params.addValue("multimodalEmbedding", floatArrayOf(image.multimodalEmbedding), Types.ARRAY)
+        params.addValue("status", image.status.name)
+        params.addValue("publishInstant", image.publishInstant?.let { Timestamp.from(it) })
         return params
 
     }
@@ -210,10 +213,10 @@ class JdbcImageRepository(
 
     private companion object {
         private const val TABLE_INDEX = "deco.image_index"
-        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, seo_url, keywords, has_rights, ia_generated, embedding, multimodal_embedding, light_intensity, elegance)
-            VALUES (:id, :sourceId, :seoUrl, :keywords, :hasRights, :iaGenerated, :embedding, :multimodalEmbedding, :lightIntensity, :elegance)
+        private const val SAVE_INDEX_QUERY = """INSERT INTO $TABLE_INDEX (id, source_id, seo_url, keywords, has_rights, ia_generated, embedding, multimodal_embedding, light_intensity, elegance, status, publish_instant)
+            VALUES (:id, :sourceId, :seoUrl, :keywords, :hasRights, :iaGenerated, :embedding, :multimodalEmbedding, :lightIntensity, :elegance, :status, :publishInstant)
             ON CONFLICT (id) DO UPDATE
-            SET source_id = :sourceId, seo_url = :seoUrl, keywords = :keywords, has_rights= :hasRights, ia_generated = :iaGenerated, embedding = :embedding, multimodal_embedding = :multimodalEmbedding, light_intensity = :lightIntensity, elegance = :elegance"""
+            SET source_id = :sourceId, seo_url = :seoUrl, keywords = :keywords, has_rights= :hasRights, ia_generated = :iaGenerated, embedding = :embedding, multimodal_embedding = :multimodalEmbedding, light_intensity = :lightIntensity, elegance = :elegance, status = :status, publish_instant = :publishInstant"""
 
         private const val TABLE_CONTENT = "deco.image_content"
         private const val SAVE_CONTENT_QUERY = """INSERT INTO $TABLE_CONTENT (id, source_id, seo_url, content)

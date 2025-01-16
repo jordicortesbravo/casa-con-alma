@@ -5,6 +5,7 @@ import com.jcortes.deco.image.infrastructure.bedrock.BedrockImageInferenceReques
 import com.jcortes.deco.tools.util.bedrock.BedrockImageModel
 import com.jcortes.deco.image.model.Image
 import com.jcortes.deco.image.model.ImageSearchRequest
+import com.jcortes.deco.image.model.ImageStatus
 import com.jcortes.deco.tools.util.image.WebPConverter
 import com.jcortes.deco.tools.util.paging.Pageable
 import com.jcortes.deco.tools.util.url.SeoUrlNormalizer
@@ -18,6 +19,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.time.Instant
 import java.util.*
 import kotlin.math.abs
 import kotlin.random.Random
@@ -44,6 +46,10 @@ class ImageService(
 
     fun list(): List<Image> {
         return imageRepository.iterate().asSequence().toList()
+    }
+
+    fun listPublishable(): List<Image> {
+        return list().filter { it.status == ImageStatus.READY_TO_PUBLISH }
     }
 
     @Transactional

@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import software.amazon.awssdk.services.bedrockruntime.model.ThrottlingException
+import java.time.Instant
 import java.util.SortedMap
 
 @Service
@@ -44,19 +45,19 @@ class ArticleService(
     }
 
     fun getTrending(excludedIds: List<Long>? = null, pageable: Pageable): List<Article> {
-        val request = SearchArticleRequest(excludedIds = excludedIds, status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 0, pageSize = pageable.pageSize)
+        val request = SearchArticleRequest(excludedIds = excludedIds, status = ArticleStatus.PUBLISHED, pageNumber = 0, pageSize = pageable.pageSize)
         return articleRepository.search(request)
     }
 
     fun getTrendingGroupedByCategory(categoriesOrder: List<SiteCategory>): SortedMap<SiteCategory, List<Article>> {
         return categoriesOrder.associateWith {
-            val request = SearchArticleRequest(siteCategories = listOf(it.name), status = ArticleStatus.READY_TO_PUBLISH, pageNumber = 0, pageSize = 4)
+            val request = SearchArticleRequest(siteCategories = listOf(it.name), status = ArticleStatus.PUBLISHED, pageNumber = 0, pageSize = 4)
             articleRepository.search(request)
         }.toSortedMap(compareBy { categoriesOrder.indexOf(it) })
     }
 
     fun listPublishable(): List<Article> {
-        return articleRepository.iterate().asSequence().filter { it.status == ArticleStatus.READY_TO_PUBLISH || it.status == ArticleStatus.PUBLISHED }.toList()
+        return articleRepository.search(SearchArticleRequest(status = ArticleStatus.READY_TO_PUBLISH, pageSize = 500))
     }
 
     fun search(
@@ -202,7 +203,7 @@ class ArticleService(
 
     fun generateAndAddImages(article: Article, imageModel: BedrockImageModel? = null) {
         log.info("Generating images for article ${article.title}")
-        val images = mutableListOf<Image>()
+        val images = mutableSetOf<Image>()
         var content = article.content!!
         val imgMatches = IMG_TAG_REGEX.findAll(content).toList()
 
