@@ -1,4 +1,5 @@
 # TODO
+- Tunear prompts para sección de WELL_BEING
 - Si regeneramos artículos porque las imágenes no casan bien, hay que eliminar las imágenes que no se usan
 - Añadir negativePrompt para texto y/o imágenes
 - Permitir que el método regenerate tenga prompts. Decidir cuales son los mejores

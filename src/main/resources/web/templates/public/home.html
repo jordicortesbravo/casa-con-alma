@@ -158,7 +158,13 @@
                                         <div class="home-with-soul-featured-news style-two big">
                                             <a th:href="${@urlBuilder.contentUrl(section.mainArticle.seoUrl)}">
                                                 <div class="content-img-container">
-                                                    <img class="content-img" th:loading="${iterator.index == 0} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(section.mainArticle.coverImage)}" th:alt="${section.mainArticle.coverImageCaption}">
+<!--                                                    <img class="content-img" th:loading="${iterator.index == 0} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(section.mainArticle.coverImage)}" th:alt="${section.mainArticle.coverImageCaption}">-->
+                                                    <picture>
+                                                        <source th:srcset="${@urlBuilder.imageUrl(section.mainArticle.coverImage, '400')}" media="(max-width: 420px)">
+                                                        <source th:srcset="${@urlBuilder.imageUrl(section.mainArticle.coverImage, '480')}" media="(max-width: 500px)">
+                                                        <source th:srcset="${@urlBuilder.imageUrl(section.mainArticle.coverImage)}" media="(min-width: 501px)">
+                                                        <img class="content-img" th:loading="${iterator.index == 0} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(section.mainArticle.coverImage)}" th:alt="${section.mainArticle.coverImageCaption}">
+                                                    </picture>
                                                 </div>
                                             </a>
                                             <div class="blog-content">
@@ -175,7 +181,11 @@
                                         <div class="home-with-soul-featured-news style-two small">
                                             <div class="image-area">
                                                 <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}">
-                                                    <img th:loading="${iterator.index == 0} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(article.coverImage, '480')}" th:alt="${article.coverImageCaption}">
+                                                    <picture>
+                                                        <source th:srcset="${@urlBuilder.imageUrl(article.coverImage, '400')}" media="(max-width: 420px)">
+                                                        <source th:srcset="${@urlBuilder.imageUrl(article.coverImage, '480')}" media="(min-width: 421px)">
+                                                        <img th:loading="${iterator.index == 0} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(article.coverImage, '480')}" th:alt="${article.coverImageCaption}">
+                                                    </picture>
                                                 </a>
                                             </div>
                                             <div class="blog-content">
@@ -199,7 +209,11 @@
                             <div class="featured-post sidebar">
                                 <div class="image-area">
                                     <a th:href="${@urlBuilder.contentUrl(detail.featuredArticle.seoUrl)}">
-                                        <img loading="lazy" th:src="${@urlBuilder.imageUrl(detail.featuredArticle.coverImage, '480')}" th:alt="${detail.featuredArticle.coverImageCaption}">
+                                        <picture>
+                                            <source th:srcset="${@urlBuilder.imageUrl(detail.featuredArticle.coverImage, '400')}" media="(max-width: 420px)">
+                                            <source th:srcset="${@urlBuilder.imageUrl(detail.featuredArticle.coverImage, '480')}" media="(min-width: 421px)">
+                                            <img loading="lazy" th:src="${@urlBuilder.imageUrl(detail.featuredArticle.coverImage, '480')}" th:alt="${detail.featuredArticle.coverImageCaption}">
+                                        </picture>
                                     </a>
                                 </div>
                                 <div class="blog-content">
@@ -217,7 +231,7 @@
                             <div class="small-post">
                                 <div class="home-with-soul-post-list-style" th:each="article : ${detail.trendingArticles}">
                                     <div class="image-area">
-                                        <a href="#"><img loading="lazy" th:src="${@urlBuilder.imageUrl(article.coverImage, '150')}" th:alt="${article.coverImageCaption}"></a>
+                                        <a href="#"><img loading="lazy" th:src="${@urlBuilder.imageUrl(article.coverImage, '100')}" th:alt="${article.coverImageCaption}"></a>
                                     </div>
                                     <div class="blog-content">
                                         <h4 class="heading-title"><a class="title-animation" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h4>
@@ -234,7 +248,7 @@
                             <div class="small-post">
                                 <div class="home-with-soul-post-list-style" th:each="article : ${detail.interestingArticles}">
                                     <div class="image-area">
-                                        <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img loading="lazy" th:src="${@urlBuilder.imageUrl(article.coverImage, '150')}" th:alt="${article.coverImageCaption}"></a>
+                                        <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img loading="lazy" th:src="${@urlBuilder.imageUrl(article.coverImage, '100')}" th:alt="${article.coverImageCaption}"></a>
                                     </div>
                                     <div class="blog-content">
                                         <h4 class="heading-title"><a class="title-animation" th:href="${@urlBuilder.contentUrl(article.seoUrl)}" th:utext="${article.title}"></a></h4>
@@ -410,7 +424,7 @@
                 </ul>
             </div>
             <div class="footer-logo-area">
-                <a href="/" class="logo"><img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" alt="" style="max-width: 200px;"></a>
+                <a href="/" class="logo"><img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" loading="lazy" alt="" style="max-width: 200px;"></a>
                 <p class="desc">Diseña espacios con alma que cuentan historias</p>
             </div>
             <div class="footer-newsletter-area">

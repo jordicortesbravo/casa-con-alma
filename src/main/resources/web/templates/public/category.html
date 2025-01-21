@@ -156,7 +156,13 @@
                                         <div class="col-lg-4 col-md-6" th:each="article,iterator : ${detail.articles}">
                                             <div class="home-with-soul-featured-news style-two small">
                                                 <div class="image-area">
-                                                    <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}"><img th:loading="${iterator.index < 3} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(article.coverImage, '480')}" th:alt="${article.coverImageCaption}"></a>
+                                                    <a th:href="${@urlBuilder.contentUrl(article.seoUrl)}">
+                                                        <picture>
+                                                            <source th:srcset="${@urlBuilder.imageUrl(article.coverImage, '400')}" media="(max-width: 420px)">
+                                                            <source th:srcset="${@urlBuilder.imageUrl(article.coverImage, '480')}" media="(min-width: 421px)">
+                                                            <img th:loading="${iterator.index < 3} ? '' : 'lazy'" th:src="${@urlBuilder.imageUrl(article.coverImage, '480')}" th:alt="${article.coverImageCaption}">
+                                                        </picture>
+                                                    </a>
                                                 </div>
                                                 <div class="blog-content">
                                                     <ul class="blog-meta">
@@ -247,7 +253,7 @@
                     </ul>
                 </div>
                 <div class="footer-logo-area">
-                    <a href="/" class="logo"><img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" alt="" style="max-width: 200px;"></a>
+                    <a href="/" class="logo"><img th:src="${@urlBuilder.staticUrl('images/logo/casa-con-alma-white.webp')}" loading="lazy" alt="" style="max-width: 200px;"></a>
                     <p class="desc">Diseña espacios con alma que cuentan historias</p>
                 </div>
                 <div class="footer-newsletter-area">

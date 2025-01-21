@@ -28,17 +28,17 @@ class WebPTest {
                 if (file.extension == "jpeg") {
                     WebPConverter.imageFileToWebpFile(
                         file.absolutePath,
-                        file.absolutePath.replace(".jpeg", "-150.webp"),
+                        file.absolutePath.replace(".jpeg", "-100.webp"),
                         90,
-                        150,
-                        150
+                        100,
+                        100
                     )
                     WebPConverter.imageFileToWebpFile(
                         file.absolutePath,
-                        file.absolutePath.replace(".jpeg", "-480.webp"),
+                        file.absolutePath.replace(".jpeg", "-400.webp"),
                         90,
-                        480,
-                        480
+                        400,
+                        400
                     )
                 }
             }
@@ -57,19 +57,45 @@ class WebPTest {
     @Test
     fun jpegToWebPResized() {
         WebPConverter.imageFileToWebpFile(
-            "/private/tmp/sample.jpeg",
-            "/private/tmp/sample-150.webp",
-            90,
-            150,
-            150
+            "/private/tmp/8813717249435397062.jpeg",
+            "/private/tmp/8813717249435397062.webp",
+            90
         )
-        WebPConverter.imageFileToWebpFile(
-            "/private/tmp/sample.jpeg",
-            "/private/tmp/sample-480.webp",
-            90,
-            480,
-            480
-        )
+//        WebPConverter.imageFileToWebpFile(
+//            "/private/tmp/8813717249435397062.jpeg",
+//            "/private/tmp/8813717249435397062-100.webp",
+//            90,
+//            100,
+//            100
+//        )
+//        WebPConverter.imageFileToWebpFile(
+//            "/private/tmp/8813717249435397062.jpeg",
+//            "/private/tmp/8813717249435397062-400.webp",
+//            90,
+//            400,
+//            400
+//        )
+//        WebPConverter.imageFileToWebpFile(
+//            "/private/tmp/8813717249435397062.jpeg",
+//            "/private/tmp/8813717249435397062-380.webp",
+//            90,
+//            380,
+//            380
+//        )
+//        WebPConverter.imageFileToWebpFile(
+//            "/private/tmp/8813717249435397062.jpeg",
+//            "/private/tmp/8813717249435397062-150.webp",
+//            90,
+//            150,
+//            150
+//        )
+//        WebPConverter.imageFileToWebpFile(
+//            "/private/tmp/8813717249435397062.jpeg",
+//            "/private/tmp/8813717249435397062-480.webp",
+//            90,
+//            480,
+//            480
+//        )
     }
 
 }

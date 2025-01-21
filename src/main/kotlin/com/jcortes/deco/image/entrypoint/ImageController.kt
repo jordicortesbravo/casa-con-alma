@@ -25,12 +25,17 @@ class ImageController(
 
     @GetMapping("{seoUrl}", produces = ["image/webp", "image/jpeg", "image/png"])
     fun getImage(@PathVariable seoUrl: String): ResponseEntity<ByteArray>  {
-        val crop = if(seoUrl.endsWith("-150") || seoUrl.endsWith("-480")) {
+        val crop = if(seoUrl.endsWith("-100") || seoUrl.endsWith("-150") || seoUrl.endsWith("-400") || seoUrl.endsWith("-480")) {
             "-${seoUrl.substringAfterLast("-")}"
         } else {
             ""
         }
-        val image = imageService.getBySeoUrl(seoUrl.replace(".jpg", "").replace("-480", "").replace("-150", ""))
+        val url = seoUrl.replace(".jpg", "")
+            .replace("-400", "")
+            .replace("-480", "")
+            .replace("-100", "")
+            .replace("-150", "")
+        val image = imageService.getBySeoUrl(url)
         val bytes = Files.readAllBytes(File(URI(image.internalUri!!.replace(".jpeg", "$crop.webp"))).toPath())
         return ResponseEntity(bytes, HttpStatus.OK)
     }

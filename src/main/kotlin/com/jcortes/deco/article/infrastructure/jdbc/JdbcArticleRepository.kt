@@ -136,6 +136,20 @@ class JdbcArticleRepository(
         }
     }
 
+    override fun delete(id: Long) {
+        val queryContent = """
+            DELETE FROM $TABLE_CONTENT
+            WHERE id = :id
+        """
+        jdbcTemplate.update(queryContent, JdbcUtils.paramsOf("id" to id))
+
+        val query = """
+            DELETE FROM $TABLE_INDEX
+            WHERE id = :id
+        """
+        jdbcTemplate.update(query, JdbcUtils.paramsOf("id" to id))
+    }
+
     private fun list(minId: Long, maxElements: Int): List<Article> {
         val query = """
             SELECT id

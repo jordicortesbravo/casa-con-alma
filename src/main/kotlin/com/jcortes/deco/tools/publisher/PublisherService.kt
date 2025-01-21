@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -52,7 +51,8 @@ class PublisherService(
         assertPublish()
         log.info("Publish process started")
 //        publishStaticResources()
-//        publishImages()
+//        publishAllImages()
+//        publishAllArticles()
         publishArticles()
         publishCategories()
         publishDecorTagsPages()
@@ -63,10 +63,20 @@ class PublisherService(
         log.info("Publish process ended")
     }
 
+    fun unpublishArticle(articleId: Long) {
+        val article = articleService.get(articleId)
+        contentStorage.delete(article.seoUrl!!)
+    }
+
     fun publishArticles() {
         log.info("Publishing articles")
         articleService.listPublishable().parallelStream().forEach { publishArticle(it) }
         log.info("Articles published")
+    }
+    fun publishAllArticles() {
+        log.info("Publishing all articles")
+        articleService.iterate().asSequence().toList().parallelStream().forEach { publishArticle(it) }
+        log.info("Articles all published")
     }
 
     fun publishArticle(article: Article) {
@@ -93,7 +103,7 @@ class PublisherService(
         log.info("Decor tags pages published")
     }
 
-    fun publishImages() {
+    fun publishAllImages() {
         log.info("Publishing images")
         imageService.list().parallelStream().forEach { publishImage(it) }
         log.info("Images published")
@@ -110,9 +120,29 @@ class PublisherService(
                 )
             )
         }
+        URI(image.internalUri!!.replace(".jpeg", "-100.webp")).toURL().openStream().use { inputStream ->
+            imageStorage.put(
+                objectName = "images/${image.seoUrl}-100",
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to "image/webp",
+                    "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                )
+            )
+        }
         URI(image.internalUri!!.replace(".jpeg", "-150.webp")).toURL().openStream().use { inputStream ->
             imageStorage.put(
                 objectName = "images/${image.seoUrl}-150",
+                inputStream = inputStream,
+                metadata = mapOf(
+                    "Content-Type" to "image/webp",
+                    "Cache-Control" to "public, max-age=31536000, s-maxage=31536000"
+                )
+            )
+        }
+        URI(image.internalUri!!.replace(".jpeg", "-400.webp")).toURL().openStream().use { inputStream ->
+            imageStorage.put(
+                objectName = "images/${image.seoUrl}-400",
                 inputStream = inputStream,
                 metadata = mapOf(
                     "Content-Type" to "image/webp",

@@ -4,7 +4,9 @@ import com.jcortes.deco.article.ArticleService
 import com.jcortes.deco.image.ImageService
 import com.jcortes.deco.tools.publisher.PublisherService
 import com.jcortes.deco.tools.publisher.SitemapService
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -20,5 +22,11 @@ class ToolsController(
     @GetMapping("/publish-content")
     fun publishContent() {
         publisherService.publishContent()
+    }
+
+    @DeleteMapping("unpublish/{articleId}")
+    fun deleteArticle(@PathVariable articleId: Long) {
+        publisherService.unpublishArticle(articleId)
+        articleService.delete(articleId)
     }
 }

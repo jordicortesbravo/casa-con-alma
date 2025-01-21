@@ -182,7 +182,9 @@ class ImageService(
         image.internalUri = file.toURI().toString()
         file.writeBytes(Base64.getDecoder().decode(base64Image))
         WebPConverter.imageFileToWebpFile(file.path, file.path.replace("jpeg", "webp"), 80)
+        WebPConverter.imageFileToWebpFile(file.path, file.path.replace(".jpeg", "-400.webp"), 90, 400, 400)
         WebPConverter.imageFileToWebpFile(file.path, file.path.replace(".jpeg", "-480.webp"), 90, 480, 480)
+        WebPConverter.imageFileToWebpFile(file.path, file.path.replace(".jpeg", "-100.webp"), 90, 100, 100)
         WebPConverter.imageFileToWebpFile(file.path, file.path.replace(".jpeg", "-150.webp"), 90, 150, 150)
     }
 

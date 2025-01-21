@@ -144,6 +144,11 @@ class ArticleService(
         articleRepository.save(article)
     }
 
+    @Transactional
+    fun delete(articleId: Long) {
+        articleRepository.delete(articleId)
+    }
+
     private fun generateContent(article: Article, systemPrompt: String? = null) {
         log.info("Generating content for article ${article.title}")
         val inferenceRequest = BedrockTextInferenceRequest().apply {

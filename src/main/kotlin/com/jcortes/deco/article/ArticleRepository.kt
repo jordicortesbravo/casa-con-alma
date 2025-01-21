@@ -11,4 +11,5 @@ interface ArticleRepository {
     fun search(request: SearchArticleRequest): List<Article>
     fun iterate(): Iterator<Article>
     fun save(article: Article)
+    fun delete(id: Long)
 }

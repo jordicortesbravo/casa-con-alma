@@ -8,6 +8,7 @@ private object SiteCategoryDescriptions {
     const val BATHROOMS_DESCRIPTION = "Convierte tu baño en un oasis de tranquilidad y estilo. Explora ideas innovadoras para maximizar el espacio, desde la elección de azulejos y grifería hasta la iluminación perfecta. Aprende a combinar funcionalidad y diseño, eligiendo muebles que optimicen el almacenamiento y detalles decorativos que añadan un toque personal. Te mostramos cómo crear un ambiente relajante y elegante, haciendo de tu baño un lugar donde quieras pasar tiempo."
     const val OUTDOORS_AND_GARDENS_DESCRIPTION = "Transforma tus exteriores y jardines en un refugio de belleza y tranquilidad. Descubre ideas inspiradoras para crear espacios al aire libre que inviten a disfrutar de la naturaleza, desde la elección de muebles de jardín hasta la selección de plantas y decoraciones. Aprende a diseñar patios, terrazas y jardines que combinen funcionalidad y estilo, con consejos sobre iluminación, caminos y elementos acuáticos que añadan un toque especial. Haz de tu exterior el lugar perfecto para relajarte y compartir momentos inolvidables."
     const val SEASONAL_DECORATION_DESCRIPTION = "Celebra cada temporada con una decoración que transforme tu hogar. Descubre ideas frescas y creativas para adaptar tu estilo a lo largo del año, desde adornos festivos para Navidad y Halloween hasta decoraciones coloridas para Pascua y verano. Aprende a combinar colores, texturas y elementos decorativos que añadan calidez y alegría en invierno, frescura en primavera y vibrante energía en verano. Haz que cada rincón de tu casa cuente una historia estacional y mantén la magia del hogar durante todo el año."
+    const val WELL_BEING_DESCRIPTION = "Potencia tu bienestar integral con nuestras recomendaciones de alimentación, ejercicio y hábitos saludables. Te mostramos cómo crear una rutina de ejercicio adaptada a tu espacio, desde entrenamientos en casa hasta actividades al aire libre. Además, descubre recetas fáciles y nutritivas para mantener una dieta equilibrada, junto con consejos para optimizar tu energía y salud. Aprende a integrar el deporte en tu vida diaria, elegir los mejores suplementos y crear un entorno en casa que te motive a llevar un estilo de vida activo y saludable."
 }
 
 enum class SiteCategory(val label: String, val seoUrl: String, val description: String) {
@@ -18,5 +19,6 @@ enum class SiteCategory(val label: String, val seoUrl: String, val description: 
     BEDROOMS("Dormitorios", "dormitorios", SiteCategoryDescriptions.BEDROOMS_DESCRIPTION),
     BATHROOMS("Baños", "banos", SiteCategoryDescriptions.BATHROOMS_DESCRIPTION),
     OUTDOORS_AND_GARDENS("Exteriores", "exteriores-y-jardines", SiteCategoryDescriptions.OUTDOORS_AND_GARDENS_DESCRIPTION),
-    SEASONAL_DECORATION("Festividades", "decoracion-estacional", SiteCategoryDescriptions.SEASONAL_DECORATION_DESCRIPTION);
+    SEASONAL_DECORATION("Festividades", "decoracion-estacional", SiteCategoryDescriptions.SEASONAL_DECORATION_DESCRIPTION),
+//    WELL_BEING("Bienestar", "bien-estar", SiteCategoryDescriptions.WELL_BEING_DESCRIPTION);
 }
