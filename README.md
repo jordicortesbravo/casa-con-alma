@@ -177,6 +177,50 @@ Thymeleaf templates generate:
 - Hundreds of indexed pages
 - Zero manual content creation
 
+### 📊 Web Performance in Google Search Console:
+![Web Performance](doc/search-console/performance-web.jpeg)
+
+### 📊Image Performance in Google Search Console:
+![Image Performance](doc/search-console/performance-image.jpeg)
+
+---
+
+# Showcase Site
+
+## 📸 Showcase — Website Snapshots
+
+### 🏠 Home Page
+![Home Page](doc/website-snapshots/home.jpeg)
+
+---
+
+### 📝 Article Page
+![Article Page](doc/website-snapshots/article-detail.jpeg)
+![Article Page](doc/website-snapshots/article-detail-2.jpeg)
+
+---
+
+### 📂 Category Page
+![Category Page](doc/website-snapshots/section.jpeg)
+
+---
+
+### 🔗 Related Content
+![Related Content](doc/website-snapshots/related.jpeg)
+
+---
+
+### 🖼️ Generated Images Gallery Example
+![Gallery](doc/ia-generated-samples/image-1.jpeg)
+![Gallery](doc/ia-generated-samples/image-2.jpeg)
+![Gallery](doc/ia-generated-samples/image-3.jpeg)
+![Gallery](doc/ia-generated-samples/image-4.jpeg)
+![Gallery](doc/ia-generated-samples/image-5.jpeg)
+![Gallery](doc/ia-generated-samples/image-6.jpeg)
+![Gallery](doc/ia-generated-samples/image-7.jpeg)
+![Gallery](doc/ia-generated-samples/image-8.jpeg)
+![Gallery](doc/ia-generated-samples/image-9.jpeg)
+
 ---
 
 # 🛠 Tech Stack
